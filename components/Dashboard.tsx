@@ -164,7 +164,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
           <h1 className={`text-4xl font-light mb-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {t.dashboard}
           </h1>
-          <p className="text-slate-500">Overview of your BIM performance</p>
+          <p className="text-slate-500">{lang === 'pt' ? 'Visão geral do desempenho BIM' : 'Overview of your BIM performance'}</p>
         </div>
         <button 
           onClick={() => setIsReportModalOpen(true)}
@@ -463,7 +463,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
                       : isDark ? 'bg-white/5 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  All
+                  {lang === 'pt' ? 'Todos' : 'All'}
                 </button>
                 <button 
                   onClick={() => setViewFilter('active')}
@@ -473,7 +473,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
                      : isDark ? 'bg-white/5 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  Active
+                  {lang === 'pt' ? 'Ativos' : 'Active'}
                 </button>
             </div>
           </div>
@@ -573,17 +573,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
                         <p className="text-xs text-slate-500">{task.due}</p>
                     </div>
                     ))}
-                </div>
-
-                {/* Video Widget */}
-                 <div className="mt-6 relative h-32 rounded-3xl overflow-hidden group cursor-pointer">
-                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover opacity-50 group-hover:scale-110 transition-transform duration-700" alt="Building" />
-                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-[#BEF264] flex items-center justify-center text-black shadow-[0_0_20px_rgba(190,242,100,0.5)] group-hover:scale-110 transition-transform">
-                            <PlayCircle size={24} fill="black" />
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

@@ -1,4 +1,3 @@
-
 import { Language } from './types';
 
 export const translations = {
@@ -83,7 +82,10 @@ export const translations = {
     activityLog: "Activity Log",
     activitySubtitle: "Track all project movements, updates, and participant changes.",
     user: "User",
-    time: "Date & Time"
+    time: "Date & Time",
+    // Search
+    searchHistory: "Search history...",
+    clearFilters: "Clear Filters"
   },
   pt: {
     dashboard: "Painel de Controle",
@@ -166,6 +168,9 @@ export const translations = {
     activityLog: "Registro de Atividades",
     activitySubtitle: "Acompanhe todas as movimentações, atualizações e mudanças de participantes.",
     user: "Usuário",
-    time: "Data e Hora"
+    time: "Data e Hora",
+    // Search
+    searchHistory: "Buscar histórico...",
+    clearFilters: "Limpar Filtros"
   }
 };

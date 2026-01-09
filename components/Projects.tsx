@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Calendar, Layout, Users, History, Clock, Power } from 'lucide-react';
+import { Plus, Edit2, Trash2, Calendar, Layout, Users, History, Clock, Power, Search, Filter, X } from 'lucide-react';
 import { Project, Member, Language, Theme, HistoryEntry } from '../types';
 import { translations } from '../translations';
 
@@ -31,6 +31,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
   const [isEditing, setIsEditing] = useState(false);
   const [currentProject, setCurrentProject] = useState<Project>(DEFAULT_PROJECT);
   const [activeTab, setActiveTab] = useState<'details' | 'history'>('details');
+  const [historyFilters, setHistoryFilters] = useState({ search: '', start: '', end: '' });
 
   const createHistoryEntry = (action: string, details: string): HistoryEntry => ({
     id: Date.now().toString(),
@@ -82,12 +83,14 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
     setIsEditing(false);
     setCurrentProject(DEFAULT_PROJECT);
     setActiveTab('details');
+    setHistoryFilters({ search: '', start: '', end: '' });
   };
 
   const handleEdit = (project: Project) => {
     setCurrentProject(project);
     setIsEditing(true);
     setActiveTab('details');
+    setHistoryFilters({ search: '', start: '', end: '' });
   };
 
   const handleDelete = (id: string) => {
@@ -108,6 +111,19 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
   const formatDate = (isoString: string) => {
     return new Date(isoString).toLocaleString(lang === 'pt' ? 'pt-BR' : 'en-US');
   };
+
+  // Filter Logic for History Tab
+  const filteredProjectHistory = (currentProject.history || []).filter(entry => {
+    const matchesSearch = 
+        entry.details.toLowerCase().includes(historyFilters.search.toLowerCase()) || 
+        entry.user.toLowerCase().includes(historyFilters.search.toLowerCase());
+    
+    const entryDate = new Date(entry.timestamp).getTime();
+    const matchesStart = historyFilters.start ? entryDate >= new Date(historyFilters.start).setHours(0,0,0,0) : true;
+    const matchesEnd = historyFilters.end ? entryDate <= new Date(historyFilters.end).setHours(23,59,59,999) : true;
+    
+    return matchesSearch && matchesStart && matchesEnd;
+  });
 
   if (isEditing) {
     return (
@@ -253,39 +269,78 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
             </div>
           </>
         ) : (
-          <div className="mb-8 h-96 overflow-y-auto custom-scrollbar pr-2">
-            {!currentProject.history || currentProject.history.length === 0 ? (
-               <div className="h-full flex flex-col items-center justify-center text-slate-500 opacity-50">
-                 <History size={48} className="mb-4"/>
-                 <p>{t.noHistory}</p>
-               </div>
-            ) : (
-               <div className="relative border-l border-slate-700 ml-4 space-y-8">
-                 {currentProject.history.map((entry, idx) => (
-                   <div key={entry.id} className="relative pl-6">
-                     <div className={`absolute -left-1.5 top-1 w-3 h-3 rounded-full border-2 ${idx === 0 ? 'bg-[#BEF264] border-[#BEF264]' : 'bg-[#0B0E14] border-slate-500'}`}></div>
-                     <div className="flex flex-col gap-1">
-                       <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                         {formatDate(entry.timestamp)}
-                       </span>
-                       <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
-                         {entry.action === 'created' ? t.created : t.updated} by {entry.user}
-                       </span>
-                       <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                         {entry.details}
-                       </p>
-                     </div>
-                   </div>
-                 ))}
-               </div>
-            )}
+          <div className="mb-8">
+             {/* Filter Bar */}
+             <div className={`flex flex-wrap items-center gap-2 p-3 mb-4 rounded-xl border ${isDark ? 'bg-white/5 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                <div className="flex items-center gap-1.5 flex-1 min-w-[150px] bg-black/10 dark:bg-black/30 rounded-lg px-2 py-1.5">
+                    <Search size={14} className="text-slate-500" />
+                    <input 
+                      type="text" 
+                      placeholder="Search..."
+                      value={historyFilters.search}
+                      onChange={(e) => setHistoryFilters({...historyFilters, search: e.target.value})}
+                      className="bg-transparent border-none outline-none text-xs w-full text-slate-700 dark:text-slate-300 placeholder-slate-500"
+                    />
+                </div>
+                <div className="flex items-center gap-2">
+                   <input 
+                      type="date" 
+                      value={historyFilters.start}
+                      onChange={(e) => setHistoryFilters({...historyFilters, start: e.target.value})}
+                      className={`text-xs p-1.5 rounded-lg border outline-none ${isDark ? 'bg-black/30 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
+                   />
+                   <span className="text-slate-500 text-xs">-</span>
+                   <input 
+                      type="date" 
+                      value={historyFilters.end}
+                      onChange={(e) => setHistoryFilters({...historyFilters, end: e.target.value})}
+                      className={`text-xs p-1.5 rounded-lg border outline-none ${isDark ? 'bg-black/30 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
+                   />
+                </div>
+                {(historyFilters.search || historyFilters.start || historyFilters.end) && (
+                   <button 
+                      onClick={() => setHistoryFilters({search: '', start: '', end: ''})}
+                      className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400"
+                   >
+                     <X size={14} />
+                   </button>
+                )}
+             </div>
+
+             <div className="h-96 overflow-y-auto custom-scrollbar pr-2">
+                {!filteredProjectHistory || filteredProjectHistory.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-slate-500 opacity-50">
+                    <History size={48} className="mb-4"/>
+                    <p>{!currentProject.history || currentProject.history.length === 0 ? t.noHistory : "No matching records found."}</p>
+                  </div>
+                ) : (
+                  <div className="relative border-l border-slate-700 ml-4 space-y-8">
+                    {filteredProjectHistory.map((entry, idx) => (
+                      <div key={entry.id} className="relative pl-6">
+                        <div className={`absolute -left-1.5 top-1 w-3 h-3 rounded-full border-2 ${idx === 0 ? 'bg-[#BEF264] border-[#BEF264]' : 'bg-[#0B0E14] border-slate-500'}`}></div>
+                        <div className="flex flex-col gap-1">
+                          <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                            {formatDate(entry.timestamp)}
+                          </span>
+                          <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                            {entry.action === 'created' ? t.created : t.updated} by {entry.user}
+                          </span>
+                          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                            {entry.details}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+             </div>
           </div>
         )}
 
         <div className={`flex justify-end gap-4 border-t pt-6 ${isDark ? 'border-white/5' : 'border-slate-200'}`}>
           <button 
             onClick={() => setIsEditing(false)}
-            className={`px-6 py-3 rounded-xl transition-all ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`}
+            className={`px-6 py-3 rounded-xl transition-all ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'}`}
           >
             {t.cancel}
           </button>

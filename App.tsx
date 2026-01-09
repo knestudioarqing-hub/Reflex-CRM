@@ -6,7 +6,7 @@ import { Members } from './components/Members';
 import { Settings } from './components/Settings';
 import { ActivityHistory } from './components/ActivityHistory';
 import { SplashScreen } from './components/SplashScreen';
-import { Search, Bell, Globe, LogOut, Sun, Moon } from 'lucide-react';
+import { Search, Bell, Globe, LogOut, Sun, Moon, User } from 'lucide-react';
 import { translations } from './translations';
 import { Language, Branding, Project, Member, Theme } from './types';
 
@@ -19,7 +19,7 @@ const DEFAULT_BRANDING: Branding = {
 const App: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentView, setCurrentView] = useState('dashboard');
-  const [lang, setLang] = useState<Language>('en');
+  const [lang, setLang] = useState<Language>('pt'); // Default to Portuguese
   const [theme, setTheme] = useState<Theme>('dark');
   const [branding, setBranding] = useState<Branding>(DEFAULT_BRANDING);
   
@@ -47,7 +47,7 @@ const App: React.FC = () => {
   };
 
   if (showSplash) {
-    return <SplashScreen branding={branding} />;
+    return <SplashScreen branding={branding} lang={lang} />;
   }
 
   const isDark = theme === 'dark';
@@ -63,9 +63,16 @@ const App: React.FC = () => {
 
       <main className="w-full relative z-10 flex flex-col h-screen overflow-hidden">
         {/* Header - Transparent Background with Floating Elements */}
-        <header className="flex justify-between items-center px-8 py-8 z-30 relative">
+        <header className="flex justify-between items-center px-4 py-5 md:px-8 md:py-8 z-30 relative transition-all duration-300">
           
-          {/* Left: Search (Moved from Center to Left) */}
+          {/* Left: Mobile Brand Name (Visible on Mobile & Tablet) */}
+          <div className="lg:hidden z-20 flex-shrink-0 mr-4">
+             <h1 className={`text-xl font-normal tracking-widest bg-clip-text text-transparent uppercase drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`} style={{ fontFamily: "'Urbanist', sans-serif" }}>
+               {branding.companyName}
+             </h1>
+          </div>
+
+          {/* Left: Search (Desktop Only) */}
           <div className="hidden md:block w-full max-w-xs z-20">
             <div className="relative group">
               <Search className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[#BEF264]' : 'text-slate-400 group-focus-within:text-black'}`} size={18} />
@@ -81,18 +88,19 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Center: Brand Name Only (Absolute Position) - Urbanist Regular */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          {/* Center: Brand Name (Large Screens Only - Absolute Position) */}
+          {/* Moved to Large screens only to prevent tablet overlap */}
+          <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
              <h1 className={`text-3xl font-normal tracking-widest bg-clip-text text-transparent uppercase drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`} style={{ fontFamily: "'Urbanist', sans-serif" }}>
                {branding.companyName}
              </h1>
           </div>
 
           {/* Right: Controls & Profile */}
-          <div className="flex items-center gap-3 z-20 ml-auto md:ml-0">
+          <div className="flex items-center gap-2 md:gap-3 z-20 ml-auto md:ml-0 flex-shrink-0">
              <button 
               onClick={toggleTheme}
-              className={`p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23]/50 border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
+              className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23]/50 border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
               title="Toggle Theme"
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
@@ -100,36 +108,34 @@ const App: React.FC = () => {
 
             <button 
               onClick={toggleLanguage}
-              className={`p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23]/50 border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
+              className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23]/50 border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
               title={t.switchLanguage}
             >
               <Globe size={20} />
             </button>
 
-            <button className={`p-3 rounded-xl backdrop-blur-md border transition-all relative shadow-lg ${isDark ? 'bg-[#151A23]/50 border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}>
+            <button className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all relative shadow-lg ${isDark ? 'bg-[#151A23]/50 border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`} title="Notifications">
               <Bell size={20} />
               <span className={`absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border ${isDark ? 'border-[#151A23]' : 'border-white'}`} />
             </button>
 
-            <div className={`h-10 w-[1px] mx-2 hidden sm:block ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}></div>
+            <div className={`h-10 w-[1px] mx-1 md:mx-2 hidden sm:block ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}></div>
 
-            <div className="flex items-center gap-3 pl-2 cursor-pointer group">
-                <img
-                    src="https://picsum.photos/100/100"
-                    alt="User"
-                    className={`w-11 h-11 rounded-full border-2 transition-colors shadow-lg ${isDark ? 'border-slate-700 group-hover:border-[#BEF264]' : 'border-slate-200 group-hover:border-[#BEF264]'}`}
-                />
+            <div className="flex items-center gap-3 pl-1 md:pl-2 cursor-pointer group">
+                <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center border-2 transition-colors shadow-lg bg-[#BEF264] text-black ${isDark ? 'border-slate-700 group-hover:border-[#BEF264]' : 'border-slate-200 group-hover:border-[#BEF264]'}`}>
+                    <User size={20} />
+                </div>
                 <div className="hidden sm:block text-right">
                     <p className={`text-sm font-bold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Alex Designer</p>
                     <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">BIM Manager</p>
                 </div>
-                <LogOut size={18} className="text-slate-500 group-hover:text-red-400 transition-colors ml-2" />
+                <LogOut size={18} className="text-slate-500 group-hover:text-red-400 transition-colors ml-1 md:ml-2 hidden md:block" />
             </div>
           </div>
         </header>
 
         {/* Content Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-8 pb-32 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-32 custom-scrollbar">
           <div className="w-full">
             {currentView === 'dashboard' && <Dashboard projects={projects} members={members} lang={lang} theme={theme} />}
             {currentView === 'projects' && (

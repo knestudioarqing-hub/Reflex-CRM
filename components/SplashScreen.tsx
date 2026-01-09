@@ -1,11 +1,31 @@
 import React from 'react';
-import { Branding } from '../types';
+import { Branding, Language } from '../types';
 
 interface SplashScreenProps {
   branding: Branding;
+  lang: Language;
 }
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({ branding }) => {
+export const SplashScreen: React.FC<SplashScreenProps> = ({ branding, lang }) => {
+  const t = {
+    en: {
+      available: "4.0 is now available",
+      headline: "All-in-one Platform to Simplify",
+      headlineHighlight: "Your BIM Workflow",
+      subtitle: "Harness the power of AI and advanced modeling data for seamless project coordination.",
+      poweredBy: "Powered by Reflex Engine"
+    },
+    pt: {
+      available: "4.0 já está disponível",
+      headline: "Plataforma Tudo-em-um para Simplificar",
+      headlineHighlight: "Seu Fluxo de Trabalho BIM",
+      subtitle: "Gestor de projetos BIM",
+      poweredBy: "Desenvolvido por Reflex Engine"
+    }
+  };
+
+  const text = t[lang] || t.pt; // Default fallback to PT if needed, though lang prop drives it.
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050608] text-white overflow-hidden">
       
@@ -13,9 +33,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ branding }) => {
       <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-[-10%] right-[20%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] animate-pulse delay-500" />
       
-      {/* Grid Pattern Overlay */}
+      {/* Grid Pattern Overlay - White Lines */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff1a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff1a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
         
@@ -26,21 +46,21 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ branding }) => {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
           <span className="text-xs font-semibold text-emerald-400 tracking-wide uppercase">
-            {branding.companyName} 4.0 is now available
+            {branding.companyName} {text.available}
           </span>
         </div>
 
         {/* Main Headline */}
         <h1 className="animate-slide-up delay-100 text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
-          All-in-one Platform to Simplify <br />
+          {text.headline} <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400">
-            Your BIM Workflow
+            {text.headlineHighlight}
           </span>
         </h1>
 
         {/* Subtitle */}
         <p className="animate-slide-up delay-200 text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 font-light">
-          Harness the power of AI and advanced modeling data for seamless project coordination.
+          {text.subtitle}
         </p>
 
         {/* Loading Indicator */}
@@ -60,7 +80,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ branding }) => {
       
       {/* Footer Branding */}
       <div className="animate-slide-up delay-500 absolute bottom-10 text-center">
-        <p className="text-xs text-slate-600 tracking-[0.2em] uppercase font-semibold">Powered by Reflex Engine</p>
+        <p className="text-xs text-slate-600 tracking-[0.2em] uppercase font-semibold">{text.poweredBy}</p>
       </div>
     </div>
   );
