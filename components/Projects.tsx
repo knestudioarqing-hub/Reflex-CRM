@@ -22,7 +22,8 @@ const DEFAULT_PROJECT: Project = {
   lod: 'LOD 200',
   teamMembers: [],
   description: '',
-  history: []
+  history: [],
+  workLogs: []
 };
 
 export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, members, lang, theme }) => {
@@ -40,6 +41,10 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
     timestamp: new Date().toISOString(),
     user: 'Alex Designer' // Hardcoded current user
   });
+
+  const getProjectTotalHours = (project: Project) => {
+    return (project.workLogs || []).reduce((acc, log) => acc + (Number(log.hours) || 0), 0);
+  };
 
   const handleSave = () => {
     if (!currentProject.name) return;
@@ -404,6 +409,13 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                 <div className="flex justify-between text-sm text-slate-400">
                   <span>{t.lodLevel}</span>
                   <span className={isDark ? 'text-white' : 'text-slate-900'}>{project.lod}</span>
+                </div>
+                <div className="flex justify-between text-sm text-slate-400 font-bold">
+                   <span className="flex items-center gap-1.5">
+                     <Clock size={14} className="text-[#BEF264]" />
+                     {t.accumulatedHours}
+                   </span>
+                   <span className={isDark ? 'text-white' : 'text-slate-900'}>{getProjectTotalHours(project)}h</span>
                 </div>
                 <div>
                   <div className="flex justify-between text-xs text-slate-500 mb-1">

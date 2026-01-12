@@ -85,7 +85,15 @@ export const translations = {
     time: "Date & Time",
     // Search
     searchHistory: "Search history...",
-    clearFilters: "Clear Filters"
+    clearFilters: "Clear Filters",
+    // Time Tracking
+    workLog: "Work Log",
+    addTime: "Add Time",
+    hours: "Hours",
+    date: "Date",
+    totalHours: "Total Hours",
+    accumulatedHours: "Accumulated Hours",
+    logDescription: "Description (optional)"
   },
   pt: {
     dashboard: "Painel de Controle",
@@ -171,6 +179,14 @@ export const translations = {
     time: "Data e Hora",
     // Search
     searchHistory: "Buscar histórico...",
-    clearFilters: "Limpar Filtros"
+    clearFilters: "Limpar Filtros",
+    // Time Tracking
+    workLog: "Registro de Horas",
+    addTime: "Adicionar Tempo",
+    hours: "Horas",
+    date: "Data",
+    totalHours: "Total de Horas",
+    accumulatedHours: "Horas Acumuladas",
+    logDescription: "Descrição (opcional)"
   }
 };

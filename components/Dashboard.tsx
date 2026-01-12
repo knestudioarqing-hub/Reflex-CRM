@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package } from 'lucide-react';
-import { Project, Language, Theme, Member } from '../types';
+import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package, Timer } from 'lucide-react';
+import { Project, Language, Theme, Member, WorkLog } from '../types';
 import { translations } from '../translations';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -21,6 +21,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   
+  // Work Log State
+  const [logForm, setLogForm] = useState({ date: new Date().toISOString().split('T')[0], hours: '', description: '' });
+
   // New Project Form State
   const [newProjectForm, setNewProjectForm] = useState({
     name: '',
@@ -50,6 +53,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
     return true;
   });
 
+  const getProjectTotalHours = (project: Project) => {
+    return (project.workLogs || []).reduce((acc, log) => acc + (Number(log.hours) || 0), 0);
+  };
+
   const handleCreateQuickProject = () => {
     if (!newProjectForm.name) return;
 
@@ -70,7 +77,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         details: 'Project initialized via Quick Add from Dashboard',
         timestamp: new Date().toISOString(),
         user: 'Alex Designer'
-      }]
+      }],
+      workLogs: []
     };
 
     setProjects(prev => [...prev, newProject]);
@@ -103,6 +111,40 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
     if (selectedProject?.id === id) {
       setSelectedProject(null);
     }
+  };
+
+  const handleAddWorkLog = () => {
+    if (!selectedProject || !logForm.hours || !logForm.date) return;
+    
+    const newLog: WorkLog = {
+      id: Date.now().toString(),
+      date: logForm.date,
+      hours: parseFloat(logForm.hours),
+      description: logForm.description,
+      userId: 'currentUser'
+    };
+
+    // Update Projects State
+    const updatedProjects = projects.map(p => {
+      if (p.id === selectedProject.id) {
+        return {
+          ...p,
+          workLogs: [newLog, ...(p.workLogs || [])]
+        };
+      }
+      return p;
+    });
+
+    setProjects(updatedProjects);
+    
+    // Update Selected Project State locally to reflect immediately in modal
+    const updatedSelectedProject = updatedProjects.find(p => p.id === selectedProject.id);
+    if (updatedSelectedProject) {
+      setSelectedProject(updatedSelectedProject);
+    }
+
+    // Reset form
+    setLogForm({ date: new Date().toISOString().split('T')[0], hours: '', description: '' });
   };
 
   const toggleProjectSelection = (id: string) => {
@@ -159,12 +201,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       p.status.toUpperCase(),
       p.isActive ? 'Active' : 'Inactive',
       p.deadline,
-      `${p.progress}%`
+      `${p.progress}%`,
+      `${getProjectTotalHours(p)}h`
     ]);
 
     autoTable(doc, {
       startY: 70,
-      head: [['Project Name', 'Client', 'Status', 'State', 'Deadline', 'Progress']],
+      head: [['Project Name', 'Client', 'Status', 'State', 'Deadline', 'Progress', 'Hours']],
       body: tableData,
       headStyles: { fillColor: slateColor as any },
       styles: { fontSize: 9 },
@@ -399,6 +442,78 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                              </div>
                         </div>
                     </div>
+                </div>
+                
+                {/* Time Tracking Section - NEW */}
+                <div className="mb-8">
+                   <div className="flex justify-between items-center mb-4">
+                       <h3 className={`text-lg font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          <Timer size={18} />
+                          {t.workLog}
+                       </h3>
+                       <span className="text-sm font-mono font-bold text-[#BEF264]">
+                          {getProjectTotalHours(selectedProject)}h {t.accumulatedHours}
+                       </span>
+                   </div>
+                   
+                   <div className={`p-4 rounded-xl border mb-4 ${isDark ? 'bg-[#0B0E14]/30 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                      <div className="flex flex-col sm:flex-row gap-3 items-end">
+                         <div className="flex-1 w-full">
+                            <label className="text-[10px] uppercase font-bold text-slate-500 mb-1 block">{t.date}</label>
+                            <input 
+                               type="date" 
+                               value={logForm.date}
+                               onChange={(e) => setLogForm({...logForm, date: e.target.value})}
+                               className={`w-full p-2.5 rounded-lg border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                            />
+                         </div>
+                         <div className="w-full sm:w-24">
+                            <label className="text-[10px] uppercase font-bold text-slate-500 mb-1 block">{t.hours}</label>
+                            <input 
+                               type="number" 
+                               min="0.5"
+                               step="0.5"
+                               placeholder="0.0"
+                               value={logForm.hours}
+                               onChange={(e) => setLogForm({...logForm, hours: e.target.value})}
+                               className={`w-full p-2.5 rounded-lg border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                            />
+                         </div>
+                         <div className="w-full sm:w-auto">
+                            <button 
+                               onClick={handleAddWorkLog}
+                               disabled={!logForm.hours || !logForm.date}
+                               className="w-full sm:w-auto h-[42px] px-4 rounded-lg bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                               <Plus size={16} />
+                               {t.addTime}
+                            </button>
+                         </div>
+                      </div>
+                      <div className="mt-3">
+                         <input 
+                            type="text" 
+                            placeholder={t.logDescription}
+                            value={logForm.description}
+                            onChange={(e) => setLogForm({...logForm, description: e.target.value})}
+                            className={`w-full p-2.5 rounded-lg border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                         />
+                      </div>
+                   </div>
+
+                   {selectedProject.workLogs && selectedProject.workLogs.length > 0 && (
+                      <div className={`max-h-32 overflow-y-auto pr-2 custom-scrollbar`}>
+                          {selectedProject.workLogs.map((log) => (
+                             <div key={log.id} className={`flex justify-between items-center p-2 mb-1 rounded text-sm ${isDark ? 'hover:bg-white/5' : 'hover:bg-slate-100'}`}>
+                                <div className="flex flex-col">
+                                   <span className={`${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{log.date}</span>
+                                   {log.description && <span className="text-xs text-slate-500">{log.description}</span>}
+                                </div>
+                                <span className="font-bold font-mono">{log.hours}h</span>
+                             </div>
+                          ))}
+                      </div>
+                   )}
                 </div>
 
                 {/* Team Members */}
@@ -652,6 +767,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     <tr className="text-slate-500 text-xs font-bold uppercase tracking-wider">
                     <th className="pb-6 pl-4">{t.project}</th>
                     <th className="pb-6">{t.status}</th>
+                    <th className="pb-6 text-center">{t.totalHours}</th>
                     <th className="pb-6">{t.deadline}</th>
                     <th className="pb-6">{t.progress}</th>
                     <th className="pb-6 text-center">{lang === 'pt' ? 'Ações' : 'Actions'}</th>
@@ -688,6 +804,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                               {project.status === 'planning' ? t.statusPlanning : t.statusCoordination}
                             </span>
                           )}
+                        </td>
+                        <td className="py-5 text-center font-mono font-bold text-slate-500">
+                           {getProjectTotalHours(project)}h
                         </td>
                         <td className="py-5 text-slate-400 font-medium">{project.deadline}</td>
                         <td className="py-5 w-48 pr-4">

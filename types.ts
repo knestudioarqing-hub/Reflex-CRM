@@ -24,6 +24,14 @@ export interface HistoryEntry {
   user: string;
 }
 
+export interface WorkLog {
+  id: string;
+  date: string;
+  hours: number;
+  description?: string;
+  userId?: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -36,6 +44,7 @@ export interface Project {
   teamMembers: string[]; // IDs of members
   description?: string;
   history: HistoryEntry[];
+  workLogs: WorkLog[]; // Array to store daily hours
 }
 
 export interface StatCardProps {
