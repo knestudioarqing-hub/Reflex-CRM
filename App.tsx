@@ -9,6 +9,7 @@ import { SplashScreen } from './components/SplashScreen';
 import { Search, Bell, Globe, LogOut, Sun, Moon, User } from 'lucide-react';
 import { translations } from './translations';
 import { Language, Branding, Project, Member, Theme } from './types';
+import { getUserIP, loadUserData, saveUserData } from './services/storageService';
 
 const DEFAULT_BRANDING: Branding = {
   companyName: 'REFLEX CRM',
@@ -19,24 +20,60 @@ const DEFAULT_BRANDING: Branding = {
 const App: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentView, setCurrentView] = useState('dashboard');
+  const [userIp, setUserIp] = useState<string>('');
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
   const [lang, setLang] = useState<Language>('pt'); // Default to Portuguese
   const [theme, setTheme] = useState<Theme>('dark');
   const [branding, setBranding] = useState<Branding>(DEFAULT_BRANDING);
   
-  // Initialize with 0 projects and empty members as requested
+  // Initialize with empty, but will populate from storage
   const [projects, setProjects] = useState<Project[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
 
   const t = translations[lang];
 
+  // 1. Initialize: Fetch IP -> Load Data -> Hide Splash
   useEffect(() => {
-    // Show splash screen for 3.5 seconds
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 3500);
+    const initializeApp = async () => {
+      // 1. Get User IP
+      const ip = await getUserIP();
+      setUserIp(ip);
 
-    return () => clearTimeout(timer);
+      // 2. Load Data for this IP
+      const savedData = loadUserData(ip);
+      
+      if (savedData) {
+        setProjects(savedData.projects);
+        setMembers(savedData.members);
+        if (savedData.branding) setBranding(savedData.branding);
+        setTheme(savedData.theme as Theme);
+        setLang(savedData.lang as Language);
+      }
+
+      setIsDataLoaded(true);
+
+      // 3. Handle Splash Screen Timer
+      setTimeout(() => {
+        setShowSplash(false);
+      }, 3500);
+    };
+
+    initializeApp();
   }, []);
+
+  // 2. Persistence: Save data whenever it changes (only if data has finished loading)
+  useEffect(() => {
+    if (isDataLoaded && userIp) {
+      saveUserData(userIp, {
+        projects,
+        members,
+        branding,
+        theme,
+        lang
+      });
+    }
+  }, [projects, members, branding, theme, lang, userIp, isDataLoaded]);
 
   const toggleLanguage = () => {
     setLang(prev => prev === 'en' ? 'pt' : 'en');
@@ -98,6 +135,13 @@ const App: React.FC = () => {
 
           {/* Right: Controls & Profile */}
           <div className="flex items-center gap-2 md:gap-3 z-20 ml-auto md:ml-0 flex-shrink-0">
+             
+             {/* IP Indicator (Subtle) */}
+             <div className={`hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] font-mono ${isDark ? 'bg-[#151A23]/50 border-white/5 text-slate-500' : 'bg-white/70 border-slate-200 text-slate-400'}`} title="Connected IP">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                {userIp || 'Connecting...'}
+             </div>
+
              <button 
               onClick={toggleTheme}
               className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23]/50 border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
@@ -137,7 +181,7 @@ const App: React.FC = () => {
         {/* Content Area - Scrollable */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-32 custom-scrollbar">
           <div className="w-full">
-            {currentView === 'dashboard' && <Dashboard projects={projects} members={members} lang={lang} theme={theme} />}
+            {currentView === 'dashboard' && <Dashboard projects={projects} setProjects={setProjects} members={members} lang={lang} theme={theme} />}
             {currentView === 'projects' && (
                <Projects projects={projects} setProjects={setProjects} members={members} lang={lang} theme={theme} />
             )}

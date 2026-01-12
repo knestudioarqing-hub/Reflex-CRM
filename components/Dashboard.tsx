@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User } from 'lucide-react';
+import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package } from 'lucide-react';
 import { Project, Language, Theme, Member } from '../types';
 import { translations } from '../translations';
 import { jsPDF } from 'jspdf';
@@ -7,18 +7,28 @@ import autoTable from 'jspdf-autotable';
 
 interface DashboardProps {
   projects: Project[];
-  members: Member[]; // Added members prop to resolve team details
+  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
+  members: Member[];
   lang: Language;
   theme: Theme;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, theme }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, members, lang, theme }) => {
   const t = translations[lang];
   const isDark = theme === 'dark';
 
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   
+  // New Project Form State
+  const [newProjectForm, setNewProjectForm] = useState({
+    name: '',
+    client: '',
+    lod: 'LOD 200',
+    deadline: ''
+  });
+
   const [reportFilters, setReportFilters] = useState({
     startDate: '',
     endDate: '',
@@ -29,16 +39,71 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
   const [viewFilter, setViewFilter] = useState<'all' | 'active'>('active');
 
   // Dynamic calculations
-  const activeCount = projects.filter(p => p.isActive).length;
+  const activeCount = projects.filter(p => p.isActive && p.status !== 'completed').length;
   const completedCount = projects.filter(p => p.status === 'completed').length;
   const totalProgress = projects.reduce((acc, curr) => acc + curr.progress, 0);
   const efficiency = projects.length > 0 ? Math.round(totalProgress / projects.length) : 0;
 
   // Filter projects based on viewFilter
   const visibleProjects = projects.filter(p => {
-    if (viewFilter === 'active') return p.isActive;
+    if (viewFilter === 'active') return p.isActive && p.status !== 'completed';
     return true;
   });
+
+  const handleCreateQuickProject = () => {
+    if (!newProjectForm.name) return;
+
+    const newProject: Project = {
+      id: Date.now().toString(),
+      name: newProjectForm.name,
+      client: newProjectForm.client || 'Unknown Client',
+      status: 'planning',
+      isActive: true,
+      deadline: newProjectForm.deadline || new Date().toISOString().split('T')[0],
+      progress: 0,
+      lod: newProjectForm.lod,
+      teamMembers: [],
+      description: '',
+      history: [{
+        id: Date.now().toString() + '-init',
+        action: 'created',
+        details: 'Project initialized via Quick Add from Dashboard',
+        timestamp: new Date().toISOString(),
+        user: 'Alex Designer'
+      }]
+    };
+
+    setProjects(prev => [...prev, newProject]);
+    setIsNewProjectModalOpen(false);
+    setNewProjectForm({ name: '', client: '', lod: 'LOD 200', deadline: '' });
+  };
+
+  const handleDeliverProject = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    
+    setProjects(prev => prev.map(p => {
+      if (p.id === id) {
+        return {
+          ...p,
+          status: 'completed',
+          progress: 100,
+          isActive: false, // Optional: mark as inactive once delivered
+          history: [{
+            id: Date.now().toString() + '-delivered',
+            action: 'updated',
+            details: 'Model delivered and project finalized.',
+            timestamp: new Date().toISOString(),
+            user: 'Alex Designer'
+          }, ...(p.history || [])]
+        };
+      }
+      return p;
+    }));
+
+    if (selectedProject?.id === id) {
+      setSelectedProject(null);
+    }
+  };
 
   const toggleProjectSelection = (id: string) => {
     setReportFilters(prev => {
@@ -175,6 +240,81 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
         </button>
       </div>
 
+      {/* Quick New Project Modal */}
+      {isNewProjectModalOpen && (
+        <div 
+          className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+          onClick={() => setIsNewProjectModalOpen(false)}
+        >
+          <div 
+            className={`w-full max-w-lg rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={`absolute top-0 right-0 w-[200px] h-[200px] rounded-full blur-[80px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#BEF264]/10' : 'bg-[#BEF264]/20'}`} />
+            
+            <div className="relative z-10">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.addProject}</h3>
+                <button onClick={() => setIsNewProjectModalOpen(false)} className="text-slate-500 hover:text-red-400">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-wide">{t.projectName}</label>
+                  <input 
+                    type="text" 
+                    value={newProjectForm.name}
+                    onChange={(e) => setNewProjectForm({...newProjectForm, name: e.target.value})}
+                    placeholder="Project Title"
+                    className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white focus:border-[#BEF264]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#BEF264]'}`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-wide">{t.clientName}</label>
+                  <input 
+                    type="text" 
+                    value={newProjectForm.client}
+                    onChange={(e) => setNewProjectForm({...newProjectForm, client: e.target.value})}
+                    placeholder="Client Name"
+                    className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white focus:border-[#BEF264]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#BEF264]'}`}
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-wide">{t.lodLevel}</label>
+                    <input 
+                      type="text" 
+                      value={newProjectForm.lod}
+                      onChange={(e) => setNewProjectForm({...newProjectForm, lod: e.target.value})}
+                      className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white focus:border-[#BEF264]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#BEF264]'}`}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-wide">{t.deadline}</label>
+                    <input 
+                      type="date" 
+                      value={newProjectForm.deadline}
+                      onChange={(e) => setNewProjectForm({...newProjectForm, deadline: e.target.value})}
+                      className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white focus:border-[#BEF264]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#BEF264]'}`}
+                    />
+                  </div>
+                </div>
+
+                <button 
+                  onClick={handleCreateQuickProject}
+                  disabled={!newProjectForm.name}
+                  className="w-full mt-4 py-4 rounded-2xl bg-[#BEF264] hover:bg-[#a3d954] disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold text-lg shadow-lg shadow-[#BEF264]/20 transition-all hover:scale-[1.02]"
+                >
+                  {t.saveProject}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Project Details Modal */}
       {selectedProject && (
         <div 
@@ -201,12 +341,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
                         </div>
                         <p className="text-slate-500 text-lg">{selectedProject.client}</p>
                     </div>
-                    <button 
-                        onClick={() => setSelectedProject(null)}
-                        className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-white/10 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-900'}`}
-                    >
-                        <X size={24} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {selectedProject.status !== 'completed' && (
+                          <button 
+                            onClick={() => handleDeliverProject(selectedProject.id)}
+                            className="bg-[#BEF264] hover:bg-[#a3d954] text-black text-xs font-bold py-2 px-4 rounded-full flex items-center gap-2 shadow-lg"
+                            title={lang === 'pt' ? 'Entregar Modelo' : 'Deliver Model'}
+                          >
+                            <Package size={14} />
+                            {lang === 'pt' ? 'Entregar' : 'Deliver'}
+                          </button>
+                        )}
+                        <button 
+                            onClick={() => setSelectedProject(null)}
+                            className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-white/10 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-900'}`}
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -241,7 +393,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
                              </div>
                              <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
                                 <div 
-                                    className={`h-full rounded-full ${selectedProject.isActive ? 'bg-[#BEF264]' : 'bg-slate-500'}`}
+                                    className={`h-full rounded-full ${selectedProject.status === 'completed' ? 'bg-emerald-500' : selectedProject.isActive ? 'bg-[#BEF264]' : 'bg-slate-500'}`}
                                     style={{ width: `${selectedProject.progress}%` }}
                                 />
                              </div>
@@ -406,7 +558,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
           { 
             label: t.completedProjects, 
             value: completedCount.toString(),
-            icon: TrendingUp, 
+            icon: Package, 
             trend: "+12% vs last month"
           },
           { 
@@ -425,9 +577,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
               }`}
           >
             <div className="flex justify-between items-start mb-8">
-               <div className={`p-3 rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'} text-[#BEF264]`}>
-                 <stat.icon size={24} className="text-black" /> 
-                 <style>{`.icon-color-${idx} { color: ${isDark ? '#BEF264' : '#65a30d'}; }`}</style>
+               <div className={`p-3 rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'} text-black`}>
+                 <stat.icon size={24} className={isDark ? 'text-[#BEF264]' : 'text-slate-600'} /> 
                </div>
                <span className={`text-xs font-medium px-3 py-1 rounded-full ${isDark ? 'text-slate-500 bg-white/5' : 'text-slate-600 bg-slate-100'}`}>{stat.trend}</span>
             </div>
@@ -452,29 +603,41 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
           {/* Decorative Glow */}
           <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#BEF264]/5' : 'bg-[#BEF264]/20'}`} />
 
-          <div className="flex justify-between items-center mb-8 relative z-10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 relative z-10">
             <h2 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.ongoingProjects}</h2>
-            <div className="flex gap-2">
+            
+            <div className="flex flex-wrap gap-2 items-center">
+                {/* Quick Add Project Button */}
                 <button 
-                  onClick={() => setViewFilter('all')}
-                  className={`px-4 py-2 rounded-full text-sm transition-colors ${
-                    viewFilter === 'all'
-                      ? 'bg-slate-600 text-white font-bold'
-                      : isDark ? 'bg-white/5 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-                  }`}
+                  onClick={() => setIsNewProjectModalOpen(true)}
+                  className="mr-2 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-[#BEF264] text-black shadow-lg shadow-[#BEF264]/10 transition-transform hover:scale-105"
                 >
-                  {lang === 'pt' ? 'Todos' : 'All'}
+                  <Plus size={16} />
+                  {t.addProject}
                 </button>
-                <button 
-                  onClick={() => setViewFilter('active')}
-                  className={`px-4 py-2 rounded-full text-sm font-bold transition-all shadow-lg ${
-                    viewFilter === 'active'
-                     ? 'bg-[#BEF264] text-black shadow-[#BEF264]/10'
-                     : isDark ? 'bg-white/5 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  {lang === 'pt' ? 'Ativos' : 'Active'}
-                </button>
+
+                <div className={`flex p-1 rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+                  <button 
+                    onClick={() => setViewFilter('all')}
+                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
+                      viewFilter === 'all'
+                        ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
+                        : 'text-slate-500 hover:text-slate-400'
+                    }`}
+                  >
+                    {lang === 'pt' ? 'Todos' : 'All'}
+                  </button>
+                  <button 
+                    onClick={() => setViewFilter('active')}
+                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
+                      viewFilter === 'active'
+                      ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
+                      : 'text-slate-500 hover:text-slate-400'
+                    }`}
+                  >
+                    {lang === 'pt' ? 'Ativos' : 'Active'}
+                  </button>
+                </div>
             </div>
           </div>
           
@@ -491,6 +654,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
                     <th className="pb-6">{t.status}</th>
                     <th className="pb-6">{t.deadline}</th>
                     <th className="pb-6">{t.progress}</th>
+                    <th className="pb-6 text-center">{lang === 'pt' ? 'Ações' : 'Actions'}</th>
                     </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -533,11 +697,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, members, lang, t
                             </div>
                             <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#1A1F2C]' : 'bg-slate-100'}`}>
                                 <div 
-                                    className="h-full bg-[#BEF264] rounded-full" 
+                                    className={`h-full rounded-full ${project.status === 'completed' ? 'bg-emerald-500' : 'bg-[#BEF264]'}`} 
                                     style={{ width: `${project.progress}%` }}
                                 />
                             </div>
                         </div>
+                        </td>
+                        <td className="py-5 text-center">
+                           {project.status !== 'completed' && (
+                             <button 
+                                onClick={(e) => handleDeliverProject(project.id, e)}
+                                className={`p-2 rounded-full transition-all hover:scale-110 ${isDark ? 'hover:bg-[#BEF264]/20 text-slate-400 hover:text-[#BEF264]' : 'hover:bg-[#BEF264]/10 text-slate-400 hover:text-emerald-600'}`}
+                                title={lang === 'pt' ? 'Entregar' : 'Deliver'}
+                             >
+                               <CheckCircle size={20} />
+                             </button>
+                           )}
                         </td>
                     </tr>
                     ))}

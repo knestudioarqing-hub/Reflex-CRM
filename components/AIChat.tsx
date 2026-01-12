@@ -63,7 +63,8 @@ export const AIChat: React.FC<AIChatProps> = ({ lang, projects }) => {
           <h2 className="text-lg font-bold text-white">{t.aiAssistant}</h2>
           <p className="text-xs text-slate-400 flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Online - Gemini 1.5 Pro
+            {/* Updated model name to match the service configuration and Gemini API rules */}
+            Online - Gemini 3 Flash
           </p>
         </div>
       </div>
