@@ -661,57 +661,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </div>
       )}
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { 
-            label: t.activeProjects, 
-            value: activeCount.toString(), 
-            icon: Layers,
-            trend: "+2 this week"
-          },
-          { 
-            label: t.completedProjects, 
-            value: completedCount.toString(),
-            icon: Package, 
-            trend: "+12% vs last month"
-          },
-          { 
-            label: t.teamPerformance, 
-            value: `${efficiency}%`,
-            icon: Clock,
-            trend: "Optimal pace"
-          },
-        ].map((stat, idx) => (
-          <div 
-            key={idx} 
-            className={`p-8 rounded-[2rem] border relative overflow-hidden group transition-all duration-500 
-              ${isDark 
-                ? 'bg-[#11141A] border-white/5 hover:border-[#BEF264]/20' 
-                : 'bg-white border-slate-200 hover:border-[#BEF264] shadow-sm'
-              }`}
-          >
-            <div className="flex justify-between items-start mb-8">
-               <div className={`p-3 rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'} text-black`}>
-                 <stat.icon size={24} className={isDark ? 'text-[#BEF264]' : 'text-slate-600'} /> 
-               </div>
-               <span className={`text-xs font-medium px-3 py-1 rounded-full ${isDark ? 'text-slate-500 bg-white/5' : 'text-slate-600 bg-slate-100'}`}>{stat.trend}</span>
-            </div>
-            <div>
-              <p className={`text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>{stat.value}</p>
-              <h3 className="text-slate-500 font-medium">{stat.label}</h3>
-            </div>
-            {/* Progress Bar Decoration */}
-            <div className={`absolute bottom-0 left-0 w-full h-1 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
-              <div 
-                className="h-full bg-[#BEF264] transition-all duration-1000 ease-out" 
-                style={{ width: `${Math.random() * 40 + 40}%` }} 
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-
+      {/* Main Content (Projects Grid) - MOVED UP */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Projects Table */}
         <div className={`lg:col-span-2 border rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
@@ -870,6 +820,57 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                 </div>
             </div>
         </div>
+      </div>
+
+      {/* Stats Row - MOVED DOWN */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          { 
+            label: t.activeProjects, 
+            value: activeCount.toString(), 
+            icon: Layers,
+            trend: "+2 this week"
+          },
+          { 
+            label: t.completedProjects, 
+            value: completedCount.toString(),
+            icon: Package, 
+            trend: "+12% vs last month"
+          },
+          { 
+            label: t.teamPerformance, 
+            value: `${efficiency}%`,
+            icon: Clock,
+            trend: "Optimal pace"
+          },
+        ].map((stat, idx) => (
+          <div 
+            key={idx} 
+            className={`p-8 rounded-[2rem] border relative overflow-hidden group transition-all duration-500 
+              ${isDark 
+                ? 'bg-[#11141A] border-white/5 hover:border-[#BEF264]/20' 
+                : 'bg-white border-slate-200 hover:border-[#BEF264] shadow-sm'
+              }`}
+          >
+            <div className="flex justify-between items-start mb-8">
+               <div className={`p-3 rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'} text-black`}>
+                 <stat.icon size={24} className={isDark ? 'text-[#BEF264]' : 'text-slate-600'} /> 
+               </div>
+               <span className={`text-xs font-medium px-3 py-1 rounded-full ${isDark ? 'text-slate-500 bg-white/5' : 'text-slate-600 bg-slate-100'}`}>{stat.trend}</span>
+            </div>
+            <div>
+              <p className={`text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>{stat.value}</p>
+              <h3 className="text-slate-500 font-medium">{stat.label}</h3>
+            </div>
+            {/* Progress Bar Decoration */}
+            <div className={`absolute bottom-0 left-0 w-full h-1 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+              <div 
+                className="h-full bg-[#BEF264] transition-all duration-1000 ease-out" 
+                style={{ width: `${Math.random() * 40 + 40}%` }} 
+              />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
