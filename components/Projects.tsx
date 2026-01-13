@@ -40,7 +40,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
     action,
     details,
     timestamp: new Date().toISOString(),
-    user: 'Alex Designer' // Hardcoded current user
+    user: 'Gianfranco' // Hardcoded current user
   });
 
   const getProjectTotalHours = (project: Project) => {

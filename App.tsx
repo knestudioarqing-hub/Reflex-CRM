@@ -170,8 +170,8 @@ const App: React.FC = () => {
                     <User size={20} />
                 </div>
                 <div className="hidden sm:block text-right">
-                    <p className={`text-sm font-bold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Alex Designer</p>
-                    <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">BIM Manager</p>
+                    <p className={`text-sm font-bold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Gianfranco</p>
+                    <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Projetista Elétrico</p>
                 </div>
                 <LogOut size={18} className="text-slate-500 group-hover:text-red-400 transition-colors ml-1 md:ml-2 hidden md:block" />
             </div>

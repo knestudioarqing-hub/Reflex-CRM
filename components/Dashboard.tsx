@@ -132,7 +132,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         action: 'created',
         details: 'Project initialized via Quick Add from Dashboard',
         timestamp: new Date().toISOString(),
-        user: 'Alex Designer'
+        user: 'Gianfranco'
       }],
       workLogs: [],
       tasks: []
@@ -158,7 +158,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             action: 'updated',
             details: 'Model delivered and project finalized.',
             timestamp: new Date().toISOString(),
-            user: 'Alex Designer'
+            user: 'Gianfranco'
           }, ...(p.history || [])]
         };
       }

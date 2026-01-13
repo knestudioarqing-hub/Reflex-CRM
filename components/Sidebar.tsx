@@ -69,8 +69,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setCurrentView, l
             className="w-8 h-8 rounded-full border border-white/20"
           />
           <div className="flex-1 overflow-hidden">
-            <p className="text-sm font-medium text-white truncate">Alex Designer</p>
-            <p className="text-xs text-slate-500 truncate">BIM Manager</p>
+            <p className="text-sm font-medium text-white truncate">Gianfranco</p>
+            <p className="text-xs text-slate-500 truncate">Projetista Elétrico</p>
           </div>
           <LogOut size={16} className="text-slate-500 cursor-pointer hover:text-white" />
         </div>

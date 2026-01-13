@@ -29,7 +29,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
     action: 'updated',
     details,
     timestamp: new Date().toISOString(),
-    user: 'Alex Designer'
+    user: 'Gianfranco'
   });
 
   const handleOpenAdd = () => {
