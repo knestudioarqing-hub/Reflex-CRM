@@ -52,10 +52,35 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   const [viewFilter, setViewFilter] = useState<'all' | 'active' | 'completed'>('active');
 
   // Dynamic calculations
-  const activeCount = projects.filter(p => p.isActive && p.status !== 'completed').length;
+  const activeProjectsList = projects.filter(p => p.isActive && p.status !== 'completed');
+  const activeCount = activeProjectsList.length;
   const completedCount = projects.filter(p => p.status === 'completed').length;
-  const totalProgress = projects.reduce((acc, curr) => acc + curr.progress, 0);
-  const efficiency = projects.length > 0 ? Math.round(totalProgress / projects.length) : 0;
+  
+  // Efficiency Calculation Logic
+  // 1. Collect all tasks from active projects
+  const allActiveTasks = activeProjectsList.flatMap(p => p.tasks || []);
+  let efficiencyMetric = 0;
+  let efficiencyTrend = "No data";
+
+  if (allActiveTasks.length > 0) {
+      // Logic A: Task Completion Rate
+      const completedTasks = allActiveTasks.filter(t => t.completed).length;
+      efficiencyMetric = Math.round((completedTasks / allActiveTasks.length) * 100);
+      efficiencyTrend = `${completedTasks}/${allActiveTasks.length} tasks done`;
+  } else {
+      // Logic B: On-Time Project Rate (Fallback if no tasks)
+      const now = new Date();
+      // Count projects where deadline is in the future or today
+      const onTimeProjects = activeProjectsList.filter(p => new Date(p.deadline) >= now).length;
+      
+      efficiencyMetric = activeCount > 0 
+          ? Math.round((onTimeProjects / activeCount) * 100) 
+          : 100; // Default to 100 if no active projects (nothing is late)
+      
+      efficiencyTrend = activeCount > 0 
+          ? `${onTimeProjects} on schedule` 
+          : "Ready to start";
+  }
 
   // Filter projects based on viewFilter
   const visibleProjects = projects.filter(p => {
@@ -1057,9 +1082,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
           },
           { 
             label: t.teamPerformance, 
-            value: `${efficiency}%`,
+            value: `${efficiencyMetric}%`,
             icon: Clock,
-            trend: "Optimal pace",
+            trend: efficiencyTrend,
             onClick: () => setViewFilter('all') // Reset to default or do nothing
           },
         ].map((stat, idx) => (
