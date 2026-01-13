@@ -93,7 +93,18 @@ export const translations = {
     date: "Date",
     totalHours: "Total Hours",
     accumulatedHours: "Accumulated Hours",
-    logDescription: "Description (optional)"
+    logDescription: "Description (optional)",
+    // Task Management
+    tasks: "Tasks",
+    addTask: "Add Task",
+    taskTitle: "Task Title",
+    priority: "Priority",
+    priorityUrgent: "Urgent",
+    priorityHigh: "High",
+    priorityMedium: "Medium",
+    priorityLow: "Low",
+    noTasks: "No pending tasks.",
+    filterByProject: "Filter by Project"
   },
   pt: {
     dashboard: "Painel de Controle",
@@ -187,6 +198,17 @@ export const translations = {
     date: "Data",
     totalHours: "Total de Horas",
     accumulatedHours: "Horas Acumuladas",
-    logDescription: "Descrição (opcional)"
+    logDescription: "Descrição (opcional)",
+    // Task Management
+    tasks: "Tarefas",
+    addTask: "Adicionar Tarefa",
+    taskTitle: "Título da Tarefa",
+    priority: "Prioridade",
+    priorityUrgent: "Urgente",
+    priorityHigh: "Alta",
+    priorityMedium: "Média",
+    priorityLow: "Baixa",
+    noTasks: "Sem tarefas pendentes.",
+    filterByProject: "Filtrar por Projeto"
   }
 };

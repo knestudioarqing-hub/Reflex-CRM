@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package, Timer } from 'lucide-react';
-import { Project, Language, Theme, Member, WorkLog } from '../types';
+import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package, Timer, CheckSquare, Trash2 } from 'lucide-react';
+import { Project, Language, Theme, Member, WorkLog, Task } from '../types';
 import { translations } from '../translations';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -24,6 +24,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   // Work Log State
   const [logForm, setLogForm] = useState({ date: new Date().toISOString().split('T')[0], hours: '', description: '' });
 
+  // Task Form State
+  const [taskForm, setTaskForm] = useState<{title: string, date: string, priority: 'low' | 'medium' | 'high' | 'urgent'}>({
+      title: '',
+      date: new Date().toISOString().split('T')[0],
+      priority: 'medium'
+  });
+
+  // Task Filter in Dashboard
+  const [taskProjectFilter, setTaskProjectFilter] = useState<string>('all');
+
   // New Project Form State
   const [newProjectForm, setNewProjectForm] = useState({
     name: '',
@@ -38,8 +48,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
     selectedProjectIds: [] as string[] // empty means all
   });
   
-  // Dashboard Filter State
-  const [viewFilter, setViewFilter] = useState<'all' | 'active'>('active');
+  // Dashboard Filter State: 'all', 'active', or 'completed'
+  const [viewFilter, setViewFilter] = useState<'all' | 'active' | 'completed'>('active');
 
   // Dynamic calculations
   const activeCount = projects.filter(p => p.isActive && p.status !== 'completed').length;
@@ -50,8 +60,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   // Filter projects based on viewFilter
   const visibleProjects = projects.filter(p => {
     if (viewFilter === 'active') return p.isActive && p.status !== 'completed';
+    if (viewFilter === 'completed') return p.status === 'completed';
     return true;
   });
+
+  // Flatten tasks for global dashboard view
+  const allTasks = projects
+    .filter(p => p.isActive && p.status !== 'completed') // Only active projects tasks in dashboard
+    .flatMap(p => (p.tasks || []).map(task => ({
+        ...task,
+        projectId: p.id,
+        projectName: p.name
+    })));
+
+  const filteredTasks = allTasks
+    .filter(task => taskProjectFilter === 'all' || task.projectId === taskProjectFilter)
+    .sort((a, b) => {
+        // Sort by completed (false first), then priority weight
+        if (a.completed === b.completed) {
+             const priorityWeight = { urgent: 4, high: 3, medium: 2, low: 1 };
+             return priorityWeight[b.priority] - priorityWeight[a.priority];
+        }
+        return a.completed ? 1 : -1;
+    });
 
   const getProjectTotalHours = (project: Project) => {
     return (project.workLogs || []).reduce((acc, log) => acc + (Number(log.hours) || 0), 0);
@@ -78,7 +109,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         timestamp: new Date().toISOString(),
         user: 'Alex Designer'
       }],
-      workLogs: []
+      workLogs: [],
+      tasks: []
     };
 
     setProjects(prev => [...prev, newProject]);
@@ -124,7 +156,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       userId: 'currentUser'
     };
 
-    // Update Projects State
     const updatedProjects = projects.map(p => {
       if (p.id === selectedProject.id) {
         return {
@@ -137,14 +168,71 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
     setProjects(updatedProjects);
     
-    // Update Selected Project State locally to reflect immediately in modal
     const updatedSelectedProject = updatedProjects.find(p => p.id === selectedProject.id);
     if (updatedSelectedProject) {
       setSelectedProject(updatedSelectedProject);
     }
-
-    // Reset form
     setLogForm({ date: new Date().toISOString().split('T')[0], hours: '', description: '' });
+  };
+
+  // --- TASK MANAGEMENT LOGIC ---
+
+  const handleAddTask = () => {
+    if (!selectedProject || !taskForm.title) return;
+
+    const newTask: Task = {
+        id: Date.now().toString(),
+        title: taskForm.title,
+        dueDate: taskForm.date,
+        priority: taskForm.priority,
+        completed: false
+    };
+
+    const updatedProjects = projects.map(p => {
+        if (p.id === selectedProject.id) {
+            return { ...p, tasks: [newTask, ...(p.tasks || [])] };
+        }
+        return p;
+    });
+
+    setProjects(updatedProjects);
+    const updatedSelectedProject = updatedProjects.find(p => p.id === selectedProject.id);
+    if (updatedSelectedProject) setSelectedProject(updatedSelectedProject);
+    
+    setTaskForm({ title: '', date: new Date().toISOString().split('T')[0], priority: 'medium' });
+  };
+
+  const toggleTaskCompletion = (projectId: string, taskId: string) => {
+     const updatedProjects = projects.map(p => {
+         if (p.id === projectId) {
+             return {
+                 ...p,
+                 tasks: (p.tasks || []).map(t => t.id === taskId ? { ...t, completed: !t.completed } : t)
+             };
+         }
+         return p;
+     });
+     setProjects(updatedProjects);
+     
+     if (selectedProject && selectedProject.id === projectId) {
+         const updatedSelectedProject = updatedProjects.find(p => p.id === selectedProject.id);
+         if (updatedSelectedProject) setSelectedProject(updatedSelectedProject);
+     }
+  };
+
+  const deleteTask = (taskId: string) => {
+      if (!selectedProject) return;
+      
+      const updatedProjects = projects.map(p => {
+          if (p.id === selectedProject.id) {
+              return { ...p, tasks: (p.tasks || []).filter(t => t.id !== taskId) };
+          }
+          return p;
+      });
+      setProjects(updatedProjects);
+      
+      const updatedSelectedProject = updatedProjects.find(p => p.id === selectedProject.id);
+      if (updatedSelectedProject) setSelectedProject(updatedSelectedProject);
   };
 
   const toggleProjectSelection = (id: string) => {
@@ -444,8 +532,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     </div>
                 </div>
                 
-                {/* Time Tracking Section - NEW */}
-                <div className="mb-8">
+                {/* Time Tracking Section */}
+                <div className="mb-8 border-b border-dashed border-slate-700 pb-8">
                    <div className="flex justify-between items-center mb-4">
                        <h3 className={`text-lg font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                           <Timer size={18} />
@@ -513,6 +601,91 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                              </div>
                           ))}
                       </div>
+                   )}
+                </div>
+                
+                {/* Task Management Section - NEW */}
+                <div className="mb-8">
+                   <div className="flex justify-between items-center mb-4">
+                       <h3 className={`text-lg font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          <CheckSquare size={18} />
+                          {t.tasks}
+                       </h3>
+                   </div>
+
+                   <div className={`p-4 rounded-xl border mb-4 ${isDark ? 'bg-[#0B0E14]/30 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                      <div className="flex flex-col sm:flex-row gap-3 items-end">
+                         <div className="flex-1 w-full">
+                            <label className="text-[10px] uppercase font-bold text-slate-500 mb-1 block">{t.taskTitle}</label>
+                            <input 
+                               type="text" 
+                               value={taskForm.title}
+                               onChange={(e) => setTaskForm({...taskForm, title: e.target.value})}
+                               className={`w-full p-2.5 rounded-lg border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                            />
+                         </div>
+                         <div className="w-full sm:w-32">
+                             <label className="text-[10px] uppercase font-bold text-slate-500 mb-1 block">{t.priority}</label>
+                             <select
+                                value={taskForm.priority}
+                                onChange={(e) => setTaskForm({...taskForm, priority: e.target.value as any})}
+                                className={`w-full p-2.5 rounded-lg border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                             >
+                                 <option value="low">{t.priorityLow}</option>
+                                 <option value="medium">{t.priorityMedium}</option>
+                                 <option value="high">{t.priorityHigh}</option>
+                                 <option value="urgent">{t.priorityUrgent}</option>
+                             </select>
+                         </div>
+                         <div className="w-full sm:w-auto">
+                            <button 
+                               onClick={handleAddTask}
+                               disabled={!taskForm.title}
+                               className="w-full sm:w-auto h-[42px] px-4 rounded-lg bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                               <Plus size={16} />
+                               {t.addTask}
+                            </button>
+                         </div>
+                      </div>
+                   </div>
+
+                   {selectedProject.tasks && selectedProject.tasks.length > 0 ? (
+                      <div className="max-h-48 overflow-y-auto pr-2 custom-scrollbar space-y-2">
+                          {selectedProject.tasks.map((task) => (
+                             <div key={task.id} className={`flex justify-between items-center p-3 rounded-lg border transition-all ${isDark ? 'bg-[#0B0E14]/30 border-white/5 hover:bg-white/5' : 'bg-white border-slate-100 hover:bg-slate-50'}`}>
+                                <div className="flex items-center gap-3">
+                                   <button 
+                                      onClick={() => toggleTaskCompletion(selectedProject.id, task.id)}
+                                      className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${task.completed ? 'bg-emerald-500 border-emerald-500' : isDark ? 'border-slate-600' : 'border-slate-300'}`}
+                                   >
+                                      {task.completed && <CheckCircle size={14} className="text-white" />}
+                                   </button>
+                                   <div className="flex flex-col">
+                                       <span className={`text-sm font-medium ${task.completed ? 'line-through text-slate-500' : isDark ? 'text-white' : 'text-slate-900'}`}>
+                                           {task.title}
+                                       </span>
+                                       <div className="flex items-center gap-2">
+                                           <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
+                                               task.priority === 'urgent' ? 'bg-red-500/20 text-red-400' : 
+                                               task.priority === 'high' ? 'bg-orange-500/20 text-orange-400' :
+                                               task.priority === 'medium' ? 'bg-blue-500/20 text-blue-400' :
+                                               'bg-slate-500/20 text-slate-400'
+                                           }`}>
+                                               {task.priority}
+                                           </span>
+                                           <span className="text-xs text-slate-500">{task.dueDate}</span>
+                                       </div>
+                                   </div>
+                                </div>
+                                <button onClick={() => deleteTask(task.id)} className="text-slate-500 hover:text-red-400 p-1">
+                                    <Trash2 size={16} />
+                                </button>
+                             </div>
+                          ))}
+                      </div>
+                   ) : (
+                       <p className="text-slate-500 text-sm italic">{t.noTasks}</p>
                    )}
                 </div>
 
@@ -702,6 +875,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                   >
                     {lang === 'pt' ? 'Ativos' : 'Active'}
                   </button>
+                  <button 
+                    onClick={() => setViewFilter('completed')}
+                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
+                      viewFilter === 'completed'
+                      ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
+                      : 'text-slate-500 hover:text-slate-400'
+                    }`}
+                  >
+                    {lang === 'pt' ? 'Entregues' : 'Delivered'}
+                  </button>
                 </div>
             </div>
           </div>
@@ -796,27 +979,60 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             <div className={`border rounded-[2.5rem] p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
                 <div className="flex justify-between items-center mb-6 z-10">
                     <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.todoList}</h2>
-                    <button className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-white/5 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-900'}`}>
-                    <MoreHorizontal size={20} />
-                    </button>
+                    {/* Project Filter for Tasks */}
+                    <div className="flex items-center gap-2">
+                        <Filter size={16} className="text-slate-500" />
+                        <select 
+                            value={taskProjectFilter}
+                            onChange={(e) => setTaskProjectFilter(e.target.value)}
+                            className={`text-xs p-1 rounded-lg outline-none border ${isDark ? 'bg-[#1A1F2C] border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
+                        >
+                            <option value="all">{t.filterByProject}</option>
+                            {projects.filter(p => p.isActive).map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
-                <div className="space-y-4 z-10">
-                    {[
-                    { title: "Review MEP Clash", due: "2h remaining", type: "Urgent" },
-                    { title: "Client Handover", due: "Tomorrow", type: "Meeting" },
-                    ].map((task, i) => (
-                    <div key={i} className={`p-5 rounded-3xl border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/5 hover:border-[#BEF264]/30' : 'bg-slate-50 border-slate-200 hover:border-[#BEF264]'}`}>
-                        <div className="flex justify-between items-start mb-2">
-                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${task.type === 'Urgent' ? 'bg-red-500/10 text-red-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                                {task.type}
-                            </span>
-                            <Clock size={14} className="text-slate-500" />
+                <div className="space-y-4 z-10 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                    {filteredTasks.length === 0 ? (
+                        <p className="text-center text-slate-500 text-sm italic py-4">{t.noTasks}</p>
+                    ) : (
+                        filteredTasks.map((task, i) => (
+                        <div 
+                            key={`${task.projectId}-${task.id}`} 
+                            className={`p-5 rounded-3xl border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/5 hover:border-[#BEF264]/30' : 'bg-slate-50 border-slate-200 hover:border-[#BEF264]'}`}
+                            onClick={() => toggleTaskCompletion(task.projectId, task.id)}
+                        >
+                            <div className="flex justify-between items-start mb-2">
+                                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${
+                                    task.priority === 'urgent' ? 'bg-red-500/10 text-red-400' : 
+                                    task.priority === 'high' ? 'bg-orange-500/10 text-orange-400' :
+                                    task.priority === 'medium' ? 'bg-blue-500/10 text-blue-400' :
+                                    'bg-slate-500/10 text-slate-400'
+                                }`}>
+                                    {task.priority.toUpperCase()}
+                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-[10px] font-bold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{task.projectName}</span>
+                                    <Clock size={14} className="text-slate-500" />
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
+                                    {task.completed && <CheckCircle size={14} className="text-black" />}
+                                </div>
+                                <div>
+                                    <h4 className={`font-bold mb-0.5 transition-colors ${task.completed ? 'line-through text-slate-500' : isDark ? 'text-white group-hover:text-[#BEF264]' : 'text-slate-900 group-hover:text-black'}`}>
+                                        {task.title}
+                                    </h4>
+                                    <p className="text-xs text-slate-500">{task.dueDate}</p>
+                                </div>
+                            </div>
                         </div>
-                        <h4 className={`font-bold mb-1 transition-colors ${isDark ? 'text-white group-hover:text-[#BEF264]' : 'text-slate-900 group-hover:text-black'}`}>{task.title}</h4>
-                        <p className="text-xs text-slate-500">{task.due}</p>
-                    </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
         </div>
@@ -829,24 +1045,28 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             label: t.activeProjects, 
             value: activeCount.toString(), 
             icon: Layers,
-            trend: "+2 this week"
+            trend: "+2 this week",
+            onClick: () => setViewFilter('active')
           },
           { 
             label: t.completedProjects, 
             value: completedCount.toString(),
             icon: Package, 
-            trend: "+12% vs last month"
+            trend: "+12% vs last month",
+            onClick: () => setViewFilter('completed')
           },
           { 
             label: t.teamPerformance, 
             value: `${efficiency}%`,
             icon: Clock,
-            trend: "Optimal pace"
+            trend: "Optimal pace",
+            onClick: () => setViewFilter('all') // Reset to default or do nothing
           },
         ].map((stat, idx) => (
           <div 
             key={idx} 
-            className={`p-8 rounded-[2rem] border relative overflow-hidden group transition-all duration-500 
+            onClick={stat.onClick}
+            className={`p-8 rounded-[2rem] border relative overflow-hidden group transition-all duration-500 cursor-pointer
               ${isDark 
                 ? 'bg-[#11141A] border-white/5 hover:border-[#BEF264]/20' 
                 : 'bg-white border-slate-200 hover:border-[#BEF264] shadow-sm'

@@ -23,7 +23,8 @@ const DEFAULT_PROJECT: Project = {
   teamMembers: [],
   description: '',
   history: [],
-  workLogs: []
+  workLogs: [],
+  tasks: []
 };
 
 export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, members, lang, theme }) => {
@@ -82,7 +83,8 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
       // Create Mode
       const newId = Date.now().toString();
       const historyEntry = createHistoryEntry('created', 'Project initialized');
-      setProjects([...projects, { ...currentProject, id: newId, history: [historyEntry] }]);
+      // Ensure tasks array is initialized
+      setProjects([...projects, { ...currentProject, id: newId, history: [historyEntry], tasks: [] }]);
     }
     
     setIsEditing(false);

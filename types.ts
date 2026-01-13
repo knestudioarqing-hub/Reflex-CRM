@@ -32,6 +32,14 @@ export interface WorkLog {
   userId?: string;
 }
 
+export interface Task {
+  id: string;
+  title: string;
+  dueDate: string;
+  completed: boolean;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -45,6 +53,7 @@ export interface Project {
   description?: string;
   history: HistoryEntry[];
   workLogs: WorkLog[]; // Array to store daily hours
+  tasks: Task[]; // Array to store project tasks
 }
 
 export interface StatCardProps {
