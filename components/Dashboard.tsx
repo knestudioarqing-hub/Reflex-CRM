@@ -17,14 +17,15 @@ interface DashboardProps {
 const createSmoothPath = (data: number[], width: number, height: number) => {
   if (data.length === 0) return { d: "", points: [] };
 
-  const max = Math.max(...data, 1);
-  const min = Math.min(...data, 0); // Assuming 0 as baseline usually
+  const max = Math.max(...data) * 1.1; // Add 10% headroom
+  const min = Math.min(...data) * 0.9;
   const range = max - min;
   
   // Map points to coordinates
   const points = data.map((val, i) => {
     const x = (i / (data.length - 1)) * width;
-    const y = height - ((val - min) / range) * (height * 0.8) - (height * 0.1); // 10% padding top/bottom
+    // Invert Y because SVG y=0 is top
+    const y = height - ((val - min) / (range || 1)) * (height * 0.7) - (height * 0.15); 
     return [x, y];
   });
 
@@ -455,48 +456,75 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
     setIsReportModalOpen(false);
   };
 
-  // Helper component for Charts
-  const AreaChart = ({ data, color, type }: { data: number[], color: 'green' | 'blue', type: string }) => {
-      const width = 300;
-      const height = 150;
+  // Helper component for Charts (Premium Crypto/Fintech Style)
+  const AreaChart = ({ data, color, type, height = 150 }: { data: number[], color: 'green' | 'blue', type: string, height?: number }) => {
+      const width = 400; // Increased resolution
       const { d, points } = createSmoothPath(data, width, height);
       
       // Close the path for fill
       const fillD = points.length ? `${d} L ${points[points.length-1][0]},${height} L 0,${height} Z` : "";
 
-      const strokeColor = color === 'green' ? '#4ade80' : '#3b82f6';
-      const gradId = `${color}Gradient`;
+      // Premium Colors
+      const neonGreen = '#10B981'; // Emerald 500 - Neonish
+      const neonBlue = '#3B82F6';  // Blue 500
+      
+      const strokeColor = color === 'green' ? neonGreen : neonBlue;
+      const gradId = `gradient-${color}-${Math.random().toString(36).substr(2, 9)}`;
 
       return (
-          <div className="w-full h-full relative">
+          <div className="w-full h-full relative group">
               <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible" preserveAspectRatio="none">
                   <defs>
                       <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor={strokeColor} stopOpacity="0.3" />
                           <stop offset="100%" stopColor={strokeColor} stopOpacity="0" />
                       </linearGradient>
+                      {/* Glow Filter */}
+                      <filter id={`glow-${gradId}`} x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                        <feMerge>
+                            <feMergeNode in="coloredBlur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
                   </defs>
+                  
+                  {/* Fill Area */}
                   <path d={fillD} fill={`url(#${gradId})`} stroke="none" />
-                  <path d={d} fill="none" stroke={strokeColor} strokeWidth="3" strokeLinecap="round" />
-                  {/* Last Point Dot */}
+                  
+                  {/* Glowing Stroke */}
+                  <path 
+                    d={d} 
+                    fill="none" 
+                    stroke={strokeColor} 
+                    strokeWidth="3" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    style={{ filter: `drop-shadow(0 0 6px ${strokeColor})` }} 
+                  />
+                  
+                  {/* Interactive Dot on Last Point */}
                   {points.length > 0 && (
-                      <circle 
-                        cx={points[points.length-1][0]} 
-                        cy={points[points.length-1][1]} 
-                        r="4" 
-                        fill={isDark ? '#0B0E14' : '#fff'} 
-                        stroke={strokeColor} 
-                        strokeWidth="3" 
-                        className="animate-pulse"
-                      />
+                      <g>
+                        <circle 
+                            cx={points[points.length-1][0]} 
+                            cy={points[points.length-1][1]} 
+                            r="6" 
+                            fill={isDark ? '#000' : '#fff'} 
+                            stroke={strokeColor} 
+                            strokeWidth="3"
+                        />
+                         <circle 
+                            cx={points[points.length-1][0]} 
+                            cy={points[points.length-1][1]} 
+                            r="12" 
+                            fill={strokeColor} 
+                            opacity="0.2"
+                            className="animate-pulse"
+                        />
+                      </g>
                   )}
               </svg>
-              {/* Tooltip Overlay Mockup */}
-              <div className="absolute top-4 left-4">
-                  <h4 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                      {type === 'efficiency' ? `${data[data.length-1]}%` : data[data.length-1]}
-                  </h4>
-              </div>
           </div>
       );
   };
@@ -1170,86 +1198,91 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </div>
       </div>
 
-      {/* Stats Row - NEW REDESIGN */}
+      {/* Stats Row - REDESIGNED PREMIUM FINTECH STYLE */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         
         {/* Module 1: Active Projects (Square 1:1) */}
         <div className={`col-span-1 aspect-square p-6 rounded-[2.5rem] border flex flex-col justify-between relative overflow-hidden group transition-all cursor-pointer
-            ${isDark ? 'bg-[#11141A] border-white/5 hover:border-[#BEF264]/20' : 'bg-white border-slate-200 hover:border-[#BEF264] shadow-sm'}`}
+            ${isDark ? 'bg-gradient-to-br from-[#121212] to-[#0a0a0a] border-white/5 hover:border-emerald-500/20' : 'bg-white border-slate-200 hover:border-[#BEF264] shadow-sm'}`}
             onClick={() => setViewFilter('active')}
         >
             <div className={`p-3 w-fit rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'} text-black`}>
-                <Layers size={24} className={isDark ? 'text-[#BEF264]' : 'text-slate-600'} />
+                <Layers size={24} className={isDark ? 'text-[#10B981]' : 'text-slate-600'} />
             </div>
             <div>
                 <p className={`text-4xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{activeCount}</p>
                 <h3 className="text-slate-500 font-medium text-sm leading-tight">{t.activeProjects}</h3>
             </div>
+            {/* Minimalist Progress Bar */}
             <div className={`absolute bottom-0 left-0 w-full h-1 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
-              <div className="h-full bg-[#BEF264]" style={{ width: '60%' }} />
+              <div className="h-full bg-[#10B981]" style={{ width: '60%', filter: 'drop-shadow(0 0 4px #10B981)' }} />
             </div>
         </div>
 
         {/* Module 2: Total Hours (Square 1:1) */}
         <div className={`col-span-1 aspect-square p-6 rounded-[2.5rem] border flex flex-col justify-between relative overflow-hidden group transition-all
-            ${isDark ? 'bg-[#11141A] border-white/5 hover:border-[#BEF264]/20' : 'bg-white border-slate-200 hover:border-[#BEF264] shadow-sm'}`}
+            ${isDark ? 'bg-gradient-to-br from-[#121212] to-[#0a0a0a] border-white/5 hover:border-blue-500/20' : 'bg-white border-slate-200 hover:border-[#BEF264] shadow-sm'}`}
         >
             <div className={`p-3 w-fit rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'} text-black`}>
-                <Clock size={24} className={isDark ? 'text-[#BEF264]' : 'text-slate-600'} />
+                <Clock size={24} className={isDark ? 'text-[#3B82F6]' : 'text-slate-600'} />
             </div>
             <div>
                 <p className={`text-4xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{Math.round(totalAccumulatedHours)}</p>
                 <h3 className="text-slate-500 font-medium text-sm leading-tight">{t.totalHours}</h3>
             </div>
              <div className={`absolute bottom-0 left-0 w-full h-1 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
-              <div className="h-full bg-[#BEF264]" style={{ width: '85%' }} />
+              <div className="h-full bg-[#3B82F6]" style={{ width: '85%', filter: 'drop-shadow(0 0 4px #3B82F6)' }} />
             </div>
         </div>
 
-        {/* Module 3: Efficiency Graph (Green) */}
-        <div className={`col-span-2 row-span-1 p-6 rounded-[2.5rem] border flex flex-col relative overflow-hidden
-            ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}
+        {/* Module 3: Efficiency Graph (Green - Premium Dark Mode) */}
+        <div className={`col-span-2 row-span-1 p-8 rounded-[2.5rem] border flex flex-col relative overflow-hidden shadow-2xl
+            ${isDark ? 'bg-gradient-to-br from-[#0f1115] via-[#0f1115] to-[#052e16] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}
         >
-            <div className="flex justify-between items-start mb-4 z-10 relative">
+            <div className="flex justify-between items-start mb-2 z-10 relative">
                <div>
-                   <h3 className={`text-sm font-medium text-slate-500 mb-1`}>{t.teamPerformance}</h3>
-                   <div className="flex items-end gap-2">
-                       <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{efficiencyData[efficiencyData.length-1]}%</p>
-                       <span className="text-emerald-400 text-sm font-bold mb-1.5 flex items-center">
-                           <TrendingUp size={14} className="mr-1" /> +2.4%
-                       </span>
+                   <h3 className={`text-sm font-medium text-slate-500 mb-2 uppercase tracking-widest`}>{t.teamPerformance}</h3>
+                   <div className="flex items-center gap-3">
+                       <p className={`text-5xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          {efficiencyData[efficiencyData.length-1]}%
+                       </p>
+                       <div className="flex flex-col">
+                           <span className="text-emerald-400 text-xs font-bold flex items-center bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">
+                               <TrendingUp size={12} className="mr-1" /> +2.4%
+                           </span>
+                       </div>
                    </div>
                </div>
             </div>
-            {/* Graph Container */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 w-full opacity-80">
+            {/* Graph Container - Floating at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-40 w-full opacity-90">
                 <AreaChart data={efficiencyData} color="green" type="efficiency" />
             </div>
         </div>
 
-        {/* Module 4: Monthly Delivered Graph (Blue) */}
-        <div className={`col-span-2 lg:col-span-4 p-6 rounded-[2.5rem] border flex flex-col relative overflow-hidden h-64
-            ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}
+        {/* Module 4: Monthly Delivered Graph (Blue - Premium Dark Mode) */}
+        <div className={`col-span-2 lg:col-span-4 p-8 rounded-[2.5rem] border flex flex-col relative overflow-hidden h-72 shadow-2xl
+            ${isDark ? 'bg-gradient-to-br from-[#0f1115] via-[#0f1115] to-[#0f172a] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}
         >
              <div className="flex justify-between items-start mb-4 z-10 relative">
                <div>
-                   <h3 className={`text-sm font-medium text-slate-500 mb-1`}>{t.completedProjects} (Monthly)</h3>
-                   <div className="flex items-end gap-2">
-                       <p className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                   <h3 className={`text-sm font-medium text-slate-500 mb-2 uppercase tracking-widest`}>{t.completedProjects}</h3>
+                   <div className="flex items-end gap-3">
+                       <p className={`text-5xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
                            {deliveredData.reduce((a, b) => a + b, 0)}
                        </p>
                        <span className="text-blue-400 text-sm font-bold mb-1.5">Total YTD</span>
                    </div>
                </div>
-               <div className="flex gap-2">
+               <div className="flex gap-4 p-2 rounded-xl bg-black/20 backdrop-blur-md border border-white/5">
                    {months.slice(-6).map((m, i) => (
-                       <span key={i} className="text-[10px] text-slate-600 uppercase font-bold">{m}</span>
+                       <span key={i} className={`text-[10px] uppercase font-bold cursor-pointer transition-colors ${i === 5 ? 'text-white' : 'text-slate-600 hover:text-slate-400'}`}>{m}</span>
                    ))}
                </div>
             </div>
             {/* Graph Container */}
-            <div className="absolute bottom-0 left-0 right-0 h-40 w-full opacity-80">
-                <AreaChart data={deliveredData} color="blue" type="delivered" />
+            <div className="absolute bottom-0 left-0 right-0 h-48 w-full opacity-90">
+                <AreaChart data={deliveredData} color="blue" type="delivered" height={180} />
             </div>
         </div>
 
