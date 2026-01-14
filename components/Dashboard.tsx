@@ -364,34 +364,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
           </div>
       </div>
 
-      {/* 3. CHARTS ROW (Visual Analysis) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="h-[340px]">
-              <InteractiveChart 
-                  data={chartData.hours} 
-                  labels={chartData.labels}
-                  color="green"
-                  title={t.teamPerformance}
-                  totalValue={`${chartData.totalHoursLast6M}`}
-                  subtitle="Hours"
-                  isDark={isDark}
-                  unit="h"
-              />
-          </div>
-          <div className="h-[340px]">
-              <InteractiveChart 
-                  data={chartData.deliveries} 
-                  labels={chartData.labels}
-                  color="blue"
-                  title={t.completedProjects}
-                  totalValue={chartData.totalDeliveredLast6M}
-                  subtitle="Units"
-                  isDark={isDark}
-              />
-          </div>
-      </div>
-
-      {/* 4. MAIN CONTENT ROW (Projects & Tasks) */}
+      {/* 3. MAIN CONTENT ROW (Projects & Tasks) - MOVED TO MIDDLE */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         
         {/* Left Column: Projects Table (2/3 width on large screens) */}
@@ -526,6 +499,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                 )}
             </div>
         </div>
+      </div>
+
+      {/* 4. CHARTS ROW (Visual Analysis) - MOVED TO BOTTOM */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="h-[340px]">
+              <InteractiveChart 
+                  data={chartData.hours} 
+                  labels={chartData.labels}
+                  color="green"
+                  title={t.teamPerformance}
+                  totalValue={`${chartData.totalHoursLast6M}`}
+                  subtitle="Hours"
+                  isDark={isDark}
+                  unit="h"
+              />
+          </div>
+          <div className="h-[340px]">
+              <InteractiveChart 
+                  data={chartData.deliveries} 
+                  labels={chartData.labels}
+                  color="blue"
+                  title={t.completedProjects}
+                  totalValue={chartData.totalDeliveredLast6M}
+                  subtitle="Units"
+                  isDark={isDark}
+              />
+          </div>
       </div>
       
       {/* Modals are implicitly included in the full implementation */}
