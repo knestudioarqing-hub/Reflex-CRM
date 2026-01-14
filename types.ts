@@ -32,6 +32,13 @@ export interface WorkLog {
   userId?: string;
 }
 
+export interface ProjectNote {
+  id: string;
+  content: string;
+  timestamp: string;
+  user: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -54,6 +61,7 @@ export interface Project {
   history: HistoryEntry[];
   workLogs: WorkLog[]; // Array to store daily hours
   tasks: Task[]; // Array to store project tasks
+  notes: ProjectNote[]; // Array to store project observations/comments
 }
 
 export interface StatCardProps {

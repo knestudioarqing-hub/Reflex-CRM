@@ -104,7 +104,13 @@ export const translations = {
     priorityMedium: "Medium",
     priorityLow: "Low",
     noTasks: "No pending tasks.",
-    filterByProject: "Filter by Project"
+    filterByProject: "Filter by Project",
+    // Observations / Notes
+    observations: "Observations & Comments",
+    addNote: "Add Note",
+    notePlaceholder: "Add a reminder or important observation...",
+    noNotes: "No observations recorded.",
+    noteAdded: "Observation added successfully!"
   },
   pt: {
     dashboard: "Painel de Controle",
@@ -209,6 +215,12 @@ export const translations = {
     priorityMedium: "Média",
     priorityLow: "Baixa",
     noTasks: "Sem tarefas pendentes.",
-    filterByProject: "Filtrar por Projeto"
+    filterByProject: "Filtrar por Projeto",
+    // Observations / Notes
+    observations: "Observações e Comentários",
+    addNote: "Adicionar Nota",
+    notePlaceholder: "Adicione um lembrete ou observação importante...",
+    noNotes: "Nenhuma observação registrada.",
+    noteAdded: "Observação adicionada com sucesso!"
   }
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package, Timer, CheckSquare, Trash2 } from 'lucide-react';
-import { Project, Language, Theme, Member, WorkLog, Task } from '../types';
+import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package, Timer, CheckSquare, Trash2, MessageSquare, Bell } from 'lucide-react';
+import { Project, Language, Theme, Member, WorkLog, Task, ProjectNote } from '../types';
 import { translations } from '../translations';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -30,6 +30,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       date: new Date().toISOString().split('T')[0],
       priority: 'medium'
   });
+
+  // Note/Observation State
+  const [noteForm, setNoteForm] = useState({ content: '' });
+  const [showNotification, setShowNotification] = useState(false);
 
   // Task Filter in Dashboard
   const [taskProjectFilter, setTaskProjectFilter] = useState<string>('all');
@@ -135,7 +139,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         user: 'Gianfranco'
       }],
       workLogs: [],
-      tasks: []
+      tasks: [],
+      notes: []
     };
 
     setProjects(prev => [...prev, newProject]);
@@ -260,6 +265,52 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       if (updatedSelectedProject) setSelectedProject(updatedSelectedProject);
   };
 
+  // --- NOTE MANAGEMENT LOGIC ---
+  const handleAddNote = () => {
+    if (!selectedProject || !noteForm.content) return;
+
+    const newNote: ProjectNote = {
+      id: Date.now().toString(),
+      content: noteForm.content,
+      timestamp: new Date().toISOString(),
+      user: 'Gianfranco'
+    };
+
+    const updatedProjects = projects.map(p => {
+      if (p.id === selectedProject.id) {
+        // Initialize notes if undefined
+        const currentNotes = p.notes || [];
+        return { ...p, notes: [newNote, ...currentNotes] };
+      }
+      return p;
+    });
+
+    setProjects(updatedProjects);
+    const updatedSelectedProject = updatedProjects.find(p => p.id === selectedProject.id);
+    if (updatedSelectedProject) setSelectedProject(updatedSelectedProject);
+
+    setNoteForm({ content: '' });
+    
+    // Trigger Notification
+    setShowNotification(true);
+    setTimeout(() => setShowNotification(false), 3000);
+  };
+
+  const handleDeleteNote = (noteId: string) => {
+    if (!selectedProject) return;
+
+    const updatedProjects = projects.map(p => {
+      if (p.id === selectedProject.id) {
+        return { ...p, notes: (p.notes || []).filter(n => n.id !== noteId) };
+      }
+      return p;
+    });
+
+    setProjects(updatedProjects);
+    const updatedSelectedProject = updatedProjects.find(p => p.id === selectedProject.id);
+    if (updatedSelectedProject) setSelectedProject(updatedSelectedProject);
+  };
+
   const toggleProjectSelection = (id: string) => {
     setReportFilters(prev => {
       if (prev.selectedProjectIds.includes(id)) {
@@ -377,8 +428,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   };
 
   return (
-    <div className="space-y-8 animate-fade-in pb-10">
+    <div className="space-y-8 animate-fade-in pb-10 relative">
       
+      {/* Toast Notification */}
+      {showNotification && (
+        <div className={`fixed top-6 right-6 z-[150] animate-slide-up flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${isDark ? 'bg-[#1A1F2C] border-emerald-500/30' : 'bg-white border-emerald-200'}`}>
+           <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-black">
+              <CheckCircle size={18} />
+           </div>
+           <div>
+              <h4 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.noteAdded}</h4>
+              <p className="text-xs text-slate-500">{new Date().toLocaleTimeString()}</p>
+           </div>
+        </div>
+      )}
+
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
@@ -626,6 +690,62 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                              </div>
                           ))}
                       </div>
+                   )}
+                </div>
+
+                {/* NEW SECTION: Observations & Notes */}
+                <div className="mb-8 border-b border-dashed border-slate-700 pb-8">
+                   <div className="flex justify-between items-center mb-4">
+                       <h3 className={`text-lg font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          <MessageSquare size={18} />
+                          {t.observations}
+                       </h3>
+                   </div>
+
+                   <div className={`p-4 rounded-xl border mb-4 ${isDark ? 'bg-[#0B0E14]/30 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                      <div className="flex gap-3 items-start">
+                         <div className="flex-1 w-full">
+                            <textarea 
+                               rows={2}
+                               placeholder={t.notePlaceholder}
+                               value={noteForm.content}
+                               onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
+                               className={`w-full p-2.5 rounded-lg border text-sm outline-none resize-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                            />
+                         </div>
+                         <button 
+                            onClick={handleAddNote}
+                            disabled={!noteForm.content}
+                            className="h-[42px] px-4 rounded-lg bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                         >
+                            <Plus size={16} />
+                            <span className="hidden sm:inline">{t.addNote}</span>
+                         </button>
+                      </div>
+                   </div>
+
+                   {selectedProject.notes && selectedProject.notes.length > 0 ? (
+                      <div className="max-h-48 overflow-y-auto pr-2 custom-scrollbar space-y-2">
+                          {selectedProject.notes.map((note) => (
+                             <div key={note.id} className={`flex justify-between items-start p-3 rounded-lg border relative group ${isDark ? 'bg-[#0B0E14]/30 border-white/5' : 'bg-white border-slate-100'}`}>
+                                <div className="flex flex-col gap-1 w-full">
+                                   <div className="flex justify-between items-center">
+                                       <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                           {new Date(note.timestamp).toLocaleString()}
+                                       </span>
+                                       <button onClick={() => handleDeleteNote(note.id)} className="text-slate-500 hover:text-red-400 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                           <Trash2 size={14} />
+                                       </button>
+                                   </div>
+                                   <p className={`text-sm whitespace-pre-wrap ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                                       {note.content}
+                                   </p>
+                                </div>
+                             </div>
+                          ))}
+                      </div>
+                   ) : (
+                       <p className="text-slate-500 text-sm italic">{t.noNotes}</p>
                    )}
                 </div>
                 
