@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Calendar, Layout, Users, History, Clock, Power, Search, Filter, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Calendar, Layout, Users, History, Clock, Power, Search, Filter, X, Briefcase, CheckCircle } from 'lucide-react';
 import { Project, Member, Language, Theme, HistoryEntry } from '../types';
 import { translations } from '../translations';
 
@@ -133,9 +133,16 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
     return matchesSearch && matchesStart && matchesEnd;
   });
 
+  const handleCreateNew = () => {
+    setCurrentProject(DEFAULT_PROJECT);
+    setIsEditing(true);
+  };
+
+  // --- RENDER ---
+
   if (isEditing) {
     return (
-      <div className={`max-w-4xl mx-auto backdrop-blur-xl border rounded-3xl p-8 shadow-2xl animate-fade-in ${isDark ? 'bg-[#151A23]/90 border-white/5' : 'bg-white/90 border-slate-200'}`}>
+      <div className={`max-w-4xl mx-auto backdrop-blur-xl border rounded-[2.5rem] p-8 shadow-2xl animate-fade-in mb-20 ${isDark ? 'bg-[#151A23]/90 border-white/5' : 'bg-white/90 border-slate-200'}`}>
         <div className="flex justify-between items-center mb-6">
           <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {currentProject.id ? t.editProject : t.addProject}
@@ -361,4 +368,122 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
         </div>
       </div>
     );
-  };
+  }
+
+  // --- LIST VIEW ---
+  return (
+    <div className="space-y-8 animate-fade-in pb-20 max-w-8xl mx-auto">
+      <div className="flex flex-col md:flex-row justify-between items-end gap-4">
+        <div>
+          <h1 className={`text-4xl font-light mb-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.projects}</h1>
+          <p className="text-slate-500">Manage your BIM portfolio.</p>
+        </div>
+        <button 
+          onClick={handleCreateNew}
+          className="bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(190,242,100,0.4)]"
+        >
+          <Plus size={18} />
+          {t.addProject}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {projects.length === 0 ? (
+          <div className="col-span-full py-20 text-center flex flex-col items-center">
+             <Briefcase size={48} className="mb-4 text-slate-500 opacity-50" />
+             <p className="text-slate-500 text-lg">{t.noProjects}</p>
+          </div>
+        ) : (
+          projects.map(project => (
+            <div 
+              key={project.id}
+              className={`relative overflow-hidden p-6 rounded-[2rem] border transition-all duration-300 group
+                ${isDark 
+                    ? `bg-[#12141a]/60 backdrop-blur-xl border-white/10 shadow-2xl hover:-translate-y-1` 
+                    : 'bg-white border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1'
+                }
+              `}
+            >
+              {/* Glass Reflection Top */}
+              {isDark && <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-80" />}
+
+              <div className="flex justify-between items-start mb-6">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold border ${isDark ? 'bg-[#1A1F2C] border-white/10 text-white' : 'bg-slate-100 border-slate-200 text-slate-700'}`}>
+                   {project.name.substring(0, 2).toUpperCase()}
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => handleEdit(project)}
+                    className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-white/10 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-400 hover:text-slate-900'}`}
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(project.id)}
+                    className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-red-500/10 text-slate-400 hover:text-red-400' : 'hover:bg-red-50 text-slate-400 hover:text-red-500'}`}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                 <h3 className={`text-xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{project.name}</h3>
+                 <p className="text-sm text-slate-500">{project.client}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                 <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                    <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.status}</span>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                        project.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400' : 
+                        project.status === 'modeling' ? 'bg-blue-500/10 text-blue-400' : 
+                        'bg-slate-500/10 text-slate-400'
+                    }`}>
+                      {project.status}
+                    </span>
+                 </div>
+                 <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                    <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.deadline}</span>
+                    <span className={`text-xs font-mono font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{project.deadline}</span>
+                 </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-slate-500 font-bold mb-2">
+                 <span>{t.progress}</span>
+                 <span>{project.progress}%</span>
+              </div>
+              <div className={`h-1.5 rounded-full overflow-hidden mb-6 ${isDark ? 'bg-[#1A1F2C]' : 'bg-slate-100'}`}>
+                <div className={`h-full rounded-full ${project.status === 'completed' ? 'bg-emerald-500' : 'bg-[#BEF264]'}`} style={{ width: `${project.progress}%` }} />
+              </div>
+
+              <div className={`pt-4 border-t flex items-center justify-between ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                 <div className="flex -space-x-2">
+                    {project.teamMembers.slice(0, 3).map(mid => {
+                       const m = members.find(mem => mem.id === mid);
+                       if(!m) return null;
+                       return (
+                         <div key={mid} className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold border-2 ${isDark ? 'bg-slate-800 border-[#151A23] text-white' : 'bg-slate-200 border-white text-slate-700'}`} title={m.name}>
+                            {m.name.substring(0,1)}
+                         </div>
+                       )
+                    })}
+                    {project.teamMembers.length > 3 && (
+                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold border-2 ${isDark ? 'bg-slate-800 border-[#151A23] text-white' : 'bg-slate-200 border-white text-slate-700'}`}>
+                          +{project.teamMembers.length - 3}
+                       </div>
+                    )}
+                    {project.teamMembers.length === 0 && <span className="text-xs text-slate-500 italic">No team</span>}
+                 </div>
+                 <span className={`text-xs font-mono font-bold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                    {project.lod}
+                 </span>
+              </div>
+
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
