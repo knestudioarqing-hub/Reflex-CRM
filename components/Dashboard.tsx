@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package, Timer, CheckSquare, Trash2, MessageSquare, Bell } from 'lucide-react';
 import { Project, Language, Theme, Member, WorkLog, Task, ProjectNote } from '../types';
 import { translations } from '../translations';
@@ -12,6 +12,40 @@ interface DashboardProps {
   lang: Language;
   theme: Theme;
 }
+
+// Helper to generate smooth SVG path from data points
+const createSmoothPath = (data: number[], width: number, height: number) => {
+  if (data.length === 0) return { d: "", points: [] };
+
+  const max = Math.max(...data, 1);
+  const min = Math.min(...data, 0); // Assuming 0 as baseline usually
+  const range = max - min;
+  
+  // Map points to coordinates
+  const points = data.map((val, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((val - min) / range) * (height * 0.8) - (height * 0.1); // 10% padding top/bottom
+    return [x, y];
+  });
+
+  // Generate Bezier curve
+  let d = `M ${points[0][0]},${points[0][1]}`;
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const [x0, y0] = points[i];
+    const [x1, y1] = points[i + 1];
+    
+    // Control points for smoothing
+    const cp1x = x0 + (x1 - x0) * 0.5;
+    const cp1y = y0;
+    const cp2x = x1 - (x1 - x0) * 0.5;
+    const cp2y = y1;
+
+    d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${x1},${y1}`;
+  }
+
+  return { d, points };
+};
 
 export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, members, lang, theme }) => {
   const t = translations[lang];
@@ -58,34 +92,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   // Dynamic calculations
   const activeProjectsList = projects.filter(p => p.isActive && p.status !== 'completed');
   const activeCount = activeProjectsList.length;
-  const completedCount = projects.filter(p => p.status === 'completed').length;
   
-  // Efficiency Calculation Logic
-  // 1. Collect all tasks from active projects
-  const allActiveTasks = activeProjectsList.flatMap(p => p.tasks || []);
-  let efficiencyMetric = 0;
-  let efficiencyTrend = "No data";
-
-  if (allActiveTasks.length > 0) {
-      // Logic A: Task Completion Rate
-      const completedTasks = allActiveTasks.filter(t => t.completed).length;
-      efficiencyMetric = Math.round((completedTasks / allActiveTasks.length) * 100);
-      efficiencyTrend = `${completedTasks}/${allActiveTasks.length} tasks done`;
-  } else {
-      // Logic B: On-Time Project Rate (Fallback if no tasks)
-      const now = new Date();
-      // Count projects where deadline is in the future or today
-      const onTimeProjects = activeProjectsList.filter(p => new Date(p.deadline) >= now).length;
-      
-      efficiencyMetric = activeCount > 0 
-          ? Math.round((onTimeProjects / activeCount) * 100) 
-          : 100; // Default to 100 if no active projects (nothing is late)
-      
-      efficiencyTrend = activeCount > 0 
-          ? `${onTimeProjects} on schedule` 
-          : "Ready to start";
-  }
-
   // Filter projects based on viewFilter
   const visibleProjects = projects.filter(p => {
     if (viewFilter === 'active') return p.isActive && p.status !== 'completed';
@@ -116,6 +123,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   const getProjectTotalHours = (project: Project) => {
     return (project.workLogs || []).reduce((acc, log) => acc + (Number(log.hours) || 0), 0);
   };
+
+  const totalAccumulatedHours = useMemo(() => {
+      return projects.reduce((acc, p) => acc + getProjectTotalHours(p), 0);
+  }, [projects]);
+
+  // --- CHART DATA GENERATION (MOCKED FOR DEMO, BUT DYNAMIC) ---
+  const efficiencyData = useMemo(() => {
+      // Mocking an efficiency curve that looks like the green chart
+      return [40, 55, 45, 60, 85, 80, 95, 88, 92, 85, 98, 90];
+  }, []);
+
+  const deliveredData = useMemo(() => {
+      // Mocking a delivered projects curve that looks like the blue chart
+      return [10, 8, 5, 7, 6, 8, 12, 9, 7, 5, 6, 4]; 
+  }, []);
+
+  // Labels for the charts
+  const months = lang === 'pt' 
+    ? ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 
   const handleCreateQuickProject = () => {
     if (!newProjectForm.name) return;
@@ -425,6 +453,52 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
     doc.save('reflex_crm_report.pdf');
     setIsReportModalOpen(false);
+  };
+
+  // Helper component for Charts
+  const AreaChart = ({ data, color, type }: { data: number[], color: 'green' | 'blue', type: string }) => {
+      const width = 300;
+      const height = 150;
+      const { d, points } = createSmoothPath(data, width, height);
+      
+      // Close the path for fill
+      const fillD = points.length ? `${d} L ${points[points.length-1][0]},${height} L 0,${height} Z` : "";
+
+      const strokeColor = color === 'green' ? '#4ade80' : '#3b82f6';
+      const gradId = `${color}Gradient`;
+
+      return (
+          <div className="w-full h-full relative">
+              <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                  <defs>
+                      <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={strokeColor} stopOpacity="0.3" />
+                          <stop offset="100%" stopColor={strokeColor} stopOpacity="0" />
+                      </linearGradient>
+                  </defs>
+                  <path d={fillD} fill={`url(#${gradId})`} stroke="none" />
+                  <path d={d} fill="none" stroke={strokeColor} strokeWidth="3" strokeLinecap="round" />
+                  {/* Last Point Dot */}
+                  {points.length > 0 && (
+                      <circle 
+                        cx={points[points.length-1][0]} 
+                        cy={points[points.length-1][1]} 
+                        r="4" 
+                        fill={isDark ? '#0B0E14' : '#fff'} 
+                        stroke={strokeColor} 
+                        strokeWidth="3" 
+                        className="animate-pulse"
+                      />
+                  )}
+              </svg>
+              {/* Tooltip Overlay Mockup */}
+              <div className="absolute top-4 left-4">
+                  <h4 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                      {type === 'efficiency' ? `${data[data.length-1]}%` : data[data.length-1]}
+                  </h4>
+              </div>
+          </div>
+      );
   };
 
   return (
@@ -892,93 +966,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </div>
       )}
 
-      {/* Report Modal */}
-      {isReportModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className={`w-full max-w-lg rounded-3xl p-8 shadow-2xl animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}>
-             <div className="flex justify-between items-center mb-6">
-                <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.reportSettings}</h3>
-                <button onClick={() => setIsReportModalOpen(false)} className="text-slate-500 hover:text-red-400">
-                  <X size={24} />
-                </button>
-             </div>
-
-             <div className="space-y-6">
-                {/* Date Range */}
-                <div>
-                   <label className="flex items-center gap-2 text-sm font-bold text-slate-500 mb-3">
-                     <Calendar size={16} />
-                     {t.dateRange}
-                   </label>
-                   <div className="flex gap-4">
-                      <div className="flex-1">
-                        <span className="text-xs text-slate-500 mb-1 block">{t.startDate}</span>
-                        <input 
-                          type="date" 
-                          value={reportFilters.startDate}
-                          onChange={(e) => setReportFilters({...reportFilters, startDate: e.target.value})}
-                          className={`w-full p-3 rounded-xl outline-none border ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <span className="text-xs text-slate-500 mb-1 block">{t.endDate}</span>
-                         <input 
-                          type="date" 
-                          value={reportFilters.endDate}
-                          onChange={(e) => setReportFilters({...reportFilters, endDate: e.target.value})}
-                          className={`w-full p-3 rounded-xl outline-none border ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
-                        />
-                      </div>
-                   </div>
-                </div>
-
-                {/* Project Selection */}
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-bold text-slate-500 mb-3">
-                     <Filter size={16} />
-                     {t.selectProjects}
-                   </label>
-                   <div className={`max-h-40 overflow-y-auto p-2 rounded-xl border ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-                      {projects.length === 0 ? (
-                        <p className="text-xs text-slate-500 p-2 text-center">No projects available.</p>
-                      ) : (
-                        projects.map(p => (
-                          <div 
-                            key={p.id} 
-                            onClick={() => toggleProjectSelection(p.id)}
-                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer mb-1 transition-colors ${
-                              reportFilters.selectedProjectIds.includes(p.id) 
-                              ? 'bg-[#BEF264]/20 text-[#BEF264]' 
-                              : 'hover:bg-white/5 text-slate-400'
-                            }`}
-                          >
-                             <div className={`w-4 h-4 rounded border flex items-center justify-center ${
-                               reportFilters.selectedProjectIds.includes(p.id) ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'
-                             }`}>
-                                {reportFilters.selectedProjectIds.includes(p.id) && <div className="w-2 h-2 bg-black rounded-sm" />}
-                             </div>
-                             <span className="text-sm font-medium">{p.name}</span>
-                          </div>
-                        ))
-                      )}
-                   </div>
-                   <div className="mt-2 text-xs text-slate-500 text-right">
-                      {reportFilters.selectedProjectIds.length === 0 ? t.allProjects : `${reportFilters.selectedProjectIds.length} selected`}
-                   </div>
-                </div>
-
-                <button 
-                  onClick={generatePDF}
-                  className="w-full py-4 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold text-lg shadow-lg shadow-[#BEF264]/20 transition-transform hover:scale-[1.02] flex items-center justify-center gap-2"
-                >
-                  <FileDown size={20} />
-                  {t.downloadPDF}
-                </button>
-             </div>
-          </div>
-        </div>
-      )}
-
       {/* Main Content (Projects Grid) - MOVED UP */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Projects Table */}
@@ -1183,59 +1170,89 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </div>
       </div>
 
-      {/* Stats Row - MOVED DOWN */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { 
-            label: t.activeProjects, 
-            value: activeCount.toString(), 
-            icon: Layers,
-            trend: "+2 this week",
-            onClick: () => setViewFilter('active')
-          },
-          { 
-            label: t.completedProjects, 
-            value: completedCount.toString(),
-            icon: Package, 
-            trend: "+12% vs last month",
-            onClick: () => setViewFilter('completed')
-          },
-          { 
-            label: t.teamPerformance, 
-            value: `${efficiencyMetric}%`,
-            icon: Clock,
-            trend: efficiencyTrend,
-            onClick: () => setViewFilter('all') // Reset to default or do nothing
-          },
-        ].map((stat, idx) => (
-          <div 
-            key={idx} 
-            onClick={stat.onClick}
-            className={`p-8 rounded-[2rem] border relative overflow-hidden group transition-all duration-500 cursor-pointer
-              ${isDark 
-                ? 'bg-[#11141A] border-white/5 hover:border-[#BEF264]/20' 
-                : 'bg-white border-slate-200 hover:border-[#BEF264] shadow-sm'
-              }`}
-          >
-            <div className="flex justify-between items-start mb-8">
-               <div className={`p-3 rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'} text-black`}>
-                 <stat.icon size={24} className={isDark ? 'text-[#BEF264]' : 'text-slate-600'} /> 
-               </div>
-               <span className={`text-xs font-medium px-3 py-1 rounded-full ${isDark ? 'text-slate-500 bg-white/5' : 'text-slate-600 bg-slate-100'}`}>{stat.trend}</span>
+      {/* Stats Row - NEW REDESIGN */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        {/* Module 1: Active Projects (Square 1:1) */}
+        <div className={`col-span-1 aspect-square p-6 rounded-[2.5rem] border flex flex-col justify-between relative overflow-hidden group transition-all cursor-pointer
+            ${isDark ? 'bg-[#11141A] border-white/5 hover:border-[#BEF264]/20' : 'bg-white border-slate-200 hover:border-[#BEF264] shadow-sm'}`}
+            onClick={() => setViewFilter('active')}
+        >
+            <div className={`p-3 w-fit rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'} text-black`}>
+                <Layers size={24} className={isDark ? 'text-[#BEF264]' : 'text-slate-600'} />
             </div>
             <div>
-              <p className={`text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>{stat.value}</p>
-              <h3 className="text-slate-500 font-medium">{stat.label}</h3>
+                <p className={`text-4xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{activeCount}</p>
+                <h3 className="text-slate-500 font-medium text-sm leading-tight">{t.activeProjects}</h3>
             </div>
-            {/* Progress Bar Decoration */}
             <div className={`absolute bottom-0 left-0 w-full h-1 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
-              <div 
-                className="h-full bg-[#BEF264] transition-all duration-1000 ease-out" 
-                style={{ width: `${Math.random() * 40 + 40}%` }} 
-              />
+              <div className="h-full bg-[#BEF264]" style={{ width: '60%' }} />
             </div>
-          </div>
-        ))}
+        </div>
+
+        {/* Module 2: Total Hours (Square 1:1) */}
+        <div className={`col-span-1 aspect-square p-6 rounded-[2.5rem] border flex flex-col justify-between relative overflow-hidden group transition-all
+            ${isDark ? 'bg-[#11141A] border-white/5 hover:border-[#BEF264]/20' : 'bg-white border-slate-200 hover:border-[#BEF264] shadow-sm'}`}
+        >
+            <div className={`p-3 w-fit rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'} text-black`}>
+                <Clock size={24} className={isDark ? 'text-[#BEF264]' : 'text-slate-600'} />
+            </div>
+            <div>
+                <p className={`text-4xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{Math.round(totalAccumulatedHours)}</p>
+                <h3 className="text-slate-500 font-medium text-sm leading-tight">{t.totalHours}</h3>
+            </div>
+             <div className={`absolute bottom-0 left-0 w-full h-1 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+              <div className="h-full bg-[#BEF264]" style={{ width: '85%' }} />
+            </div>
+        </div>
+
+        {/* Module 3: Efficiency Graph (Green) */}
+        <div className={`col-span-2 row-span-1 p-6 rounded-[2.5rem] border flex flex-col relative overflow-hidden
+            ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}
+        >
+            <div className="flex justify-between items-start mb-4 z-10 relative">
+               <div>
+                   <h3 className={`text-sm font-medium text-slate-500 mb-1`}>{t.teamPerformance}</h3>
+                   <div className="flex items-end gap-2">
+                       <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{efficiencyData[efficiencyData.length-1]}%</p>
+                       <span className="text-emerald-400 text-sm font-bold mb-1.5 flex items-center">
+                           <TrendingUp size={14} className="mr-1" /> +2.4%
+                       </span>
+                   </div>
+               </div>
+            </div>
+            {/* Graph Container */}
+            <div className="absolute bottom-0 left-0 right-0 h-32 w-full opacity-80">
+                <AreaChart data={efficiencyData} color="green" type="efficiency" />
+            </div>
+        </div>
+
+        {/* Module 4: Monthly Delivered Graph (Blue) */}
+        <div className={`col-span-2 lg:col-span-4 p-6 rounded-[2.5rem] border flex flex-col relative overflow-hidden h-64
+            ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}
+        >
+             <div className="flex justify-between items-start mb-4 z-10 relative">
+               <div>
+                   <h3 className={`text-sm font-medium text-slate-500 mb-1`}>{t.completedProjects} (Monthly)</h3>
+                   <div className="flex items-end gap-2">
+                       <p className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                           {deliveredData.reduce((a, b) => a + b, 0)}
+                       </p>
+                       <span className="text-blue-400 text-sm font-bold mb-1.5">Total YTD</span>
+                   </div>
+               </div>
+               <div className="flex gap-2">
+                   {months.slice(-6).map((m, i) => (
+                       <span key={i} className="text-[10px] text-slate-600 uppercase font-bold">{m}</span>
+                   ))}
+               </div>
+            </div>
+            {/* Graph Container */}
+            <div className="absolute bottom-0 left-0 right-0 h-40 w-full opacity-80">
+                <AreaChart data={deliveredData} color="blue" type="delivered" />
+            </div>
+        </div>
+
       </div>
     </div>
   );
