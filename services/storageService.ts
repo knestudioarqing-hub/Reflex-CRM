@@ -11,6 +11,15 @@ export const getPublicIP = async (): Promise<string> => {
     }
 };
 
+// Legacy keys from the previous version (static local storage)
+const LEGACY_KEYS = {
+  PROJECTS: 'REFLEX_CRM_PROJECTS',
+  MEMBERS: 'REFLEX_CRM_MEMBERS',
+  BRANDING: 'REFLEX_CRM_BRANDING',
+  THEME: 'REFLEX_CRM_THEME',
+  LANG: 'REFLEX_CRM_LANG'
+};
+
 export const saveUserData = (
   accessKey: string,
   data: { 
@@ -42,18 +51,29 @@ export const loadUserData = (accessKey: string) => {
 
   const prefix = `REFLEX_${accessKey}_`;
 
-  const getParsedItem = (key: string, defaultValue: any) => {
-    const item = localStorage.getItem(`${prefix}${key}`);
-    return item ? JSON.parse(item) : defaultValue;
+  const getParsedItem = (key: string, legacyKey: string, defaultValue: any) => {
+    // 1. Try to load data associated with the specific Access Key
+    const specificItem = localStorage.getItem(`${prefix}${key}`);
+    if (specificItem) return JSON.parse(specificItem);
+
+    // 2. Data Recovery / Migration:
+    // If no specific data exists for this key, try to load "Legacy" data 
+    // (data saved before the Unique Key system was implemented).
+    // This ensures users don't lose their previous work.
+    const legacyItem = localStorage.getItem(legacyKey);
+    if (legacyItem) {
+        console.log(`Recovering legacy data for ${key}`);
+        return JSON.parse(legacyItem);
+    }
+
+    return defaultValue;
   };
 
-  // Check if this key has data, if not try to migrate or return defaults
-  // For this implementation, we just return defaults for a new key
   return {
-    projects: getParsedItem('PROJECTS', []),
-    members: getParsedItem('MEMBERS', []),
-    branding: getParsedItem('BRANDING', null),
-    theme: getParsedItem('THEME', 'dark'),
-    lang: getParsedItem('LANG', 'pt')
+    projects: getParsedItem('PROJECTS', LEGACY_KEYS.PROJECTS, []),
+    members: getParsedItem('MEMBERS', LEGACY_KEYS.MEMBERS, []),
+    branding: getParsedItem('BRANDING', LEGACY_KEYS.BRANDING, null),
+    theme: getParsedItem('THEME', LEGACY_KEYS.THEME, 'dark'),
+    lang: getParsedItem('LANG', LEGACY_KEYS.LANG, 'pt')
   };
 };
