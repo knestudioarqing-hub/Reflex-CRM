@@ -53,9 +53,10 @@ export interface Project {
   client: string;
   status: 'planning' | 'modeling' | 'coordination' | 'completed';
   isActive: boolean; // New field to categorize as Active or Inactive
-  deadline: string;
+  startDate: string; // Replaces LOD slot
+  deadline: string; // Used as Delivery Date
   progress: number;
-  lod: string; // Level of Development (e.g., LOD 300)
+  // lod: string; // Removed as requested
   teamMembers: string[]; // IDs of members
   description?: string;
   history: HistoryEntry[];

@@ -90,7 +90,7 @@ const App: React.FC = () => {
   const isDark = theme === 'dark';
   
   return (
-    <div className={`flex min-h-screen font-sans animate-fade-in transition-colors duration-500 ${isDark ? 'bg-[#0B0E14] text-white selection:bg-[#BEF264]/30 selection:text-[#BEF264]' : 'bg-[#F8FAFC] text-slate-900 selection:bg-[#BEF264] selection:text-black'}`}>
+    <div className={`flex h-[100dvh] font-sans animate-fade-in transition-colors duration-500 overflow-hidden ${isDark ? 'bg-[#0B0E14] text-white selection:bg-[#BEF264]/30 selection:text-[#BEF264]' : 'bg-[#F8FAFC] text-slate-900 selection:bg-[#BEF264] selection:text-black'}`}>
       
       {/* Background Ambient Glow */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
@@ -98,9 +98,9 @@ const App: React.FC = () => {
         <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] transition-colors duration-700 ${isDark ? 'bg-blue-500/5' : 'bg-blue-500/10'}`} />
       </div>
 
-      <main className="w-full relative z-10 flex flex-col h-screen overflow-hidden">
+      <main className="w-full relative z-10 flex flex-col h-full overflow-hidden">
         {/* Header - Transparent Background with Floating Elements */}
-        <header className="flex justify-between items-center px-4 py-5 md:px-8 md:py-8 z-30 relative transition-all duration-300">
+        <header className="flex justify-between items-center px-4 py-4 md:px-8 md:py-8 z-30 relative transition-all duration-300 flex-shrink-0">
           
           {/* Left: Mobile Brand Name (Visible on Mobile & Tablet) */}
           <div className="lg:hidden z-20 flex-shrink-0 mr-4">
@@ -126,7 +126,6 @@ const App: React.FC = () => {
           </div>
 
           {/* Center: Brand Name (Large Screens Only - Absolute Position) */}
-          {/* Moved to Large screens only to prevent tablet overlap */}
           <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
              <h1 className={`text-3xl font-normal tracking-widest bg-clip-text text-transparent uppercase drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`} style={{ fontFamily: "'Urbanist', sans-serif" }}>
                {branding.companyName}

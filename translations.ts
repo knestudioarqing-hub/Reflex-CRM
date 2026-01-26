@@ -4,23 +4,23 @@ export const translations = {
   en: {
     dashboard: "Dashboard",
     projects: "Projects",
-    analytics: "Activity History", // Renamed
+    analytics: "Activity History", 
     settings: "Settings",
     members: "Members",
     welcome: "Welcome back,",
     searchPlaceholder: "Search for projects, tasks...",
     activeProjects: "Active BIM Projects",
     completedProjects: "Delivered Models",
-    totalRevenue: "Total Revenue", // Kept for key compatibility but unused
+    totalRevenue: "Total Revenue", 
     teamPerformance: "Team Efficiency",
     ongoingProjects: "Ongoing Projects",
     project: "Project",
     status: "Status",
-    deadline: "Deadline",
+    deadline: "Delivery Date", // Renamed
     team: "Team",
-    progress: "LOD Progress",
+    progress: "Progress",
     todoList: "To-do List",
-    revenueOverview: "Revenue Overview", // Unused
+    revenueOverview: "Revenue Overview", 
     recentActivity: "Recent Activity",
     whiteLabelSettings: "White Label Settings",
     brandName: "Brand Name",
@@ -43,7 +43,10 @@ export const translations = {
     cancel: "Cancel",
     projectName: "Project Name",
     clientName: "Client Name",
-    lodLevel: "LOD Level",
+    lodLevel: "LOD Level", // Deprecated internally but key kept to avoid breaking if used elsewhere
+    startDate: "Start Date", // New
+    endDate: "End Date", // Added missing key
+    deliveryDate: "Delivery Date", // New specific key
     description: "Description",
     selectMembers: "Select Team Members",
     addMember: "Add Member",
@@ -60,8 +63,8 @@ export const translations = {
     generateReport: "Generate Report",
     reportSettings: "Report Settings",
     dateRange: "Date Range (Activity Log)",
-    startDate: "Start Date",
-    endDate: "End Date",
+    startDateReport: "Start Date",
+    endDateReport: "End Date",
     selectProjects: "Select Projects",
     allProjects: "All Projects",
     downloadPDF: "Download PDF",
@@ -115,7 +118,7 @@ export const translations = {
   pt: {
     dashboard: "Painel de Controle",
     projects: "Projetos",
-    analytics: "Histórico", // Renamed
+    analytics: "Histórico", 
     settings: "Configurações",
     members: "Membros",
     welcome: "Bem-vindo de volta,",
@@ -127,9 +130,9 @@ export const translations = {
     ongoingProjects: "Projetos em Andamento",
     project: "Projeto",
     status: "Status",
-    deadline: "Prazo",
+    deadline: "Data de Entrega", // Renamed
     team: "Equipe",
-    progress: "Progresso LOD",
+    progress: "Progresso",
     todoList: "Lista de Tarefas",
     revenueOverview: "Visão Geral de Receita",
     recentActivity: "Atividade Recente",
@@ -154,7 +157,10 @@ export const translations = {
     cancel: "Cancelar",
     projectName: "Nome do Projeto",
     clientName: "Nome do Cliente",
-    lodLevel: "Nível LOD",
+    lodLevel: "Nível LOD", 
+    startDate: "Data de Início", // New
+    endDate: "Data de Fim", // Added missing key
+    deliveryDate: "Data de Entrega", // New
     description: "Descrição",
     selectMembers: "Selecionar Membros",
     addMember: "Adicionar Membro",
@@ -171,8 +177,8 @@ export const translations = {
     generateReport: "Gerar Relatório",
     reportSettings: "Configurar Relatório",
     dateRange: "Intervalo de Datas (Histórico)",
-    startDate: "Data Início",
-    endDate: "Data Fim",
+    startDateReport: "Data Início",
+    endDateReport: "Data Fim",
     selectProjects: "Selecionar Projetos",
     allProjects: "Todos os Projetos",
     downloadPDF: "Baixar PDF",

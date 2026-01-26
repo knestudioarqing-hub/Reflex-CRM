@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package, Timer, CheckSquare, Trash2, MessageSquare, Bell } from 'lucide-react';
 import { Project, Language, Theme, Member, WorkLog, Task, ProjectNote } from '../types';
 import { translations } from '../translations';
@@ -42,7 +43,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   const [newProjectForm, setNewProjectForm] = useState({
     name: '',
     client: '',
-    lod: 'LOD 200',
+    startDate: new Date().toISOString().split('T')[0],
     deadline: ''
   });
 
@@ -61,7 +62,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   const completedCount = projects.filter(p => p.status === 'completed').length;
   
   // Efficiency Calculation Logic
-  // 1. Collect all tasks from active projects
   const allActiveTasks = activeProjectsList.flatMap(p => p.tasks || []);
   let efficiencyMetric = 0;
   let efficiencyTrend = "No data";
@@ -126,9 +126,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       client: newProjectForm.client || 'Unknown Client',
       status: 'planning',
       isActive: true,
+      startDate: newProjectForm.startDate,
       deadline: newProjectForm.deadline || new Date().toISOString().split('T')[0],
       progress: 0,
-      lod: newProjectForm.lod,
       teamMembers: [],
       description: '',
       history: [{
@@ -145,7 +145,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
     setProjects(prev => [...prev, newProject]);
     setIsNewProjectModalOpen(false);
-    setNewProjectForm({ name: '', client: '', lod: 'LOD 200', deadline: '' });
+    setNewProjectForm({ name: '', client: '', startDate: new Date().toISOString().split('T')[0], deadline: '' });
   };
 
   const handleDeliverProject = (id: string, e?: React.MouseEvent) => {
@@ -431,7 +431,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
     <div className="space-y-8 animate-fade-in pb-10 relative">
       
       {/* Toast Notification */}
-      {showNotification && (
+      {showNotification && createPortal(
         <div className={`fixed top-6 right-6 z-[150] animate-slide-up flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${isDark ? 'bg-[#1A1F2C] border-emerald-500/30' : 'bg-white border-emerald-200'}`}>
            <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-black">
               <CheckCircle size={18} />
@@ -440,7 +440,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
               <h4 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.noteAdded}</h4>
               <p className="text-xs text-slate-500">{new Date().toLocaleTimeString()}</p>
            </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Header Section */}
@@ -460,8 +461,282 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </button>
       </div>
 
-      {/* Quick New Project Modal */}
-      {isNewProjectModalOpen && (
+      {/* STATS ROW */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          { 
+            label: t.activeProjects, 
+            value: activeCount.toString(), 
+            icon: Layers,
+            trend: "+2 this week",
+            onClick: () => setViewFilter('active'),
+            progress: 85 // Cosmetic High
+          },
+          { 
+            label: t.completedProjects, 
+            value: completedCount.toString(),
+            icon: Package, 
+            trend: "+12% vs last month",
+            onClick: () => setViewFilter('completed'),
+            progress: 60 // Cosmetic Medium
+          },
+          { 
+            label: t.teamPerformance, 
+            value: `${efficiencyMetric}%`,
+            icon: Clock,
+            trend: efficiencyTrend,
+            onClick: () => setViewFilter('all'),
+            progress: efficiencyMetric // Real data
+          },
+        ].map((stat, idx) => (
+          <div 
+            key={idx} 
+            onClick={stat.onClick}
+            className={`
+                relative p-6 rounded-3xl h-[200px] flex flex-col justify-between cursor-pointer transition-transform duration-300 hover:scale-[1.02]
+                ${isDark ? 'bg-[#0E1116] border border-white/5' : 'bg-white border border-slate-200 shadow-xl'}
+            `}
+          >
+            {/* Top Row: Icon and Badge */}
+            <div className="flex justify-between items-start">
+               {/* Icon Container */}
+               <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${isDark ? 'bg-white/5 border-white/5 text-[#BEF264]' : 'bg-slate-100 border-slate-200 text-slate-700'}`}>
+                 <stat.icon size={18} />
+               </div>
+               
+               {/* Badge */}
+               <div className={`px-3 py-1.5 rounded-full text-[10px] font-bold border tracking-wide uppercase ${isDark ? 'bg-[#151A23] border-white/5 text-slate-400' : 'bg-slate-50 border-slate-100 text-slate-500'}`}>
+                 {stat.trend}
+               </div>
+            </div>
+
+            {/* Middle: Number and Label */}
+            <div>
+               <h3 className={`text-5xl font-medium tracking-tight mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                 {stat.value}
+               </h3>
+               <p className="text-sm text-slate-500 font-medium tracking-wide">
+                 {stat.label}
+               </p>
+            </div>
+
+            {/* Bottom: Progress Bar */}
+            <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                <div 
+                    className="h-full bg-[#BEF264] shadow-[0_0_10px_rgba(190,242,100,0.5)] transition-all duration-1000 ease-out" 
+                    style={{ width: `${stat.progress}%` }} 
+                />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Main Content (Projects Grid) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Projects Table */}
+        <div className={`lg:col-span-2 border rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+          {/* Decorative Glow */}
+          <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#BEF264]/5' : 'bg-[#BEF264]/20'}`} />
+
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 relative z-10">
+            <h2 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.ongoingProjects}</h2>
+            
+            <div className="flex flex-wrap gap-2 items-center">
+                {/* Quick Add Project Button */}
+                <button 
+                  onClick={() => setIsNewProjectModalOpen(true)}
+                  className="mr-2 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-[#BEF264] text-black shadow-lg shadow-[#BEF264]/10 transition-transform hover:scale-105"
+                >
+                  <Plus size={16} />
+                  {t.addProject}
+                </button>
+
+                <div className={`flex p-1 rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+                  <button 
+                    onClick={() => setViewFilter('all')}
+                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
+                      viewFilter === 'all'
+                        ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
+                        : 'text-slate-500 hover:text-slate-400'
+                    }`}
+                  >
+                    {lang === 'pt' ? 'Todos' : 'All'}
+                  </button>
+                  <button 
+                    onClick={() => setViewFilter('active')}
+                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
+                      viewFilter === 'active'
+                      ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
+                      : 'text-slate-500 hover:text-slate-400'
+                    }`}
+                  >
+                    {lang === 'pt' ? 'Ativos' : 'Active'}
+                  </button>
+                  <button 
+                    onClick={() => setViewFilter('completed')}
+                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
+                      viewFilter === 'completed'
+                      ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
+                      : 'text-slate-500 hover:text-slate-400'
+                    }`}
+                  >
+                    {lang === 'pt' ? 'Entregues' : 'Delivered'}
+                  </button>
+                </div>
+            </div>
+          </div>
+          
+          <div className="overflow-x-auto relative z-10">
+            {visibleProjects.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-64 text-slate-500">
+                    <p>{t.noProjects}</p>
+                </div>
+            ) : (
+                <table className="w-full text-left border-collapse">
+                <thead>
+                    <tr className="text-slate-500 text-xs font-bold uppercase tracking-wider">
+                    <th className="pb-6 pl-4">{t.project}</th>
+                    <th className="pb-6">{t.status}</th>
+                    <th className="pb-6 text-center">{t.totalHours}</th>
+                    <th className="pb-6">{t.deadline}</th>
+                    <th className="pb-6">{t.progress}</th>
+                    <th className="pb-6 text-center">{lang === 'pt' ? 'Ações' : 'Actions'}</th>
+                    </tr>
+                </thead>
+                <tbody className="text-sm">
+                    {visibleProjects.slice(0, 5).map((project, i) => (
+                    <tr 
+                        key={project.id} 
+                        onClick={() => setSelectedProject(project)}
+                        className={`group transition-colors border-b last:border-0 cursor-pointer ${isDark ? 'hover:bg-white/[0.02] border-white/5' : 'hover:bg-slate-50 border-slate-100'} ${!project.isActive ? 'opacity-60' : ''}`}
+                    >
+                        <td className="py-5 pl-4">
+                        <div className="flex items-center gap-4">
+                            <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-xs font-bold transition-colors ${isDark ? 'bg-[#1A1F2C] border-white/10 text-white group-hover:border-[#BEF264]/50' : 'bg-slate-100 border-slate-200 text-slate-700 group-hover:border-[#BEF264]'}`}>
+                            {project.name.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                            <p className={`font-bold text-base ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                {project.name}
+                                {!project.isActive && <span className="ml-2 text-[10px] text-slate-500 bg-slate-500/10 px-1.5 py-0.5 rounded border border-slate-500/20">Inactive</span>}
+                            </p>
+                            <p className="text-xs text-slate-500 font-medium">{project.client}</p>
+                            </div>
+                        </div>
+                        </td>
+                        <td className="py-5">
+                          {project.status === 'completed' || project.status === 'modeling' ? (
+                            <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-[#BEF264] text-black shadow-[0_0_10px_-3px_rgba(190,242,100,0.4)]">
+                              {project.status === 'completed' ? t.statusCompleted : t.statusModeling}
+                            </span>
+                          ) : (
+                            <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${isDark ? 'bg-[#1A1F2C] text-slate-300 border-white/10' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                              {project.status === 'planning' ? t.statusPlanning : t.statusCoordination}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-5 text-center font-mono font-bold text-slate-500">
+                           {getProjectTotalHours(project)}h
+                        </td>
+                        <td className="py-5 text-slate-400 font-medium">{project.deadline}</td>
+                        <td className="py-5 w-48 pr-4">
+                        <div className="flex flex-col gap-2">
+                            <div className="flex justify-between text-xs">
+                                <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{project.progress}%</span>
+                            </div>
+                            <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#1A1F2C]' : 'bg-slate-100'}`}>
+                                <div 
+                                    className={`h-full rounded-full ${project.status === 'completed' ? 'bg-emerald-500' : 'bg-[#BEF264]'}`} 
+                                    style={{ width: `${project.progress}%` }}
+                                />
+                            </div>
+                        </div>
+                        </td>
+                        <td className="py-5 text-center">
+                           {project.status !== 'completed' && (
+                             <button 
+                                onClick={(e) => handleDeliverProject(project.id, e)}
+                                className={`p-2 rounded-full transition-all hover:scale-110 ${isDark ? 'hover:bg-[#BEF264]/20 text-slate-400 hover:text-[#BEF264]' : 'hover:bg-[#BEF264]/10 text-slate-400 hover:text-emerald-600'}`}
+                                title={lang === 'pt' ? 'Entregar' : 'Deliver'}
+                             >
+                               <CheckCircle size={20} />
+                             </button>
+                           )}
+                        </td>
+                    </tr>
+                    ))}
+                </tbody>
+                </table>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: To-Do / Widgets */}
+        <div className="space-y-6">
+            <div className={`border rounded-[2.5rem] p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+                <div className="flex justify-between items-center mb-6 z-10">
+                    <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.todoList}</h2>
+                    {/* Project Filter for Tasks */}
+                    <div className="flex items-center gap-2">
+                        <Filter size={16} className="text-slate-500" />
+                        <select 
+                            value={taskProjectFilter}
+                            onChange={(e) => setTaskProjectFilter(e.target.value)}
+                            className={`text-xs p-1 rounded-lg outline-none border ${isDark ? 'bg-[#1A1F2C] border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
+                        >
+                            <option value="all">{t.filterByProject}</option>
+                            {projects.filter(p => p.isActive).map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="space-y-4 z-10 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                    {filteredTasks.length === 0 ? (
+                        <p className="text-center text-slate-500 text-sm italic py-4">{t.noTasks}</p>
+                    ) : (
+                        filteredTasks.map((task, i) => (
+                        <div 
+                            key={`${task.projectId}-${task.id}`} 
+                            className={`p-5 rounded-3xl border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/5 hover:border-[#BEF264]/30' : 'bg-slate-50 border-slate-200 hover:border-[#BEF264]'}`}
+                            onClick={() => toggleTaskCompletion(task.projectId, task.id)}
+                        >
+                            <div className="flex justify-between items-start mb-2">
+                                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${
+                                    task.priority === 'urgent' ? 'bg-red-500/10 text-red-400' : 
+                                    task.priority === 'high' ? 'bg-orange-500/10 text-orange-400' :
+                                    task.priority === 'medium' ? 'bg-blue-500/10 text-blue-400' :
+                                    'bg-slate-500/10 text-slate-400'
+                                }`}>
+                                    {task.priority.toUpperCase()}
+                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-[10px] font-bold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{task.projectName}</span>
+                                    <Clock size={14} className="text-slate-500" />
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
+                                    {task.completed && <CheckCircle size={14} className="text-black" />}
+                                </div>
+                                <div>
+                                    <h4 className={`font-bold mb-0.5 transition-colors ${task.completed ? 'line-through text-slate-500' : isDark ? 'text-white group-hover:text-[#BEF264]' : 'text-slate-900 group-hover:text-black'}`}>
+                                        {task.title}
+                                    </h4>
+                                    <p className="text-xs text-slate-500">{task.dueDate}</p>
+                                </div>
+                            </div>
+                        </div>
+                        ))
+                    )}
+                </div>
+            </div>
+        </div>
+      </div>
+
+      {/* Quick New Project Modal via Portal */}
+      {isNewProjectModalOpen && createPortal(
         <div 
           className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
           onClick={() => setIsNewProjectModalOpen(false)}
@@ -503,11 +778,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                 </div>
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-wide">{t.lodLevel}</label>
+                    <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-wide">{t.startDate}</label>
                     <input 
-                      type="text" 
-                      value={newProjectForm.lod}
-                      onChange={(e) => setNewProjectForm({...newProjectForm, lod: e.target.value})}
+                      type="date" 
+                      value={newProjectForm.startDate}
+                      onChange={(e) => setNewProjectForm({...newProjectForm, startDate: e.target.value})}
                       className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white focus:border-[#BEF264]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#BEF264]'}`}
                     />
                   </div>
@@ -532,11 +807,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Project Details Modal */}
-      {selectedProject && (
+      {/* Project Details Modal via Portal */}
+      {selectedProject && createPortal(
         <div 
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
             onClick={() => setSelectedProject(null)}
@@ -595,8 +871,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             </span>
                         </div>
                         <div className="flex justify-between items-center">
-                             <span className="text-slate-500 text-sm font-bold uppercase">{t.lodLevel}</span>
-                             <span className={`font-mono font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedProject.lod}</span>
+                             <span className="text-slate-500 text-sm font-bold uppercase">{t.startDate}</span>
+                             <span className={`font-mono font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedProject.startDate || '-'}</span>
                         </div>
                     </div>
 
@@ -889,11 +1165,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                 )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Report Modal */}
-      {isReportModalOpen && (
+      {/* Report Modal via Portal */}
+      {isReportModalOpen && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className={`w-full max-w-lg rounded-3xl p-8 shadow-2xl animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}>
              <div className="flex justify-between items-center mb-6">
@@ -976,267 +1253,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                 </button>
              </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-
-      {/* Main Content (Projects Grid) - MOVED UP */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Projects Table */}
-        <div className={`lg:col-span-2 border rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
-          {/* Decorative Glow */}
-          <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#BEF264]/5' : 'bg-[#BEF264]/20'}`} />
-
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 relative z-10">
-            <h2 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.ongoingProjects}</h2>
-            
-            <div className="flex flex-wrap gap-2 items-center">
-                {/* Quick Add Project Button */}
-                <button 
-                  onClick={() => setIsNewProjectModalOpen(true)}
-                  className="mr-2 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-[#BEF264] text-black shadow-lg shadow-[#BEF264]/10 transition-transform hover:scale-105"
-                >
-                  <Plus size={16} />
-                  {t.addProject}
-                </button>
-
-                <div className={`flex p-1 rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
-                  <button 
-                    onClick={() => setViewFilter('all')}
-                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
-                      viewFilter === 'all'
-                        ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
-                        : 'text-slate-500 hover:text-slate-400'
-                    }`}
-                  >
-                    {lang === 'pt' ? 'Todos' : 'All'}
-                  </button>
-                  <button 
-                    onClick={() => setViewFilter('active')}
-                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
-                      viewFilter === 'active'
-                      ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
-                      : 'text-slate-500 hover:text-slate-400'
-                    }`}
-                  >
-                    {lang === 'pt' ? 'Ativos' : 'Active'}
-                  </button>
-                  <button 
-                    onClick={() => setViewFilter('completed')}
-                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
-                      viewFilter === 'completed'
-                      ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
-                      : 'text-slate-500 hover:text-slate-400'
-                    }`}
-                  >
-                    {lang === 'pt' ? 'Entregues' : 'Delivered'}
-                  </button>
-                </div>
-            </div>
-          </div>
-          
-          <div className="overflow-x-auto relative z-10">
-            {visibleProjects.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-64 text-slate-500">
-                    <p>{t.noProjects}</p>
-                </div>
-            ) : (
-                <table className="w-full text-left border-collapse">
-                <thead>
-                    <tr className="text-slate-500 text-xs font-bold uppercase tracking-wider">
-                    <th className="pb-6 pl-4">{t.project}</th>
-                    <th className="pb-6">{t.status}</th>
-                    <th className="pb-6 text-center">{t.totalHours}</th>
-                    <th className="pb-6">{t.deadline}</th>
-                    <th className="pb-6">{t.progress}</th>
-                    <th className="pb-6 text-center">{lang === 'pt' ? 'Ações' : 'Actions'}</th>
-                    </tr>
-                </thead>
-                <tbody className="text-sm">
-                    {visibleProjects.slice(0, 5).map((project, i) => (
-                    <tr 
-                        key={project.id} 
-                        onClick={() => setSelectedProject(project)}
-                        className={`group transition-colors border-b last:border-0 cursor-pointer ${isDark ? 'hover:bg-white/[0.02] border-white/5' : 'hover:bg-slate-50 border-slate-100'} ${!project.isActive ? 'opacity-60' : ''}`}
-                    >
-                        <td className="py-5 pl-4">
-                        <div className="flex items-center gap-4">
-                            <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-xs font-bold transition-colors ${isDark ? 'bg-[#1A1F2C] border-white/10 text-white group-hover:border-[#BEF264]/50' : 'bg-slate-100 border-slate-200 text-slate-700 group-hover:border-[#BEF264]'}`}>
-                            {project.name.substring(0, 2).toUpperCase()}
-                            </div>
-                            <div>
-                            <p className={`font-bold text-base ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                {project.name}
-                                {!project.isActive && <span className="ml-2 text-[10px] text-slate-500 bg-slate-500/10 px-1.5 py-0.5 rounded border border-slate-500/20">Inactive</span>}
-                            </p>
-                            <p className="text-xs text-slate-500 font-medium">{project.client}</p>
-                            </div>
-                        </div>
-                        </td>
-                        <td className="py-5">
-                          {project.status === 'completed' || project.status === 'modeling' ? (
-                            <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-[#BEF264] text-black shadow-[0_0_10px_-3px_rgba(190,242,100,0.4)]">
-                              {project.status === 'completed' ? t.statusCompleted : t.statusModeling}
-                            </span>
-                          ) : (
-                            <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${isDark ? 'bg-[#1A1F2C] text-slate-300 border-white/10' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                              {project.status === 'planning' ? t.statusPlanning : t.statusCoordination}
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-5 text-center font-mono font-bold text-slate-500">
-                           {getProjectTotalHours(project)}h
-                        </td>
-                        <td className="py-5 text-slate-400 font-medium">{project.deadline}</td>
-                        <td className="py-5 w-48 pr-4">
-                        <div className="flex flex-col gap-2">
-                            <div className="flex justify-between text-xs">
-                                <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{project.progress}%</span>
-                            </div>
-                            <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#1A1F2C]' : 'bg-slate-100'}`}>
-                                <div 
-                                    className={`h-full rounded-full ${project.status === 'completed' ? 'bg-emerald-500' : 'bg-[#BEF264]'}`} 
-                                    style={{ width: `${project.progress}%` }}
-                                />
-                            </div>
-                        </div>
-                        </td>
-                        <td className="py-5 text-center">
-                           {project.status !== 'completed' && (
-                             <button 
-                                onClick={(e) => handleDeliverProject(project.id, e)}
-                                className={`p-2 rounded-full transition-all hover:scale-110 ${isDark ? 'hover:bg-[#BEF264]/20 text-slate-400 hover:text-[#BEF264]' : 'hover:bg-[#BEF264]/10 text-slate-400 hover:text-emerald-600'}`}
-                                title={lang === 'pt' ? 'Entregar' : 'Deliver'}
-                             >
-                               <CheckCircle size={20} />
-                             </button>
-                           )}
-                        </td>
-                    </tr>
-                    ))}
-                </tbody>
-                </table>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: To-Do / Widgets */}
-        <div className="space-y-6">
-            <div className={`border rounded-[2.5rem] p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
-                <div className="flex justify-between items-center mb-6 z-10">
-                    <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.todoList}</h2>
-                    {/* Project Filter for Tasks */}
-                    <div className="flex items-center gap-2">
-                        <Filter size={16} className="text-slate-500" />
-                        <select 
-                            value={taskProjectFilter}
-                            onChange={(e) => setTaskProjectFilter(e.target.value)}
-                            className={`text-xs p-1 rounded-lg outline-none border ${isDark ? 'bg-[#1A1F2C] border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
-                        >
-                            <option value="all">{t.filterByProject}</option>
-                            {projects.filter(p => p.isActive).map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-
-                <div className="space-y-4 z-10 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                    {filteredTasks.length === 0 ? (
-                        <p className="text-center text-slate-500 text-sm italic py-4">{t.noTasks}</p>
-                    ) : (
-                        filteredTasks.map((task, i) => (
-                        <div 
-                            key={`${task.projectId}-${task.id}`} 
-                            className={`p-5 rounded-3xl border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/5 hover:border-[#BEF264]/30' : 'bg-slate-50 border-slate-200 hover:border-[#BEF264]'}`}
-                            onClick={() => toggleTaskCompletion(task.projectId, task.id)}
-                        >
-                            <div className="flex justify-between items-start mb-2">
-                                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${
-                                    task.priority === 'urgent' ? 'bg-red-500/10 text-red-400' : 
-                                    task.priority === 'high' ? 'bg-orange-500/10 text-orange-400' :
-                                    task.priority === 'medium' ? 'bg-blue-500/10 text-blue-400' :
-                                    'bg-slate-500/10 text-slate-400'
-                                }`}>
-                                    {task.priority.toUpperCase()}
-                                </span>
-                                <div className="flex items-center gap-2">
-                                    <span className={`text-[10px] font-bold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{task.projectName}</span>
-                                    <Clock size={14} className="text-slate-500" />
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
-                                    {task.completed && <CheckCircle size={14} className="text-black" />}
-                                </div>
-                                <div>
-                                    <h4 className={`font-bold mb-0.5 transition-colors ${task.completed ? 'line-through text-slate-500' : isDark ? 'text-white group-hover:text-[#BEF264]' : 'text-slate-900 group-hover:text-black'}`}>
-                                        {task.title}
-                                    </h4>
-                                    <p className="text-xs text-slate-500">{task.dueDate}</p>
-                                </div>
-                            </div>
-                        </div>
-                        ))
-                    )}
-                </div>
-            </div>
-        </div>
-      </div>
-
-      {/* Stats Row - MOVED DOWN */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { 
-            label: t.activeProjects, 
-            value: activeCount.toString(), 
-            icon: Layers,
-            trend: "+2 this week",
-            onClick: () => setViewFilter('active')
-          },
-          { 
-            label: t.completedProjects, 
-            value: completedCount.toString(),
-            icon: Package, 
-            trend: "+12% vs last month",
-            onClick: () => setViewFilter('completed')
-          },
-          { 
-            label: t.teamPerformance, 
-            value: `${efficiencyMetric}%`,
-            icon: Clock,
-            trend: efficiencyTrend,
-            onClick: () => setViewFilter('all') // Reset to default or do nothing
-          },
-        ].map((stat, idx) => (
-          <div 
-            key={idx} 
-            onClick={stat.onClick}
-            className={`p-8 rounded-[2rem] border relative overflow-hidden group transition-all duration-500 cursor-pointer
-              ${isDark 
-                ? 'bg-[#11141A] border-white/5 hover:border-[#BEF264]/20' 
-                : 'bg-white border-slate-200 hover:border-[#BEF264] shadow-sm'
-              }`}
-          >
-            <div className="flex justify-between items-start mb-8">
-               <div className={`p-3 rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'} text-black`}>
-                 <stat.icon size={24} className={isDark ? 'text-[#BEF264]' : 'text-slate-600'} /> 
-               </div>
-               <span className={`text-xs font-medium px-3 py-1 rounded-full ${isDark ? 'text-slate-500 bg-white/5' : 'text-slate-600 bg-slate-100'}`}>{stat.trend}</span>
-            </div>
-            <div>
-              <p className={`text-4xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>{stat.value}</p>
-              <h3 className="text-slate-500 font-medium">{stat.label}</h3>
-            </div>
-            {/* Progress Bar Decoration */}
-            <div className={`absolute bottom-0 left-0 w-full h-1 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
-              <div 
-                className="h-full bg-[#BEF264] transition-all duration-1000 ease-out" 
-                style={{ width: `${Math.random() * 40 + 40}%` }} 
-              />
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

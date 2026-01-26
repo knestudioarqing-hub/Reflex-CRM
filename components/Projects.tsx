@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Calendar, Layout, Users, History, Clock, Power, Search, Filter, X, Briefcase, CheckCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Calendar, Layout, Users, History, Clock, Power, Search, Filter, X, Briefcase, CheckCircle, ArrowRight } from 'lucide-react';
 import { Project, Member, Language, Theme, HistoryEntry } from '../types';
 import { translations } from '../translations';
 
@@ -17,9 +17,9 @@ const DEFAULT_PROJECT: Project = {
   client: '',
   status: 'planning',
   isActive: true, // Default to active
+  startDate: '',
   deadline: '',
   progress: 0,
-  lod: 'LOD 200',
   teamMembers: [],
   description: '',
   history: [],
@@ -44,10 +44,6 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
     user: 'Gianfranco' // Hardcoded current user
   });
 
-  const getProjectTotalHours = (project: Project) => {
-    return (project.workLogs || []).reduce((acc, log) => acc + (Number(log.hours) || 0), 0);
-  };
-
   const handleSave = () => {
     if (!currentProject.name) return;
 
@@ -61,8 +57,8 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
         if (originalProject.status !== currentProject.status) changes.push(`Status changed to ${currentProject.status}`);
         if (originalProject.isActive !== currentProject.isActive) changes.push(`Project marked as ${currentProject.isActive ? 'Active' : 'Inactive'}`);
         if (originalProject.progress !== currentProject.progress) changes.push(`Progress updated to ${currentProject.progress}%`);
-        if (originalProject.lod !== currentProject.lod) changes.push(`LOD updated to ${currentProject.lod}`);
-        if (originalProject.deadline !== currentProject.deadline) changes.push(`Deadline changed to ${currentProject.deadline}`);
+        if (originalProject.startDate !== currentProject.startDate) changes.push(`Start date updated to ${currentProject.startDate}`);
+        if (originalProject.deadline !== currentProject.deadline) changes.push(`Delivery date changed to ${currentProject.deadline}`);
         
         // Members check
         const addedMembers = currentProject.teamMembers.filter(id => !originalProject.teamMembers.includes(id));
@@ -142,7 +138,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
 
   if (isEditing) {
     return (
-      <div className={`max-w-4xl mx-auto backdrop-blur-xl border rounded-[2.5rem] p-8 shadow-2xl animate-fade-in mb-20 ${isDark ? 'bg-[#151A23]/90 border-white/5' : 'bg-white/90 border-slate-200'}`}>
+      <div className={`max-w-4xl mx-auto backdrop-blur-xl border rounded-[2.5rem] p-8 shadow-2xl animate-fade-in mb-32 ${isDark ? 'bg-[#151A23]/90 border-white/5' : 'bg-white/90 border-slate-200'}`}>
         <div className="flex justify-between items-center mb-6">
           <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {currentProject.id ? t.editProject : t.addProject}
@@ -224,25 +220,27 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">{t.deadline}</label>
-                  <input 
-                    type="date" 
-                    value={currentProject.deadline}
-                    onChange={(e) => setCurrentProject({...currentProject, deadline: e.target.value})}
-                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">{t.startDate}</label>
+                        <input 
+                            type="date" 
+                            value={currentProject.startDate}
+                            onChange={(e) => setCurrentProject({...currentProject, startDate: e.target.value})}
+                            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">{t.deliveryDate}</label>
+                        <input 
+                            type="date" 
+                            value={currentProject.deadline}
+                            onChange={(e) => setCurrentProject({...currentProject, deadline: e.target.value})}
+                            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                        />
+                    </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">{t.lodLevel}</label>
-                  <input 
-                    type="text" 
-                    value={currentProject.lod}
-                    onChange={(e) => setCurrentProject({...currentProject, lod: e.target.value})}
-                    placeholder="e.g. LOD 350"
-                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
-                  />
-                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-1">{t.progress} ({currentProject.progress}%)</label>
                   <input 
@@ -434,13 +432,9 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
 
               <div className="grid grid-cols-2 gap-4 mb-6">
                  <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-                    <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.status}</span>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${
-                        project.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400' : 
-                        project.status === 'modeling' ? 'bg-blue-500/10 text-blue-400' : 
-                        'bg-slate-500/10 text-slate-400'
-                    }`}>
-                      {project.status}
+                    <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.startDate}</span>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                      {project.startDate || '-'}
                     </span>
                  </div>
                  <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
@@ -475,8 +469,14 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                     )}
                     {project.teamMembers.length === 0 && <span className="text-xs text-slate-500 italic">No team</span>}
                  </div>
-                 <span className={`text-xs font-mono font-bold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                    {project.lod}
+                 
+                 {/* Status Badge moved here since LOD is gone */}
+                 <span className={`text-xs font-bold uppercase tracking-wider ${
+                    project.status === 'completed' ? 'text-emerald-500' : 
+                    project.status === 'modeling' ? 'text-blue-500' : 
+                    'text-slate-500'
+                 }`}>
+                    {project.status}
                  </span>
               </div>
 
