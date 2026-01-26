@@ -6,7 +6,6 @@ import { Members } from './components/Members';
 import { Settings } from './components/Settings';
 import { ActivityHistory } from './components/ActivityHistory';
 import { SplashScreen } from './components/SplashScreen';
-import { AccessGate } from './components/AccessGate'; // Imported AccessGate
 import { Search, Bell, Globe, LogOut, Sun, Moon, User } from 'lucide-react';
 import { translations } from './translations';
 import { Language, Branding, Project, Member, Theme } from './types';
@@ -20,8 +19,7 @@ const DEFAULT_BRANDING: Branding = {
 
 const App: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);
-  const [hasAccess, setHasAccess] = useState(false);
-  const [accessKey, setAccessKey] = useState<string>(''); // Access Key State
+  // Removed Access Gate state
   
   const [currentView, setCurrentView] = useState('dashboard');
   const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -35,36 +33,34 @@ const App: React.FC = () => {
 
   const t = translations[lang];
 
-  // Splash Screen Timer
+  // Initialize App & Load Data Immediately
   useEffect(() => {
-    setTimeout(() => {
-        setShowSplash(false);
-    }, 3500);
-  }, []);
+    const initializeApp = () => {
+        // Load data directly (no key needed)
+        const savedData = loadUserData('local'); 
+        
+        if (savedData) {
+            setProjects(savedData.projects);
+            setMembers(savedData.members);
+            if (savedData.branding) setBranding(savedData.branding);
+            setTheme(savedData.theme as Theme);
+            setLang(savedData.lang as Language);
+        }
+        setIsDataLoaded(true);
 
-  // Initialize Data ONLY after Access is Granted
-  useEffect(() => {
-    if (hasAccess && accessKey) {
-        const initializeApp = () => {
-            const savedData = loadUserData(accessKey);
-            
-            if (savedData) {
-                setProjects(savedData.projects);
-                setMembers(savedData.members);
-                if (savedData.branding) setBranding(savedData.branding);
-                setTheme(savedData.theme as Theme);
-                setLang(savedData.lang as Language);
-            }
-            setIsDataLoaded(true);
-        };
-        initializeApp();
-    }
-  }, [hasAccess, accessKey]);
+        // Hide splash after delay
+        setTimeout(() => {
+            setShowSplash(false);
+        }, 3500);
+    };
+
+    initializeApp();
+  }, []);
 
   // Persistence
   useEffect(() => {
-    if (isDataLoaded && accessKey) {
-      saveUserData(accessKey, {
+    if (isDataLoaded) {
+      saveUserData('local', {
         projects,
         members,
         branding,
@@ -72,18 +68,7 @@ const App: React.FC = () => {
         lang
       });
     }
-  }, [projects, members, branding, theme, lang, isDataLoaded, accessKey]);
-
-  const handleAccessGranted = (key: string) => {
-      setAccessKey(key);
-      setHasAccess(true);
-  };
-
-  const handleLogout = () => {
-      setHasAccess(false);
-      setAccessKey('');
-      setIsDataLoaded(false);
-  };
+  }, [projects, members, branding, theme, lang, isDataLoaded]);
 
   const toggleLanguage = () => {
     setLang(prev => prev === 'en' ? 'pt' : 'en');
@@ -96,11 +81,6 @@ const App: React.FC = () => {
   // Render Splash Screen First
   if (showSplash) {
     return <SplashScreen branding={branding} lang={lang} />;
-  }
-
-  // Render Access Gate if not authenticated
-  if (!hasAccess) {
-      return <AccessGate onAccessGranted={handleAccessGranted} lang={lang} />;
   }
 
   const isDark = theme === 'dark';
@@ -151,12 +131,6 @@ const App: React.FC = () => {
           {/* Right: Controls & Profile */}
           <div className="flex items-center gap-2 md:gap-3 z-20 ml-auto md:ml-0 flex-shrink-0">
              
-             {/* Key Indicator */}
-             <div className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] font-mono ${isDark ? 'bg-[#151A23]/50 border-white/5 text-emerald-400' : 'bg-white/70 border-slate-200 text-emerald-600'}`} title="Connected Key">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                KEY: {accessKey}
-             </div>
-
              <button 
               onClick={toggleTheme}
               className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23]/50 border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
@@ -180,7 +154,7 @@ const App: React.FC = () => {
 
             <div className={`h-10 w-[1px] mx-1 md:mx-2 hidden sm:block ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}></div>
 
-            <div className="flex items-center gap-3 pl-1 md:pl-2 cursor-pointer group" onClick={handleLogout}>
+            <div className="flex items-center gap-3 pl-1 md:pl-2 cursor-pointer group">
                 <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center border-2 transition-colors shadow-lg bg-[#BEF264] text-black ${isDark ? 'border-slate-700 group-hover:border-[#BEF264]' : 'border-slate-200 group-hover:border-[#BEF264]'}`}>
                     <User size={20} />
                 </div>
