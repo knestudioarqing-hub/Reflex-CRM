@@ -1,23 +1,18 @@
 import { Project, Member, Branding, Language, Theme } from '../types';
 
-const IP_API_URL = 'https://api.ipify.org?format=json';
-
-export const getUserIP = async (): Promise<string> => {
-  try {
-    const response = await fetch(IP_API_URL);
-    if (!response.ok) throw new Error('Network response was not ok');
-    const data = await response.json();
-    return data.ip;
-  } catch (error) {
-    console.warn('Could not fetch IP address, falling back to local-user.', error);
-    return 'local-user';
-  }
+// Helper to get public IP for visualization purposes
+export const getPublicIP = async (): Promise<string> => {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        return '127.0.0.1'; // Fallback
+    }
 };
 
-const getStorageKey = (ip: string, key: string) => `REFLEX_${ip}_${key}`;
-
 export const saveUserData = (
-  ip: string, 
+  accessKey: string,
   data: { 
     projects: Project[], 
     members: Member[], 
@@ -26,30 +21,38 @@ export const saveUserData = (
     lang: Language
   }
 ) => {
-  if (!ip) return;
+  if (!accessKey) return;
+  
+  // Create namespaced keys based on the access code
+  const prefix = `REFLEX_${accessKey}_`;
+  
   try {
-    localStorage.setItem(getStorageKey(ip, 'PROJECTS'), JSON.stringify(data.projects));
-    localStorage.setItem(getStorageKey(ip, 'MEMBERS'), JSON.stringify(data.members));
-    localStorage.setItem(getStorageKey(ip, 'BRANDING'), JSON.stringify(data.branding));
-    localStorage.setItem(getStorageKey(ip, 'THEME'), JSON.stringify(data.theme));
-    localStorage.setItem(getStorageKey(ip, 'LANG'), JSON.stringify(data.lang));
+    localStorage.setItem(`${prefix}PROJECTS`, JSON.stringify(data.projects));
+    localStorage.setItem(`${prefix}MEMBERS`, JSON.stringify(data.members));
+    localStorage.setItem(`${prefix}BRANDING`, JSON.stringify(data.branding));
+    localStorage.setItem(`${prefix}THEME`, JSON.stringify(data.theme));
+    localStorage.setItem(`${prefix}LANG`, JSON.stringify(data.lang));
   } catch (e) {
     console.error("Error saving data to local storage", e);
   }
 };
 
-export const loadUserData = (ip: string) => {
-  if (!ip) return null;
-  
+export const loadUserData = (accessKey: string) => {
+  if (!accessKey) return null;
+
+  const prefix = `REFLEX_${accessKey}_`;
+
   const getParsedItem = (key: string, defaultValue: any) => {
-    const item = localStorage.getItem(getStorageKey(ip, key));
+    const item = localStorage.getItem(`${prefix}${key}`);
     return item ? JSON.parse(item) : defaultValue;
   };
 
+  // Check if this key has data, if not try to migrate or return defaults
+  // For this implementation, we just return defaults for a new key
   return {
     projects: getParsedItem('PROJECTS', []),
     members: getParsedItem('MEMBERS', []),
-    branding: getParsedItem('BRANDING', null), // Null triggers default in App
+    branding: getParsedItem('BRANDING', null),
     theme: getParsedItem('THEME', 'dark'),
     lang: getParsedItem('LANG', 'pt')
   };

@@ -6,10 +6,11 @@ import { Members } from './components/Members';
 import { Settings } from './components/Settings';
 import { ActivityHistory } from './components/ActivityHistory';
 import { SplashScreen } from './components/SplashScreen';
+import { AccessGate } from './components/AccessGate'; // Imported AccessGate
 import { Search, Bell, Globe, LogOut, Sun, Moon, User } from 'lucide-react';
 import { translations } from './translations';
 import { Language, Branding, Project, Member, Theme } from './types';
-import { getUserIP, loadUserData, saveUserData } from './services/storageService';
+import { loadUserData, saveUserData } from './services/storageService';
 
 const DEFAULT_BRANDING: Branding = {
   companyName: 'REFLEX CRM',
@@ -19,53 +20,51 @@ const DEFAULT_BRANDING: Branding = {
 
 const App: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);
+  const [hasAccess, setHasAccess] = useState(false);
+  const [accessKey, setAccessKey] = useState<string>(''); // Access Key State
+  
   const [currentView, setCurrentView] = useState('dashboard');
-  const [userIp, setUserIp] = useState<string>('');
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const [lang, setLang] = useState<Language>('pt'); // Default to Portuguese
   const [theme, setTheme] = useState<Theme>('dark');
   const [branding, setBranding] = useState<Branding>(DEFAULT_BRANDING);
   
-  // Initialize with empty, but will populate from storage
   const [projects, setProjects] = useState<Project[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
 
   const t = translations[lang];
 
-  // 1. Initialize: Fetch IP -> Load Data -> Hide Splash
+  // Splash Screen Timer
   useEffect(() => {
-    const initializeApp = async () => {
-      // 1. Get User IP
-      const ip = await getUserIP();
-      setUserIp(ip);
-
-      // 2. Load Data for this IP
-      const savedData = loadUserData(ip);
-      
-      if (savedData) {
-        setProjects(savedData.projects);
-        setMembers(savedData.members);
-        if (savedData.branding) setBranding(savedData.branding);
-        setTheme(savedData.theme as Theme);
-        setLang(savedData.lang as Language);
-      }
-
-      setIsDataLoaded(true);
-
-      // 3. Handle Splash Screen Timer
-      setTimeout(() => {
+    setTimeout(() => {
         setShowSplash(false);
-      }, 3500);
-    };
-
-    initializeApp();
+    }, 3500);
   }, []);
 
-  // 2. Persistence: Save data whenever it changes (only if data has finished loading)
+  // Initialize Data ONLY after Access is Granted
   useEffect(() => {
-    if (isDataLoaded && userIp) {
-      saveUserData(userIp, {
+    if (hasAccess && accessKey) {
+        const initializeApp = () => {
+            const savedData = loadUserData(accessKey);
+            
+            if (savedData) {
+                setProjects(savedData.projects);
+                setMembers(savedData.members);
+                if (savedData.branding) setBranding(savedData.branding);
+                setTheme(savedData.theme as Theme);
+                setLang(savedData.lang as Language);
+            }
+            setIsDataLoaded(true);
+        };
+        initializeApp();
+    }
+  }, [hasAccess, accessKey]);
+
+  // Persistence
+  useEffect(() => {
+    if (isDataLoaded && accessKey) {
+      saveUserData(accessKey, {
         projects,
         members,
         branding,
@@ -73,7 +72,18 @@ const App: React.FC = () => {
         lang
       });
     }
-  }, [projects, members, branding, theme, lang, userIp, isDataLoaded]);
+  }, [projects, members, branding, theme, lang, isDataLoaded, accessKey]);
+
+  const handleAccessGranted = (key: string) => {
+      setAccessKey(key);
+      setHasAccess(true);
+  };
+
+  const handleLogout = () => {
+      setHasAccess(false);
+      setAccessKey('');
+      setIsDataLoaded(false);
+  };
 
   const toggleLanguage = () => {
     setLang(prev => prev === 'en' ? 'pt' : 'en');
@@ -83,8 +93,14 @@ const App: React.FC = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
+  // Render Splash Screen First
   if (showSplash) {
     return <SplashScreen branding={branding} lang={lang} />;
+  }
+
+  // Render Access Gate if not authenticated
+  if (!hasAccess) {
+      return <AccessGate onAccessGranted={handleAccessGranted} lang={lang} />;
   }
 
   const isDark = theme === 'dark';
@@ -135,10 +151,10 @@ const App: React.FC = () => {
           {/* Right: Controls & Profile */}
           <div className="flex items-center gap-2 md:gap-3 z-20 ml-auto md:ml-0 flex-shrink-0">
              
-             {/* IP Indicator (Subtle) */}
-             <div className={`hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] font-mono ${isDark ? 'bg-[#151A23]/50 border-white/5 text-slate-500' : 'bg-white/70 border-slate-200 text-slate-400'}`} title="Connected IP">
+             {/* Key Indicator */}
+             <div className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] font-mono ${isDark ? 'bg-[#151A23]/50 border-white/5 text-emerald-400' : 'bg-white/70 border-slate-200 text-emerald-600'}`} title="Connected Key">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                {userIp || 'Connecting...'}
+                KEY: {accessKey}
              </div>
 
              <button 
@@ -164,7 +180,7 @@ const App: React.FC = () => {
 
             <div className={`h-10 w-[1px] mx-1 md:mx-2 hidden sm:block ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}></div>
 
-            <div className="flex items-center gap-3 pl-1 md:pl-2 cursor-pointer group">
+            <div className="flex items-center gap-3 pl-1 md:pl-2 cursor-pointer group" onClick={handleLogout}>
                 <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center border-2 transition-colors shadow-lg bg-[#BEF264] text-black ${isDark ? 'border-slate-700 group-hover:border-[#BEF264]' : 'border-slate-200 group-hover:border-[#BEF264]'}`}>
                     <User size={20} />
                 </div>

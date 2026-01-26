@@ -123,7 +123,17 @@ export const translations = {
     copyToClipboard: "Copy to Clipboard",
     importSuccess: "Data imported successfully!",
     importError: "Invalid data format.",
-    loadData: "Load Data"
+    loadData: "Load Data",
+    // Access Gate
+    accessRequired: "System Access Required",
+    enterAccessKey: "Enter Unique Access Code",
+    accessKeyPlaceholder: "e.g. 8821",
+    initializeSystem: "Initialize System",
+    detectingIP: "Detecting Network IP...",
+    secureConnection: "Establishing Secure Link...",
+    connectionEstablished: "Connection Established",
+    accessGranted: "Access Granted",
+    invalidCode: "Please enter a valid code."
   },
   pt: {
     dashboard: "Painel de Controle",
@@ -247,6 +257,16 @@ export const translations = {
     copyToClipboard: "Copiar para Área de Transferência",
     importSuccess: "Dados importados com sucesso!",
     importError: "Formato de dados inválido.",
-    loadData: "Carregar Dados"
+    loadData: "Carregar Dados",
+    // Access Gate
+    accessRequired: "Acesso ao Sistema Exigido",
+    enterAccessKey: "Insira Código de Acesso Único",
+    accessKeyPlaceholder: "ex: 8821",
+    initializeSystem: "Inicializar Sistema",
+    detectingIP: "Detectando IP de Rede...",
+    secureConnection: "Estabelecendo Link Seguro...",
+    connectionEstablished: "Conexão Estabelecida",
+    accessGranted: "Acesso Permitido",
+    invalidCode: "Por favor, insira um código válido."
   }
 };
