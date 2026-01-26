@@ -113,7 +113,17 @@ export const translations = {
     addNote: "Add Note",
     notePlaceholder: "Add a reminder or important observation...",
     noNotes: "No observations recorded.",
-    noteAdded: "Observation added successfully!"
+    noteAdded: "Observation added successfully!",
+    // Data Management
+    dataManagement: "Data Management",
+    exportData: "Export Data",
+    importData: "Import Data",
+    exportDescription: "Copy this code to transfer your data to another device.",
+    importDescription: "Paste the data code here to sync from another device.",
+    copyToClipboard: "Copy to Clipboard",
+    importSuccess: "Data imported successfully!",
+    importError: "Invalid data format.",
+    loadData: "Load Data"
   },
   pt: {
     dashboard: "Painel de Controle",
@@ -227,6 +237,16 @@ export const translations = {
     addNote: "Adicionar Nota",
     notePlaceholder: "Adicione um lembrete ou observação importante...",
     noNotes: "Nenhuma observação registrada.",
-    noteAdded: "Observação adicionada com sucesso!"
+    noteAdded: "Observação adicionada com sucesso!",
+    // Data Management
+    dataManagement: "Gerenciamento de Dados",
+    exportData: "Exportar Dados",
+    importData: "Importar Dados",
+    exportDescription: "Copie este código para transferir seus dados para outro dispositivo.",
+    importDescription: "Cole o código de dados aqui para sincronizar de outro dispositivo.",
+    copyToClipboard: "Copiar para Área de Transferência",
+    importSuccess: "Dados importados com sucesso!",
+    importError: "Formato de dados inválido.",
+    loadData: "Carregar Dados"
   }
 };

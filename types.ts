@@ -72,3 +72,12 @@ export interface StatCardProps {
   isPositive: boolean;
   icon: React.ReactNode;
 }
+
+export interface BackupData {
+  projects: Project[];
+  members: Member[];
+  branding: Branding;
+  theme: Theme;
+  lang: Language;
+  timestamp: number;
+}

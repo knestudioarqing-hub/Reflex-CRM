@@ -190,7 +190,18 @@ const App: React.FC = () => {
             {currentView === 'analytics' && (
                <ActivityHistory projects={projects} lang={lang} theme={theme} />
             )}
-            {currentView === 'settings' && <Settings branding={branding} setBranding={setBranding} lang={lang} theme={theme} />}
+            {currentView === 'settings' && (
+                <Settings 
+                    branding={branding} 
+                    setBranding={setBranding} 
+                    lang={lang} 
+                    theme={theme}
+                    projects={projects}
+                    members={members}
+                    setProjects={setProjects}
+                    setMembers={setMembers}
+                />
+            )}
           </div>
         </div>
 
