@@ -138,7 +138,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
 
   if (isEditing) {
     return (
-      <div className={`max-w-4xl mx-auto backdrop-blur-xl border rounded-[2.5rem] p-8 shadow-2xl animate-fade-in mb-32 ${isDark ? 'bg-[#151A23]/90 border-white/5' : 'bg-white/90 border-slate-200'}`}>
+      <div className={`max-w-4xl mx-auto backdrop-blur-xl border rounded-[2.5rem] p-4 md:p-8 shadow-2xl animate-fade-in mb-32 ${isDark ? 'bg-[#151A23]/90 border-white/5' : 'bg-white/90 border-slate-200'}`}>
         <div className="flex justify-between items-center mb-6">
           <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {currentProject.id ? t.editProject : t.addProject}
@@ -156,7 +156,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                   className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-[#BEF264] text-black shadow-lg' : 'text-slate-500 hover:text-slate-400'}`}
                >
                  <History size={16} />
-                 {t.history}
+                 <span className="hidden sm:inline">{t.history}</span>
                </button>
             </div>
           )}
@@ -295,19 +295,19 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                       className="bg-transparent border-none outline-none text-xs w-full text-slate-700 dark:text-slate-300 placeholder-slate-500"
                     />
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                    <input 
                       type="date" 
                       value={historyFilters.start}
                       onChange={(e) => setHistoryFilters({...historyFilters, start: e.target.value})}
-                      className={`text-xs p-1.5 rounded-lg border outline-none ${isDark ? 'bg-black/30 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
+                      className={`text-xs p-1.5 rounded-lg border outline-none flex-1 sm:flex-none ${isDark ? 'bg-black/30 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
                    />
                    <span className="text-slate-500 text-xs">-</span>
                    <input 
                       type="date" 
                       value={historyFilters.end}
                       onChange={(e) => setHistoryFilters({...historyFilters, end: e.target.value})}
-                      className={`text-xs p-1.5 rounded-lg border outline-none ${isDark ? 'bg-black/30 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
+                      className={`text-xs p-1.5 rounded-lg border outline-none flex-1 sm:flex-none ${isDark ? 'bg-black/30 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
                    />
                 </div>
                 {(historyFilters.search || historyFilters.start || historyFilters.end) && (
@@ -395,7 +395,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
           projects.map(project => (
             <div 
               key={project.id}
-              className={`relative overflow-hidden p-6 rounded-[2rem] border transition-all duration-300 group
+              className={`relative overflow-hidden p-5 md:p-6 rounded-[2rem] border transition-all duration-300 group
                 ${isDark 
                     ? `bg-[#12141a]/60 backdrop-blur-xl border-white/10 shadow-2xl hover:-translate-y-1` 
                     : 'bg-white border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1'

@@ -71,20 +71,20 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ projects, lang
         <p className="text-slate-500">{t.activitySubtitle}</p>
       </div>
 
-      <div className={`backdrop-blur-xl border rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#151A23]/80 border-white/5' : 'bg-white border-slate-200'}`}>
+      <div className={`backdrop-blur-xl border rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#151A23]/80 border-white/5' : 'bg-white border-slate-200'}`}>
         {/* Ambient Glow */}
         <div className={`absolute top-0 right-0 w-[400px] h-[400px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-blue-500/5' : 'bg-blue-500/10'}`} />
 
         <div className="relative z-10 space-y-6">
             {/* Filter Controls */}
-            <div className={`flex flex-wrap items-end gap-4 p-4 rounded-2xl border ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+            <div className={`flex flex-col md:flex-row md:flex-wrap md:items-end gap-4 p-4 rounded-2xl border ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                 <div className="flex items-center gap-2 text-slate-500 mb-2 md:mb-0 mr-4">
                     <Filter size={18} />
                     <span className="text-sm font-bold uppercase tracking-wider">{t.dateRange}</span>
                 </div>
                 
                 {/* Search Input */}
-                <div className="relative flex-1 min-w-[200px]">
+                <div className="relative flex-1 w-full md:w-auto md:min-w-[200px]">
                    <label className="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Search</label>
                    <div className="relative">
                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -98,30 +98,30 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ projects, lang
                    </div>
                 </div>
 
-                <div>
+                <div className="w-full md:w-auto">
                     <label className="text-[10px] uppercase font-bold text-slate-500 mb-1 block">{t.startDate}</label>
                     <input 
                         type="date" 
                         value={dateFilter.start}
                         onChange={(e) => setDateFilter(prev => ({ ...prev, start: e.target.value }))}
-                        className={`px-4 py-2 rounded-xl text-sm border focus:outline-none focus:border-emerald-500 transition-colors ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                        className={`w-full md:w-auto px-4 py-2 rounded-xl text-sm border focus:outline-none focus:border-emerald-500 transition-colors ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                     />
                 </div>
                 
-                <div>
+                <div className="w-full md:w-auto">
                     <label className="text-[10px] uppercase font-bold text-slate-500 mb-1 block">{t.endDate}</label>
                     <input 
                         type="date" 
                         value={dateFilter.end}
                         onChange={(e) => setDateFilter(prev => ({ ...prev, end: e.target.value }))}
-                        className={`px-4 py-2 rounded-xl text-sm border focus:outline-none focus:border-emerald-500 transition-colors ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                        className={`w-full md:w-auto px-4 py-2 rounded-xl text-sm border focus:outline-none focus:border-emerald-500 transition-colors ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                     />
                 </div>
 
                 {(dateFilter.start || dateFilter.end || searchTerm) && (
                     <button 
                         onClick={() => { setDateFilter({ start: '', end: '' }); setSearchTerm(''); }}
-                        className="ml-auto flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-bold text-red-400 hover:bg-red-400/10 transition-colors"
+                        className="md:ml-auto flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-bold text-red-400 hover:bg-red-400/10 transition-colors w-full md:w-auto"
                     >
                         <X size={14} />
                         {t.clearFilters}

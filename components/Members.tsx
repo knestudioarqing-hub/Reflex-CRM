@@ -147,7 +147,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
       </div>
 
       {isFormOpen && (
-        <div className={`backdrop-blur-md border rounded-3xl p-8 shadow-2xl mb-8 animate-fade-in max-w-2xl mx-auto ${isDark ? 'bg-[#151A23]/90 border-white/5' : 'bg-white/90 border-slate-200'}`}>
+        <div className={`backdrop-blur-md border rounded-3xl p-5 md:p-8 shadow-2xl mb-8 animate-fade-in max-w-2xl mx-auto ${isDark ? 'bg-[#151A23]/90 border-white/5' : 'bg-white/90 border-slate-200'}`}>
           <h3 className={`text-xl font-bold mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>{formData.id ? t.edit : t.addMember}</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

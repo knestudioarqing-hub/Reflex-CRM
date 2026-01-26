@@ -26,7 +26,7 @@ export const Settings: React.FC<SettingsProps> = ({ branding, setBranding, lang,
         <p className="text-slate-400">Customize the look and feel of your CRM.</p>
       </div>
 
-      <div className={`backdrop-blur-md border rounded-3xl p-8 shadow-xl space-y-6 ${isDark ? 'bg-[#151A23]/80 border-white/5' : 'bg-white/80 border-slate-200'}`}>
+      <div className={`backdrop-blur-md border rounded-3xl p-5 md:p-8 shadow-xl space-y-6 ${isDark ? 'bg-[#151A23]/80 border-white/5' : 'bg-white/80 border-slate-200'}`}>
         <div>
           <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{t.brandName}</label>
           <input

@@ -454,7 +454,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </div>
         <button 
           onClick={() => setIsReportModalOpen(true)}
-          className="bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(190,242,100,0.3)]"
+          className="bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(190,242,100,0.3)] w-full md:w-auto justify-center"
         >
           <span className="text-sm">{t.generateReport}</span>
           <FileDown size={18} />
@@ -462,7 +462,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       </div>
 
       {/* STATS ROW */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {[
           { 
             label: t.activeProjects, 
@@ -493,7 +493,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             key={idx} 
             onClick={stat.onClick}
             className={`
-                relative p-6 rounded-3xl h-[200px] flex flex-col justify-between cursor-pointer transition-transform duration-300 hover:scale-[1.02]
+                relative p-5 md:p-6 rounded-3xl h-[180px] md:h-[200px] flex flex-col justify-between cursor-pointer transition-transform duration-300 hover:scale-[1.02]
                 ${isDark ? 'bg-[#0E1116] border border-white/5' : 'bg-white border border-slate-200 shadow-xl'}
             `}
           >
@@ -512,7 +512,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
             {/* Middle: Number and Label */}
             <div>
-               <h3 className={`text-5xl font-medium tracking-tight mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+               <h3 className={`text-4xl md:text-5xl font-medium tracking-tight mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                  {stat.value}
                </h3>
                <p className="text-sm text-slate-500 font-medium tracking-wide">
@@ -534,27 +534,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       {/* Main Content (Projects Grid) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Projects Table */}
-        <div className={`lg:col-span-2 border rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+        <div className={`lg:col-span-2 border rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
           {/* Decorative Glow */}
           <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#BEF264]/5' : 'bg-[#BEF264]/20'}`} />
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 relative z-10">
             <h2 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.ongoingProjects}</h2>
             
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
                 {/* Quick Add Project Button */}
                 <button 
                   onClick={() => setIsNewProjectModalOpen(true)}
-                  className="mr-2 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-[#BEF264] text-black shadow-lg shadow-[#BEF264]/10 transition-transform hover:scale-105"
+                  className="w-full sm:w-auto mr-0 sm:mr-2 flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-[#BEF264] text-black shadow-lg shadow-[#BEF264]/10 transition-transform hover:scale-105"
                 >
                   <Plus size={16} />
                   {t.addProject}
                 </button>
 
-                <div className={`flex p-1 rounded-full ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+                <div className={`flex p-1 rounded-full w-full sm:w-auto justify-between sm:justify-start ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
                   <button 
                     onClick={() => setViewFilter('all')}
-                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
+                    className={`flex-1 sm:flex-none px-4 py-1.5 rounded-full text-xs transition-all ${
                       viewFilter === 'all'
                         ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
                         : 'text-slate-500 hover:text-slate-400'
@@ -564,7 +564,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                   </button>
                   <button 
                     onClick={() => setViewFilter('active')}
-                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
+                    className={`flex-1 sm:flex-none px-4 py-1.5 rounded-full text-xs transition-all ${
                       viewFilter === 'active'
                       ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
                       : 'text-slate-500 hover:text-slate-400'
@@ -574,7 +574,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                   </button>
                   <button 
                     onClick={() => setViewFilter('completed')}
-                    className={`px-4 py-1.5 rounded-full text-xs transition-all ${
+                    className={`flex-1 sm:flex-none px-4 py-1.5 rounded-full text-xs transition-all ${
                       viewFilter === 'completed'
                       ? isDark ? 'bg-white/10 text-white font-bold' : 'bg-white text-slate-900 shadow-sm font-bold'
                       : 'text-slate-500 hover:text-slate-400'
@@ -595,12 +595,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                 <table className="w-full text-left border-collapse">
                 <thead>
                     <tr className="text-slate-500 text-xs font-bold uppercase tracking-wider">
-                    <th className="pb-6 pl-4">{t.project}</th>
-                    <th className="pb-6">{t.status}</th>
-                    <th className="pb-6 text-center">{t.totalHours}</th>
-                    <th className="pb-6">{t.deadline}</th>
-                    <th className="pb-6">{t.progress}</th>
-                    <th className="pb-6 text-center">{lang === 'pt' ? 'Ações' : 'Actions'}</th>
+                    <th className="pb-6 pl-2 md:pl-4">{t.project}</th>
+                    <th className="pb-6 px-2">{t.status}</th>
+                    <th className="pb-6 text-center px-2">{t.totalHours}</th>
+                    <th className="pb-6 px-2">{t.deadline}</th>
+                    <th className="pb-6 px-2">{t.progress}</th>
+                    <th className="pb-6 text-center px-2">{lang === 'pt' ? 'Ações' : 'Actions'}</th>
                     </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -610,36 +610,36 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                         onClick={() => setSelectedProject(project)}
                         className={`group transition-colors border-b last:border-0 cursor-pointer ${isDark ? 'hover:bg-white/[0.02] border-white/5' : 'hover:bg-slate-50 border-slate-100'} ${!project.isActive ? 'opacity-60' : ''}`}
                     >
-                        <td className="py-5 pl-4">
+                        <td className="py-4 md:py-5 pl-2 md:pl-4">
                         <div className="flex items-center gap-4">
-                            <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-xs font-bold transition-colors ${isDark ? 'bg-[#1A1F2C] border-white/10 text-white group-hover:border-[#BEF264]/50' : 'bg-slate-100 border-slate-200 text-slate-700 group-hover:border-[#BEF264]'}`}>
+                            <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-xs font-bold transition-colors flex-shrink-0 ${isDark ? 'bg-[#1A1F2C] border-white/10 text-white group-hover:border-[#BEF264]/50' : 'bg-slate-100 border-slate-200 text-slate-700 group-hover:border-[#BEF264]'}`}>
                             {project.name.substring(0, 2).toUpperCase()}
                             </div>
                             <div>
-                            <p className={`font-bold text-base ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                            <p className={`font-bold text-base whitespace-nowrap ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                 {project.name}
                                 {!project.isActive && <span className="ml-2 text-[10px] text-slate-500 bg-slate-500/10 px-1.5 py-0.5 rounded border border-slate-500/20">Inactive</span>}
                             </p>
-                            <p className="text-xs text-slate-500 font-medium">{project.client}</p>
+                            <p className="text-xs text-slate-500 font-medium whitespace-nowrap">{project.client}</p>
                             </div>
                         </div>
                         </td>
-                        <td className="py-5">
+                        <td className="py-4 md:py-5 px-2">
                           {project.status === 'completed' || project.status === 'modeling' ? (
-                            <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-[#BEF264] text-black shadow-[0_0_10px_-3px_rgba(190,242,100,0.4)]">
+                            <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-[#BEF264] text-black shadow-[0_0_10px_-3px_rgba(190,242,100,0.4)] whitespace-nowrap">
                               {project.status === 'completed' ? t.statusCompleted : t.statusModeling}
                             </span>
                           ) : (
-                            <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${isDark ? 'bg-[#1A1F2C] text-slate-300 border-white/10' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                            <span className={`px-4 py-1.5 rounded-full text-xs font-bold border whitespace-nowrap ${isDark ? 'bg-[#1A1F2C] text-slate-300 border-white/10' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                               {project.status === 'planning' ? t.statusPlanning : t.statusCoordination}
                             </span>
                           )}
                         </td>
-                        <td className="py-5 text-center font-mono font-bold text-slate-500">
+                        <td className="py-4 md:py-5 text-center font-mono font-bold text-slate-500 px-2 whitespace-nowrap">
                            {getProjectTotalHours(project)}h
                         </td>
-                        <td className="py-5 text-slate-400 font-medium">{project.deadline}</td>
-                        <td className="py-5 w-48 pr-4">
+                        <td className="py-4 md:py-5 text-slate-400 font-medium px-2 whitespace-nowrap">{project.deadline}</td>
+                        <td className="py-4 md:py-5 min-w-[120px] w-48 pr-4 px-2">
                         <div className="flex flex-col gap-2">
                             <div className="flex justify-between text-xs">
                                 <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{project.progress}%</span>
@@ -652,7 +652,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             </div>
                         </div>
                         </td>
-                        <td className="py-5 text-center">
+                        <td className="py-4 md:py-5 text-center px-2">
                            {project.status !== 'completed' && (
                              <button 
                                 onClick={(e) => handleDeliverProject(project.id, e)}
@@ -673,7 +673,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
         {/* Right Column: To-Do / Widgets */}
         <div className="space-y-6">
-            <div className={`border rounded-[2.5rem] p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+            <div className={`border rounded-[2.5rem] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
                 <div className="flex justify-between items-center mb-6 z-10">
                     <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.todoList}</h2>
                     {/* Project Filter for Tasks */}
@@ -682,7 +682,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                         <select 
                             value={taskProjectFilter}
                             onChange={(e) => setTaskProjectFilter(e.target.value)}
-                            className={`text-xs p-1 rounded-lg outline-none border ${isDark ? 'bg-[#1A1F2C] border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
+                            className={`text-xs p-1 rounded-lg outline-none border max-w-[120px] md:max-w-none ${isDark ? 'bg-[#1A1F2C] border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
                         >
                             <option value="all">{t.filterByProject}</option>
                             {projects.filter(p => p.isActive).map(p => (
@@ -717,7 +717,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
+                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors flex-shrink-0 ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
                                     {task.completed && <CheckCircle size={14} className="text-black" />}
                                 </div>
                                 <div>
@@ -742,7 +742,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
           onClick={() => setIsNewProjectModalOpen(false)}
         >
           <div 
-            className={`w-full max-w-lg rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
+            className={`w-full max-w-lg rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className={`absolute top-0 right-0 w-[200px] h-[200px] rounded-full blur-[80px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#BEF264]/10' : 'bg-[#BEF264]/20'}`} />
@@ -776,7 +776,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white focus:border-[#BEF264]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#BEF264]'}`}
                   />
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex-1">
                     <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-wide">{t.startDate}</label>
                     <input 
@@ -818,7 +818,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             onClick={() => setSelectedProject(null)}
         >
           <div 
-            className={`w-full max-w-2xl rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden animate-scale-in max-h-[90vh] overflow-y-auto custom-scrollbar ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
+            className={`w-full max-w-2xl rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden animate-scale-in max-h-[90vh] overflow-y-auto custom-scrollbar ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Background Glow inside modal */}
@@ -827,10 +827,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             <div className="relative z-10">
                 <div className="flex justify-between items-start mb-6">
                     <div>
-                        <div className="flex items-center gap-3 mb-1">
-                             <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedProject.name}</h2>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-1">
+                             <h2 className={`text-2xl sm:text-3xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedProject.name}</h2>
                              {!selectedProject.isActive && (
-                                <span className="px-2 py-1 rounded bg-slate-500/10 border border-slate-500/20 text-slate-500 text-xs font-bold uppercase tracking-wider">
+                                <span className="inline-block px-2 py-1 rounded bg-slate-500/10 border border-slate-500/20 text-slate-500 text-xs font-bold uppercase tracking-wider w-fit">
                                     {t.inactiveState}
                                 </span>
                              )}
@@ -845,7 +845,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             title={lang === 'pt' ? 'Entregar Modelo' : 'Deliver Model'}
                           >
                             <Package size={14} />
-                            {lang === 'pt' ? 'Entregar' : 'Deliver'}
+                            <span className="hidden sm:inline">{lang === 'pt' ? 'Entregar' : 'Deliver'}</span>
                           </button>
                         )}
                         <button 
@@ -857,7 +857,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
                     {/* Status & LOD */}
                     <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
                         <div className="flex justify-between items-center mb-4">
@@ -1172,7 +1172,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       {/* Report Modal via Portal */}
       {isReportModalOpen && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className={`w-full max-w-lg rounded-3xl p-8 shadow-2xl animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}>
+          <div className={`w-full max-w-lg rounded-3xl p-5 md:p-8 shadow-2xl animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}>
              <div className="flex justify-between items-center mb-6">
                 <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.reportSettings}</h3>
                 <button onClick={() => setIsReportModalOpen(false)} className="text-slate-500 hover:text-red-400">
@@ -1187,7 +1187,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                      <Calendar size={16} />
                      {t.dateRange}
                    </label>
-                   <div className="flex gap-4">
+                   <div className="flex flex-col sm:flex-row gap-4">
                       <div className="flex-1">
                         <span className="text-xs text-slate-500 mb-1 block">{t.startDate}</span>
                         <input 
