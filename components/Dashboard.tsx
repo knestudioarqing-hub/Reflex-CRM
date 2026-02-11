@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package, Timer, CheckSquare, Trash2, MessageSquare, Bell } from 'lucide-react';
+import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package, Timer, CheckSquare, Trash2, MessageSquare, Bell, ChevronRight, Send, History } from 'lucide-react';
 import { Project, Language, Theme, Member, WorkLog, Task, ProjectNote } from '../types';
 import { translations } from '../translations';
 import { jsPDF } from 'jspdf';
@@ -967,4 +967,306 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                   {selectedProject.workLogs.map((log) => (
                                      <div key={log.id} className={`flex justify-between items-center p-3 rounded-xl text-sm border transition-colors ${isDark ? 'bg-white/[0.02] border-white/5 hover:bg-white/5' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>
                                         <div className="flex flex-col">
-                                           <span className={`font-mono text-xs mb-1 opacity-50 ${isDark ? 'text-white' : 'text-slate-900'}`}>{
+                                           <span className={`font-mono text-xs mb-1 opacity-50 ${isDark ? 'text-white' : 'text-slate-900'}`}>{log.date}</span>
+                                           <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>{log.description || 'No description'}</span>
+                                        </div>
+                                        <span className="font-bold font-mono text-[#BEF264]">{log.hours}h</span>
+                                     </div>
+                                  ))}
+                              </div>
+                           )}
+                        </div>
+                    </div>
+
+                    {/* COLUMN 2: TASK MANAGEMENT (Center Stage) */}
+                    <div className={`rounded-[2rem] border flex flex-col h-full overflow-hidden ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                         <div className={`p-6 border-b ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                             <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
+                                   <CheckSquare size={20} />
+                                </div>
+                                {t.tasks}
+                             </h3>
+                         </div>
+                         
+                         <div className="p-6 border-b border-dashed border-slate-700/50">
+                            <div className="space-y-3">
+                                <input 
+                                   type="text" 
+                                   placeholder={t.taskTitle}
+                                   value={taskForm.title}
+                                   onChange={(e) => setTaskForm({...taskForm, title: e.target.value})}
+                                   className={`w-full p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                />
+                                <div className="flex gap-3">
+                                    <input 
+                                       type="date" 
+                                       value={taskForm.date}
+                                       onChange={(e) => setTaskForm({...taskForm, date: e.target.value})}
+                                       className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                    />
+                                    <select
+                                       value={taskForm.priority}
+                                       onChange={(e) => setTaskForm({...taskForm, priority: e.target.value as any})}
+                                       className={`p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                    >
+                                        <option value="low">{t.priorityLow}</option>
+                                        <option value="medium">{t.priorityMedium}</option>
+                                        <option value="high">{t.priorityHigh}</option>
+                                        <option value="urgent">{t.priorityUrgent}</option>
+                                    </select>
+                                </div>
+                                <button 
+                                   onClick={handleAddTask}
+                                   disabled={!taskForm.title}
+                                   className="w-full py-3 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold text-sm shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                   <Plus size={16} />
+                                   {t.addTask}
+                                </button>
+                            </div>
+                         </div>
+
+                         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-3">
+                            {(!selectedProject.tasks || selectedProject.tasks.length === 0) ? (
+                                <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
+                                    <CheckSquare size={48} className="mb-4" />
+                                    <p>{t.noTasks}</p>
+                                </div>
+                            ) : (
+                                selectedProject.tasks.map(task => (
+                                    <div 
+                                        key={task.id}
+                                        className={`group p-4 rounded-xl border transition-all cursor-pointer relative ${
+                                            task.completed 
+                                            ? isDark ? 'bg-white/5 border-transparent opacity-60' : 'bg-slate-50 border-slate-100 opacity-60'
+                                            : isDark ? 'bg-[#0B0E14] border-white/5 hover:border-[#BEF264]/30' : 'bg-white border-slate-200 hover:border-[#BEF264]'
+                                        }`}
+                                        onClick={() => toggleTaskCompletion(selectedProject.id, task.id)}
+                                    >
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${
+                                                task.priority === 'urgent' ? 'bg-red-500/10 text-red-400' : 
+                                                task.priority === 'high' ? 'bg-orange-500/10 text-orange-400' :
+                                                task.priority === 'medium' ? 'bg-blue-500/10 text-blue-400' :
+                                                'bg-slate-500/10 text-slate-400'
+                                            }`}>
+                                                {task.priority.toUpperCase()}
+                                            </span>
+                                            <button 
+                                               onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
+                                               className="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
+                                                {task.completed && <CheckCircle size={14} className="text-black" />}
+                                            </div>
+                                            <h4 className={`font-bold text-sm ${task.completed ? 'line-through' : ''} ${isDark ? 'text-white' : 'text-slate-900'}`}>{task.title}</h4>
+                                        </div>
+                                        <p className="text-xs text-slate-500 mt-2 pl-8">{task.dueDate}</p>
+                                    </div>
+                                ))
+                            )}
+                         </div>
+                    </div>
+
+                    {/* COLUMN 3: NOTES & TEAM */}
+                    <div className="flex flex-col gap-6 h-full">
+                        {/* Notes Section */}
+                        <div className={`flex-1 rounded-[2rem] border flex flex-col overflow-hidden min-h-[400px] ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                             <div className={`p-6 border-b ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                                 <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
+                                       <MessageSquare size={20} />
+                                    </div>
+                                    {t.observations}
+                                 </h3>
+                             </div>
+
+                             <div className="p-4 border-b border-dashed border-slate-700/50">
+                                <div className="flex gap-2">
+                                    <input 
+                                       type="text" 
+                                       value={noteForm.content}
+                                       onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
+                                       onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
+                                       placeholder={t.notePlaceholder}
+                                       className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                    />
+                                    <button 
+                                       onClick={handleAddNote}
+                                       disabled={!noteForm.content}
+                                       className="px-4 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold disabled:opacity-50"
+                                    >
+                                       <Plus size={20} />
+                                    </button>
+                                </div>
+                             </div>
+
+                             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
+                                {(!selectedProject.notes || selectedProject.notes.length === 0) ? (
+                                    <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
+                                        <MessageSquare size={32} className="mb-2" />
+                                        <p className="text-sm">{t.noNotes}</p>
+                                    </div>
+                                ) : (
+                                    selectedProject.notes.map(note => (
+                                        <div key={note.id} className={`p-4 rounded-2xl rounded-tl-none border text-sm relative group ${isDark ? 'bg-[#0B0E14] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
+                                            <p className={`mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{note.content}</p>
+                                            <div className="flex justify-between items-center text-xs text-slate-500">
+                                                <span>{new Date(note.timestamp).toLocaleString()}</span>
+                                                <button 
+                                                   onClick={() => handleDeleteNote(note.id)}
+                                                   className="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                   <Trash2 size={12} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                             </div>
+                        </div>
+
+                        {/* Team Section */}
+                        <div className={`p-6 rounded-[2rem] border ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                             <h3 className={`text-xl font-bold flex items-center gap-3 mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
+                                   <User size={20} />
+                                </div>
+                                {t.team}
+                             </h3>
+                             <div className="flex flex-wrap gap-2">
+                                {selectedProject.teamMembers.length === 0 ? (
+                                    <p className="text-slate-500 text-sm italic">No team members assigned.</p>
+                                ) : (
+                                    selectedProject.teamMembers.map(mid => {
+                                        const m = members.find(mem => mem.id === mid);
+                                        if(!m) return null;
+                                        return (
+                                            <div key={mid} className={`flex items-center gap-3 p-2 pr-4 rounded-full border ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-700 shadow-sm'}`}>
+                                                    {m.name.substring(0,1)}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className={`text-xs font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{m.name}</span>
+                                                    <span className="text-[10px] text-slate-500 uppercase">{m.role}</span>
+                                                </div>
+                                            </div>
+                                        )
+                                    })
+                                )}
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer History - Always visible at bottom of scroll area */}
+                <div className="mt-8 pt-8 border-t border-slate-700/30">
+                     <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                        <History size={18} />
+                        {t.activityLog}
+                     </h3>
+                     <div className="flex gap-8 overflow-x-auto pb-4 custom-scrollbar">
+                        {selectedProject.history && selectedProject.history.length > 0 ? (
+                            selectedProject.history.slice(0, 10).map((h, i) => (
+                                <div key={i} className={`min-w-[250px] p-4 rounded-xl border flex-shrink-0 ${isDark ? 'bg-[#0B0E14] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                                    <span className="text-xs font-mono text-slate-500 mb-1 block">{new Date(h.timestamp).toLocaleString()}</span>
+                                    <p className={`text-sm font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{h.action.toUpperCase()}</p>
+                                    <p className="text-xs text-slate-400">{h.details}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-slate-500 text-sm italic">{t.noHistory}</p>
+                        )}
+                     </div>
+                </div>
+
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Generate Report Modal */}
+      {isReportModalOpen && createPortal(
+        <div 
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+          onClick={() => setIsReportModalOpen(false)}
+        >
+           <div 
+            className={`w-full max-w-lg rounded-3xl p-6 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
+            onClick={(e) => e.stopPropagation()}
+           >
+              <h2 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.reportSettings}</h2>
+              
+              <div className="space-y-4 mb-6">
+                 <div>
+                    <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">{t.dateRange}</label>
+                    <div className="flex gap-4">
+                       <input 
+                          type="date" 
+                          value={reportFilters.startDate}
+                          onChange={(e) => setReportFilters({...reportFilters, startDate: e.target.value})}
+                          className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
+                       />
+                       <input 
+                          type="date" 
+                          value={reportFilters.endDate}
+                          onChange={(e) => setReportFilters({...reportFilters, endDate: e.target.value})}
+                          className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
+                       />
+                    </div>
+                 </div>
+
+                 <div>
+                    <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">{t.selectProjects}</label>
+                    <div className={`max-h-40 overflow-y-auto border rounded-xl p-2 custom-scrollbar ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                        {projects.map(p => (
+                           <div 
+                              key={p.id} 
+                              onClick={() => toggleProjectSelection(p.id)}
+                              className={`p-2 rounded-lg flex items-center gap-3 cursor-pointer hover:bg-white/5 transition-colors`}
+                           >
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center ${
+                                 reportFilters.selectedProjectIds.includes(p.id) 
+                                 ? 'bg-emerald-500 border-emerald-500' 
+                                 : 'border-slate-500'
+                              }`}>
+                                 {reportFilters.selectedProjectIds.includes(p.id) && <CheckSquare size={10} className="text-black" />}
+                              </div>
+                              <span className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{p.name}</span>
+                           </div>
+                        ))}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2 text-right">
+                       {reportFilters.selectedProjectIds.length === 0 ? t.allProjects : `${reportFilters.selectedProjectIds.length} projects selected`}
+                    </p>
+                 </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                 <button 
+                    onClick={() => setIsReportModalOpen(false)}
+                    className={`px-4 py-2 rounded-xl text-sm font-bold ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
+                 >
+                    {t.cancel}
+                 </button>
+                 <button 
+                    onClick={generatePDF}
+                    className="bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold py-2 px-6 rounded-xl shadow-lg flex items-center gap-2"
+                 >
+                    <FileDown size={18} />
+                    {t.downloadPDF}
+                 </button>
+              </div>
+           </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+};
