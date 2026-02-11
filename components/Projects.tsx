@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Calendar, Layout, Users, History, Clock, Power, Search, Filter, X, Briefcase, CheckCircle, ArrowRight } from 'lucide-react';
+import { Plus, Edit2, Trash2, Calendar, Layout, Users, History, Clock, Power, Search, Filter, X, Briefcase, CheckCircle, ArrowRight, Calculator } from 'lucide-react';
 import { Project, Member, Language, Theme, HistoryEntry } from '../types';
 import { translations } from '../translations';
 
@@ -20,6 +20,8 @@ const DEFAULT_PROJECT: Project = {
   startDate: '',
   deadline: '',
   progress: 0,
+  totalScope: 0,
+  completedScope: 0,
   teamMembers: [],
   description: '',
   history: [],
@@ -91,7 +93,11 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
   };
 
   const handleEdit = (project: Project) => {
-    setCurrentProject(project);
+    setCurrentProject({
+        ...project,
+        totalScope: project.totalScope || 0,
+        completedScope: project.completedScope || 0
+    });
     setIsEditing(true);
     setActiveTab('details');
     setHistoryFilters({ search: '', start: '', end: '' });
@@ -114,6 +120,27 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
 
   const formatDate = (isoString: string) => {
     return new Date(isoString).toLocaleString(lang === 'pt' ? 'pt-BR' : 'en-US');
+  };
+
+  const handleScopeChange = (field: 'total' | 'completed', value: string) => {
+    const val = parseInt(value) || 0;
+    
+    let newTotal = field === 'total' ? val : (currentProject.totalScope || 0);
+    let newCompleted = field === 'completed' ? val : (currentProject.completedScope || 0);
+
+    // Calculate percentage based on KPI inputs
+    let newProgress = 0;
+    if (newTotal > 0) {
+        newProgress = Math.round((newCompleted / newTotal) * 100);
+        if (newProgress > 100) newProgress = 100;
+    }
+
+    setCurrentProject({
+        ...currentProject,
+        totalScope: newTotal,
+        completedScope: newCompleted,
+        progress: newProgress
+    });
   };
 
   // Filter Logic for History Tab
@@ -241,17 +268,69 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                     </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1">{t.progress} ({currentProject.progress}%)</label>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="100" 
-                    value={currentProject.progress}
-                    onChange={(e) => setCurrentProject({...currentProject, progress: parseInt(e.target.value)})}
-                    className={`w-full h-2 rounded-lg appearance-none cursor-pointer accent-emerald-500 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}
-                  />
+                {/* KPI PROGRESS CALCULATOR */}
+                <div className={`p-5 rounded-2xl border relative ${isDark ? 'bg-[#1A1F2C]/50 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                    <div className="flex items-center gap-2 mb-4">
+                        <Calculator size={16} className="text-[#BEF264]" />
+                        <h4 className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.kpiTitle}</h4>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{t.totalScope}</label>
+                            <input 
+                                type="number" 
+                                min="0"
+                                value={currentProject.totalScope || 0}
+                                onChange={(e) => handleScopeChange('total', e.target.value)}
+                                className={`w-full px-3 py-2 rounded-lg text-sm font-mono border focus:outline-none focus:border-[#BEF264] ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{t.completedScope}</label>
+                            <input 
+                                type="number" 
+                                min="0"
+                                value={currentProject.completedScope || 0}
+                                onChange={(e) => handleScopeChange('completed', e.target.value)}
+                                className={`w-full px-3 py-2 rounded-lg text-sm font-mono border focus:outline-none focus:border-[#BEF264] ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <div className="flex justify-between items-end mb-2">
+                             <label className="block text-sm font-medium text-slate-400">{t.progress}</label>
+                             <span className={`text-xl font-bold ${isDark ? 'text-[#BEF264]' : 'text-emerald-600'}`}>
+                                 {currentProject.progress}%
+                             </span>
+                        </div>
+                        <input 
+                            type="range" 
+                            min="0" 
+                            max="100" 
+                            // If user typed in Scope, use calculated progress, else allow manual slide
+                            value={currentProject.progress}
+                            onChange={(e) => {
+                                // Manual override clears KPI inputs to avoid confusion
+                                setCurrentProject({
+                                    ...currentProject, 
+                                    progress: parseInt(e.target.value),
+                                    totalScope: 0,
+                                    completedScope: 0
+                                })
+                            }}
+                            className={`w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#BEF264] ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}
+                        />
+                        {(currentProject.totalScope || 0) > 0 && (
+                            <p className="text-[10px] text-slate-500 mt-2 text-right italic flex items-center justify-end gap-1">
+                                <CheckCircle size={10} />
+                                {t.autoCalc}
+                            </p>
+                        )}
+                    </div>
                 </div>
+
               </div>
             </div>
 

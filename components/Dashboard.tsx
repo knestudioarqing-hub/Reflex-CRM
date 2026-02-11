@@ -811,7 +811,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         document.body
       )}
 
-      {/* Project Details Modal - REDESIGNED FOR FULL SCREEN */}
+      {/* Project Details Modal - REDESIGNED FOR FULL SCREEN WITH INTERNAL SCROLLING */}
       {selectedProject && createPortal(
         <div 
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
@@ -859,318 +859,323 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                 </div>
             </div>
 
-            {/* SCROLLABLE CONTENT */}
-            <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar relative z-10">
+            {/* CONTENT AREA (Fixed layout, Internal Scrolling) */}
+            <div className="flex-1 p-6 md:p-8 relative z-10 flex flex-col overflow-hidden">
                 
-                {/* 3-COLUMN LAYOUT */}
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                    
-                    {/* COLUMN 1: VITAL INFO & WORK LOG */}
-                    <div className="space-y-8">
+                {/* 3-COLUMN LAYOUT - The wrapper handles mobile scroll, but locks on desktop to allow columns to scroll independently */}
+                <div className="flex-1 overflow-y-auto xl:overflow-hidden">
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 xl:h-full">
                         
-                        {/* Status/Progress Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Status Box */}
-                            <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.status}</span>
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                                        selectedProject.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                        selectedProject.status === 'coordination' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
-                                        'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                    }`}>
-                                        {selectedProject.status.toUpperCase()}
-                                    </span>
+                        {/* COLUMN 1: VITAL INFO & WORK LOG (Scrolls fully as a column) */}
+                        <div className="space-y-8 overflow-y-auto custom-scrollbar pr-2 xl:h-full">
+                            
+                            {/* Status/Progress Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Status Box */}
+                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.status}</span>
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                                            selectedProject.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                            selectedProject.status === 'coordination' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
+                                            'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                        }`}>
+                                            {selectedProject.status.toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-end">
+                                        <div>
+                                            <span className="text-slate-500 text-xs block mb-1">{t.startDate}</span>
+                                            <span className={`font-mono font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedProject.startDate || '-'}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-end">
-                                     <div>
-                                        <span className="text-slate-500 text-xs block mb-1">{t.startDate}</span>
-                                        <span className={`font-mono font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedProject.startDate || '-'}</span>
-                                     </div>
+
+                                {/* Deadline Box */}
+                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.deadline}</span>
+                                        <span className={`font-mono font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedProject.deadline}</span>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between text-xs text-slate-500 mb-2">
+                                            <span>{t.progress}</span>
+                                            <span className="font-bold text-white">{selectedProject.progress}%</span>
+                                        </div>
+                                        <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
+                                            <div 
+                                                className={`h-full rounded-full ${selectedProject.status === 'completed' ? 'bg-emerald-500' : selectedProject.isActive ? 'bg-[#BEF264]' : 'bg-slate-500'}`}
+                                                style={{ width: `${selectedProject.progress}%` }}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Deadline Box */}
-                            <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.deadline}</span>
-                                    <span className={`font-mono font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedProject.deadline}</span>
-                                </div>
-                                <div>
-                                     <div className="flex justify-between text-xs text-slate-500 mb-2">
-                                        <span>{t.progress}</span>
-                                        <span className="font-bold text-white">{selectedProject.progress}%</span>
-                                     </div>
-                                     <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
-                                        <div 
-                                            className={`h-full rounded-full ${selectedProject.status === 'completed' ? 'bg-emerald-500' : selectedProject.isActive ? 'bg-[#BEF264]' : 'bg-slate-500'}`}
-                                            style={{ width: `${selectedProject.progress}%` }}
+                            {/* Work Log Section */}
+                            <div className={`p-6 rounded-[2rem] border ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                    <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+                                        <Timer size={20} />
+                                    </div>
+                                    {t.workLog}
+                                </h3>
+                                <span className="text-xl font-mono font-bold text-[#BEF264]">
+                                    {getProjectTotalHours(selectedProject)}h
+                                </span>
+                            </div>
+                            
+                            <div className={`p-4 rounded-2xl border mb-6 ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                                <div className="space-y-3">
+                                    <div className="flex gap-3">
+                                        <input 
+                                        type="date" 
+                                        value={logForm.date}
+                                        onChange={(e) => setLogForm({...logForm, date: e.target.value})}
+                                        className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
                                         />
-                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Work Log Section */}
-                        <div className={`p-6 rounded-[2rem] border ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
-                           <div className="flex justify-between items-center mb-6">
-                               <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                  <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
-                                     <Timer size={20} />
-                                  </div>
-                                  {t.workLog}
-                               </h3>
-                               <span className="text-xl font-mono font-bold text-[#BEF264]">
-                                  {getProjectTotalHours(selectedProject)}h
-                               </span>
-                           </div>
-                           
-                           <div className={`p-4 rounded-2xl border mb-6 ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
-                              <div className="space-y-3">
-                                 <div className="flex gap-3">
-                                     <input 
-                                       type="date" 
-                                       value={logForm.date}
-                                       onChange={(e) => setLogForm({...logForm, date: e.target.value})}
-                                       className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
-                                     />
-                                     <input 
-                                       type="number" 
-                                       min="0.5"
-                                       step="0.5"
-                                       placeholder="Hrs"
-                                       value={logForm.hours}
-                                       onChange={(e) => setLogForm({...logForm, hours: e.target.value})}
-                                       className={`w-24 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
-                                     />
-                                 </div>
-                                 <input 
-                                    type="text" 
-                                    placeholder={t.logDescription}
-                                    value={logForm.description}
-                                    onChange={(e) => setLogForm({...logForm, description: e.target.value})}
-                                    className={`w-full p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
-                                 />
-                                 <button 
-                                    onClick={handleAddWorkLog}
-                                    disabled={!logForm.hours || !logForm.date}
-                                    className="w-full py-3 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-transform active:scale-95"
-                                 >
-                                    <Plus size={16} />
-                                    {t.addTime}
-                                 </button>
-                              </div>
-                           </div>
-
-                           {selectedProject.workLogs && selectedProject.workLogs.length > 0 && (
-                              <div className={`max-h-60 overflow-y-auto pr-2 custom-scrollbar space-y-2`}>
-                                  {selectedProject.workLogs.map((log) => (
-                                     <div key={log.id} className={`flex justify-between items-center p-3 rounded-xl text-sm border transition-colors ${isDark ? 'bg-white/[0.02] border-white/5 hover:bg-white/5' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>
-                                        <div className="flex flex-col">
-                                           <span className={`font-mono text-xs mb-1 opacity-50 ${isDark ? 'text-white' : 'text-slate-900'}`}>{log.date}</span>
-                                           <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>{log.description || 'No description'}</span>
-                                        </div>
-                                        <span className="font-bold font-mono text-[#BEF264]">{log.hours}h</span>
-                                     </div>
-                                  ))}
-                              </div>
-                           )}
-                        </div>
-                    </div>
-
-                    {/* COLUMN 2: TASK MANAGEMENT (Center Stage) */}
-                    <div className={`rounded-[2rem] border flex flex-col h-full overflow-hidden ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
-                         <div className={`p-6 border-b ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-                             <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
-                                   <CheckSquare size={20} />
-                                </div>
-                                {t.tasks}
-                             </h3>
-                         </div>
-                         
-                         <div className="p-6 border-b border-dashed border-slate-700/50">
-                            <div className="space-y-3">
-                                <input 
-                                   type="text" 
-                                   placeholder={t.taskTitle}
-                                   value={taskForm.title}
-                                   onChange={(e) => setTaskForm({...taskForm, title: e.target.value})}
-                                   className={`w-full p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
-                                />
-                                <div className="flex gap-3">
-                                    <input 
-                                       type="date" 
-                                       value={taskForm.date}
-                                       onChange={(e) => setTaskForm({...taskForm, date: e.target.value})}
-                                       className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
-                                    />
-                                    <select
-                                       value={taskForm.priority}
-                                       onChange={(e) => setTaskForm({...taskForm, priority: e.target.value as any})}
-                                       className={`p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
-                                    >
-                                        <option value="low">{t.priorityLow}</option>
-                                        <option value="medium">{t.priorityMedium}</option>
-                                        <option value="high">{t.priorityHigh}</option>
-                                        <option value="urgent">{t.priorityUrgent}</option>
-                                    </select>
-                                </div>
-                                <button 
-                                   onClick={handleAddTask}
-                                   disabled={!taskForm.title}
-                                   className="w-full py-3 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold text-sm shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
-                                >
-                                   <Plus size={16} />
-                                   {t.addTask}
-                                </button>
-                            </div>
-                         </div>
-
-                         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-3">
-                            {(!selectedProject.tasks || selectedProject.tasks.length === 0) ? (
-                                <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
-                                    <CheckSquare size={48} className="mb-4" />
-                                    <p>{t.noTasks}</p>
-                                </div>
-                            ) : (
-                                selectedProject.tasks.map(task => (
-                                    <div 
-                                        key={task.id}
-                                        className={`group p-4 rounded-xl border transition-all cursor-pointer relative ${
-                                            task.completed 
-                                            ? isDark ? 'bg-white/5 border-transparent opacity-60' : 'bg-slate-50 border-slate-100 opacity-60'
-                                            : isDark ? 'bg-[#0B0E14] border-white/5 hover:border-[#BEF264]/30' : 'bg-white border-slate-200 hover:border-[#BEF264]'
-                                        }`}
-                                        onClick={() => toggleTaskCompletion(selectedProject.id, task.id)}
-                                    >
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${
-                                                task.priority === 'urgent' ? 'bg-red-500/10 text-red-400' : 
-                                                task.priority === 'high' ? 'bg-orange-500/10 text-orange-400' :
-                                                task.priority === 'medium' ? 'bg-blue-500/10 text-blue-400' :
-                                                'bg-slate-500/10 text-slate-400'
-                                            }`}>
-                                                {task.priority.toUpperCase()}
-                                            </span>
-                                            <button 
-                                               onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
-                                               className="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
-                                                {task.completed && <CheckCircle size={14} className="text-black" />}
-                                            </div>
-                                            <h4 className={`font-bold text-sm ${task.completed ? 'line-through' : ''} ${isDark ? 'text-white' : 'text-slate-900'}`}>{task.title}</h4>
-                                        </div>
-                                        <p className="text-xs text-slate-500 mt-2 pl-8">{task.dueDate}</p>
+                                        <input 
+                                        type="number" 
+                                        min="0.5"
+                                        step="0.5"
+                                        placeholder="Hrs"
+                                        value={logForm.hours}
+                                        onChange={(e) => setLogForm({...logForm, hours: e.target.value})}
+                                        className={`w-24 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                        />
                                     </div>
-                                ))
-                            )}
-                         </div>
-                    </div>
-
-                    {/* COLUMN 3: NOTES & TEAM */}
-                    <div className="flex flex-col gap-6 h-full">
-                        {/* Notes Section */}
-                        <div className={`flex-1 rounded-[2rem] border flex flex-col overflow-hidden min-h-[400px] ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
-                             <div className={`p-6 border-b ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-                                 <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
-                                       <MessageSquare size={20} />
-                                    </div>
-                                    {t.observations}
-                                 </h3>
-                             </div>
-
-                             <div className="p-4 border-b border-dashed border-slate-700/50">
-                                <div className="flex gap-2">
                                     <input 
-                                       type="text" 
-                                       value={noteForm.content}
-                                       onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
-                                       onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
-                                       placeholder={t.notePlaceholder}
-                                       className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                        type="text" 
+                                        placeholder={t.logDescription}
+                                        value={logForm.description}
+                                        onChange={(e) => setLogForm({...logForm, description: e.target.value})}
+                                        className={`w-full p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
                                     />
                                     <button 
-                                       onClick={handleAddNote}
-                                       disabled={!noteForm.content}
-                                       className="px-4 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold disabled:opacity-50"
+                                        onClick={handleAddWorkLog}
+                                        disabled={!logForm.hours || !logForm.date}
+                                        className="w-full py-3 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-transform active:scale-95"
                                     >
-                                       <Plus size={20} />
+                                        <Plus size={16} />
+                                        {t.addTime}
                                     </button>
                                 </div>
-                             </div>
+                            </div>
 
-                             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
-                                {(!selectedProject.notes || selectedProject.notes.length === 0) ? (
+                            {selectedProject.workLogs && selectedProject.workLogs.length > 0 && (
+                                <div className={`space-y-2`}>
+                                    {selectedProject.workLogs.map((log) => (
+                                        <div key={log.id} className={`flex justify-between items-center p-3 rounded-xl text-sm border transition-colors ${isDark ? 'bg-white/[0.02] border-white/5 hover:bg-white/5' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>
+                                            <div className="flex flex-col">
+                                            <span className={`font-mono text-xs mb-1 opacity-50 ${isDark ? 'text-white' : 'text-slate-900'}`}>{log.date}</span>
+                                            <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>{log.description || 'No description'}</span>
+                                            </div>
+                                            <span className="font-bold font-mono text-[#BEF264]">{log.hours}h</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            </div>
+                        </div>
+
+                        {/* COLUMN 2: TASK MANAGEMENT (Fixed Header, Scrollable List) */}
+                        <div className={`rounded-[2rem] border flex flex-col xl:h-full xl:overflow-hidden ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                            {/* Fixed Header */}
+                            <div className={`p-6 border-b flex-shrink-0 ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                                <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                    <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
+                                    <CheckSquare size={20} />
+                                    </div>
+                                    {t.tasks}
+                                </h3>
+                            </div>
+                            
+                            {/* Fixed Input Area */}
+                            <div className="p-6 border-b border-dashed border-slate-700/50 flex-shrink-0">
+                                <div className="space-y-3">
+                                    <input 
+                                    type="text" 
+                                    placeholder={t.taskTitle}
+                                    value={taskForm.title}
+                                    onChange={(e) => setTaskForm({...taskForm, title: e.target.value})}
+                                    className={`w-full p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                    />
+                                    <div className="flex gap-3">
+                                        <input 
+                                        type="date" 
+                                        value={taskForm.date}
+                                        onChange={(e) => setTaskForm({...taskForm, date: e.target.value})}
+                                        className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                        />
+                                        <select
+                                        value={taskForm.priority}
+                                        onChange={(e) => setTaskForm({...taskForm, priority: e.target.value as any})}
+                                        className={`p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                        >
+                                            <option value="low">{t.priorityLow}</option>
+                                            <option value="medium">{t.priorityMedium}</option>
+                                            <option value="high">{t.priorityHigh}</option>
+                                            <option value="urgent">{t.priorityUrgent}</option>
+                                        </select>
+                                    </div>
+                                    <button 
+                                    onClick={handleAddTask}
+                                    disabled={!taskForm.title}
+                                    className="w-full py-3 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold text-sm shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                                    >
+                                    <Plus size={16} />
+                                    {t.addTask}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Scrollable Task List */}
+                            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-3 min-h-0">
+                                {(!selectedProject.tasks || selectedProject.tasks.length === 0) ? (
                                     <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
-                                        <MessageSquare size={32} className="mb-2" />
-                                        <p className="text-sm">{t.noNotes}</p>
+                                        <CheckSquare size={48} className="mb-4" />
+                                        <p>{t.noTasks}</p>
                                     </div>
                                 ) : (
-                                    selectedProject.notes.map(note => (
-                                        <div key={note.id} className={`p-4 rounded-2xl rounded-tl-none border text-sm relative group ${isDark ? 'bg-[#0B0E14] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
-                                            <p className={`mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{note.content}</p>
-                                            <div className="flex justify-between items-center text-xs text-slate-500">
-                                                <span>{new Date(note.timestamp).toLocaleString()}</span>
+                                    selectedProject.tasks.map(task => (
+                                        <div 
+                                            key={task.id}
+                                            className={`group p-4 rounded-xl border transition-all cursor-pointer relative ${
+                                                task.completed 
+                                                ? isDark ? 'bg-white/5 border-transparent opacity-60' : 'bg-slate-50 border-slate-100 opacity-60'
+                                                : isDark ? 'bg-[#0B0E14] border-white/5 hover:border-[#BEF264]/30' : 'bg-white border-slate-200 hover:border-[#BEF264]'
+                                            }`}
+                                            onClick={() => toggleTaskCompletion(selectedProject.id, task.id)}
+                                        >
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${
+                                                    task.priority === 'urgent' ? 'bg-red-500/10 text-red-400' : 
+                                                    task.priority === 'high' ? 'bg-orange-500/10 text-orange-400' :
+                                                    task.priority === 'medium' ? 'bg-blue-500/10 text-blue-400' :
+                                                    'bg-slate-500/10 text-slate-400'
+                                                }`}>
+                                                    {task.priority.toUpperCase()}
+                                                </span>
                                                 <button 
-                                                   onClick={() => handleDeleteNote(note.id)}
-                                                   className="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
+                                                className="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
                                                 >
-                                                   <Trash2 size={12} />
+                                                    <Trash2 size={16} />
                                                 </button>
                                             </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
+                                                    {task.completed && <CheckCircle size={14} className="text-black" />}
+                                                </div>
+                                                <h4 className={`font-bold text-sm ${task.completed ? 'line-through' : ''} ${isDark ? 'text-white' : 'text-slate-900'}`}>{task.title}</h4>
+                                            </div>
+                                            <p className="text-xs text-slate-500 mt-2 pl-8">{task.dueDate}</p>
                                         </div>
                                     ))
                                 )}
-                             </div>
+                            </div>
                         </div>
 
-                        {/* Team Section */}
-                        <div className={`p-6 rounded-[2rem] border ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
-                             <h3 className={`text-xl font-bold flex items-center gap-3 mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
-                                   <User size={20} />
+                        {/* COLUMN 3: NOTES & TEAM */}
+                        <div className="flex flex-col gap-6 xl:h-full xl:overflow-hidden">
+                            {/* Notes Section - Grows to fill space, independent scroll */}
+                            <div className={`flex-1 rounded-[2rem] border flex flex-col overflow-hidden min-h-[400px] ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                                <div className={`p-6 border-b flex-shrink-0 ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                                    <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                        <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
+                                        <MessageSquare size={20} />
+                                        </div>
+                                        {t.observations}
+                                    </h3>
                                 </div>
-                                {t.team}
-                             </h3>
-                             <div className="flex flex-wrap gap-2">
-                                {selectedProject.teamMembers.length === 0 ? (
-                                    <p className="text-slate-500 text-sm italic">No team members assigned.</p>
-                                ) : (
-                                    selectedProject.teamMembers.map(mid => {
-                                        const m = members.find(mem => mem.id === mid);
-                                        if(!m) return null;
-                                        return (
-                                            <div key={mid} className={`flex items-center gap-3 p-2 pr-4 rounded-full border ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-700 shadow-sm'}`}>
-                                                    {m.name.substring(0,1)}
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className={`text-xs font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{m.name}</span>
-                                                    <span className="text-[10px] text-slate-500 uppercase">{m.role}</span>
+
+                                <div className="p-4 border-b border-dashed border-slate-700/50 flex-shrink-0">
+                                    <div className="flex gap-2">
+                                        <input 
+                                        type="text" 
+                                        value={noteForm.content}
+                                        onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
+                                        placeholder={t.notePlaceholder}
+                                        className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                        />
+                                        <button 
+                                        onClick={handleAddNote}
+                                        disabled={!noteForm.content}
+                                        className="px-4 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold disabled:opacity-50"
+                                        >
+                                        <Plus size={20} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4 min-h-0">
+                                    {(!selectedProject.notes || selectedProject.notes.length === 0) ? (
+                                        <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
+                                            <MessageSquare size={32} className="mb-2" />
+                                            <p className="text-sm">{t.noNotes}</p>
+                                        </div>
+                                    ) : (
+                                        selectedProject.notes.map(note => (
+                                            <div key={note.id} className={`p-4 rounded-2xl rounded-tl-none border text-sm relative group ${isDark ? 'bg-[#0B0E14] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
+                                                <p className={`mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{note.content}</p>
+                                                <div className="flex justify-between items-center text-xs text-slate-500">
+                                                    <span>{new Date(note.timestamp).toLocaleString()}</span>
+                                                    <button 
+                                                    onClick={() => handleDeleteNote(note.id)}
+                                                    className="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                    <Trash2 size={12} />
+                                                    </button>
                                                 </div>
                                             </div>
-                                        )
-                                    })
-                                )}
-                             </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Team Section - Fixed height at bottom of column */}
+                            <div className={`p-6 rounded-[2rem] border flex-shrink-0 ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                                <h3 className={`text-xl font-bold flex items-center gap-3 mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                    <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
+                                    <User size={20} />
+                                    </div>
+                                    {t.team}
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedProject.teamMembers.length === 0 ? (
+                                        <p className="text-slate-500 text-sm italic">No team members assigned.</p>
+                                    ) : (
+                                        selectedProject.teamMembers.map(mid => {
+                                            const m = members.find(mem => mem.id === mid);
+                                            if(!m) return null;
+                                            return (
+                                                <div key={mid} className={`flex items-center gap-3 p-2 pr-4 rounded-full border ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-700 shadow-sm'}`}>
+                                                        {m.name.substring(0,1)}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className={`text-xs font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{m.name}</span>
+                                                        <span className="text-[10px] text-slate-500 uppercase">{m.role}</span>
+                                                    </div>
+                                                </div>
+                                            )
+                                        })
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Footer History - Always visible at bottom of scroll area */}
-                <div className="mt-8 pt-8 border-t border-slate-700/30">
-                     <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                {/* Footer History - FIXED at the bottom of the modal, outside scrolling grid */}
+                <div className="mt-4 pt-4 border-t border-slate-700/30 flex-shrink-0">
+                     <h3 className={`text-lg font-bold mb-2 flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                         <History size={18} />
                         {t.activityLog}
                      </h3>
-                     <div className="flex gap-8 overflow-x-auto pb-4 custom-scrollbar">
+                     <div className="flex gap-8 overflow-x-auto pb-2 custom-scrollbar">
                         {selectedProject.history && selectedProject.history.length > 0 ? (
                             selectedProject.history.slice(0, 10).map((h, i) => (
                                 <div key={i} className={`min-w-[250px] p-4 rounded-xl border flex-shrink-0 ${isDark ? 'bg-[#0B0E14] border-white/5' : 'bg-slate-50 border-slate-200'}`}>

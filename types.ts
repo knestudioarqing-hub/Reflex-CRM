@@ -56,7 +56,10 @@ export interface Project {
   startDate: string; // Replaces LOD slot
   deadline: string; // Used as Delivery Date
   progress: number;
-  // lod: string; // Removed as requested
+  // New KPI Fields
+  totalScope?: number; 
+  completedScope?: number;
+  
   teamMembers: string[]; // IDs of members
   description?: string;
   history: HistoryEntry[];

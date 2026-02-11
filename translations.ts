@@ -124,6 +124,11 @@ export const translations = {
     importSuccess: "Data imported successfully!",
     importError: "Invalid data format.",
     loadData: "Load Data",
+    // KPI
+    kpiTitle: "KPI Progress Calculator",
+    totalScope: "Total Deliverables",
+    completedScope: "Completed Items",
+    autoCalc: "Auto-Calculated",
     // Access Gate
     accessRequired: "System Access Required",
     enterAccessKey: "Enter Unique Access Code",
@@ -258,6 +263,11 @@ export const translations = {
     importSuccess: "Dados importados com sucesso!",
     importError: "Formato de dados inválido.",
     loadData: "Carregar Dados",
+    // KPI
+    kpiTitle: "Calculadora de Progresso KPI",
+    totalScope: "Total de Entregáveis",
+    completedScope: "Itens Concluídos",
+    autoCalc: "Cálculo Automático",
     // Access Gate
     accessRequired: "Acesso ao Sistema Exigido",
     enterAccessKey: "Insira Código de Acesso Único",
