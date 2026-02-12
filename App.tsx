@@ -19,7 +19,6 @@ const DEFAULT_BRANDING: Branding = {
 
 const App: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);
-  // Removed Access Gate state
   
   const [currentView, setCurrentView] = useState('dashboard');
   const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -42,7 +41,18 @@ const App: React.FC = () => {
         if (savedData) {
             setProjects(savedData.projects);
             setMembers(savedData.members);
-            if (savedData.branding) setBranding(savedData.branding);
+            
+            // CRITICAL FIX: Force update the company name from code default
+            // even if branding exists in storage, to ensure the new name appears.
+            if (savedData.branding) {
+                setBranding({
+                    ...savedData.branding,
+                    companyName: DEFAULT_BRANDING.companyName
+                });
+            } else {
+                setBranding(DEFAULT_BRANDING);
+            }
+
             setTheme(savedData.theme as Theme);
             setLang(savedData.lang as Language);
         }
