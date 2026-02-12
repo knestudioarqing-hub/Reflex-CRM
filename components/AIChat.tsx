@@ -18,7 +18,7 @@ export const AIChat: React.FC<AIChatProps> = ({ lang, projects }) => {
   const t = translations[lang];
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: lang === 'pt' ? 'Olá! Eu sou o Reflex AI. Como posso ajudar com seus projetos BIM hoje?' : 'Hello! I am Reflex AI. How can I assist with your BIM projects today?' }
+    { role: 'assistant', content: lang === 'pt' ? 'Olá! Eu sou o KN Growth AI. Como posso ajudar com seus projetos BIM hoje?' : 'Hello! I am KN Growth AI. How can I assist with your BIM projects today?' }
   ]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);

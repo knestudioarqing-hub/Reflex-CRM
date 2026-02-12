@@ -12,7 +12,7 @@ import { Language, Branding, Project, Member, Theme } from './types';
 import { loadUserData, saveUserData } from './services/storageService';
 
 const DEFAULT_BRANDING: Branding = {
-  companyName: 'REFLEX CRM',
+  companyName: 'KN Growth - Software & Services',
   primaryColor: '#BEF264', // Neon Lime
   logoUrl: null
 };
@@ -100,7 +100,7 @@ const App: React.FC = () => {
           
           {/* Left: Mobile Brand Name (Visible on Mobile & Tablet) */}
           <div className="lg:hidden z-20 flex-shrink-0 mr-4">
-             <h1 className={`text-xl font-normal tracking-widest bg-clip-text text-transparent uppercase drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`} style={{ fontFamily: "'Urbanist', sans-serif" }}>
+             <h1 className={`text-lg font-normal tracking-wide bg-clip-text text-transparent drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`}>
                {branding.companyName}
              </h1>
           </div>
@@ -123,7 +123,7 @@ const App: React.FC = () => {
 
           {/* Center: Brand Name (Large Screens Only - Absolute Position) */}
           <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-             <h1 className={`text-3xl font-normal tracking-widest bg-clip-text text-transparent uppercase drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`} style={{ fontFamily: "'Urbanist', sans-serif" }}>
+             <h1 className={`text-2xl font-normal tracking-wide bg-clip-text text-transparent drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`}>
                {branding.companyName}
              </h1>
           </div>

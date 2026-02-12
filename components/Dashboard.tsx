@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package, Timer, CheckSquare, Trash2, MessageSquare, Bell, ChevronRight, Send, History } from 'lucide-react';
+import { Clock, AlertCircle, MoreHorizontal, PlayCircle, ArrowUpRight, TrendingUp, Layers, FileDown, Calendar, Filter, X, Briefcase, User, Plus, CheckCircle, Package, Timer, CheckSquare, Trash2, MessageSquare, Bell, ChevronRight, Send, History, StickyNote } from 'lucide-react';
 import { Project, Language, Theme, Member, WorkLog, Task, ProjectNote } from '../types';
 import { translations } from '../translations';
 import { jsPDF } from 'jspdf';
@@ -12,6 +12,13 @@ interface DashboardProps {
   members: Member[];
   lang: Language;
   theme: Theme;
+}
+
+interface GeneralTask {
+  id: string;
+  text: string;
+  completed: boolean;
+  createdAt: string;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, members, lang, theme }) => {
@@ -35,6 +42,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   // Note/Observation State
   const [noteForm, setNoteForm] = useState({ content: '' });
   const [showNotification, setShowNotification] = useState(false);
+
+  // General Tasks State (Persisted)
+  const [generalTasks, setGeneralTasks] = useState<GeneralTask[]>(() => {
+    const saved = localStorage.getItem('REFLEX_GENERAL_TASKS');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [generalTaskInput, setGeneralTaskInput] = useState('');
+
+  // Persist General Tasks
+  useEffect(() => {
+    localStorage.setItem('REFLEX_GENERAL_TASKS', JSON.stringify(generalTasks));
+  }, [generalTasks]);
 
   // Task Filter in Dashboard
   const [taskProjectFilter, setTaskProjectFilter] = useState<string>('all');
@@ -115,6 +134,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
   const getProjectTotalHours = (project: Project) => {
     return (project.workLogs || []).reduce((acc, log) => acc + (Number(log.hours) || 0), 0);
+  };
+
+  // General Task Handlers
+  const handleAddGeneralTask = () => {
+    if (!generalTaskInput.trim()) return;
+    const newTask: GeneralTask = {
+        id: Date.now().toString(),
+        text: generalTaskInput,
+        completed: false,
+        createdAt: new Date().toISOString()
+    };
+    setGeneralTasks(prev => [newTask, ...prev]);
+    setGeneralTaskInput('');
+  };
+
+  const toggleGeneralTask = (id: string) => {
+    setGeneralTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  };
+
+  const deleteGeneralTask = (id: string) => {
+    setGeneralTasks(prev => prev.filter(t => t.id !== id));
   };
 
   const handleCreateQuickProject = () => {
@@ -335,7 +375,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
     // Header
     doc.setFontSize(22);
     doc.setTextColor(slateColor[0], slateColor[1], slateColor[2]);
-    doc.text('REFLEX CRM - Project Report', 14, 20);
+    doc.text('KN Growth - Software & Services - Project Report', 14, 20);
 
     doc.setFontSize(10);
     doc.setTextColor(100);
@@ -531,10 +571,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         ))}
       </div>
 
-      {/* Main Content (Projects Grid) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Projects Table */}
-        <div className={`lg:col-span-2 border rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+      {/* Main Content (Projects Grid + General Reminders + Tasks) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        
+        {/* Projects Table - Spans 2 cols on Large screens */}
+        <div className={`lg:col-span-2 xl:col-span-2 border rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
           {/* Decorative Glow */}
           <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#BEF264]/5' : 'bg-[#BEF264]/20'}`} />
 
@@ -671,66 +712,133 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
           </div>
         </div>
 
-        {/* Right Column: To-Do / Widgets */}
-        <div className="space-y-6">
-            <div className={`border rounded-[2.5rem] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
-                <div className="flex justify-between items-center mb-6 z-10">
-                    <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.todoList}</h2>
-                    {/* Project Filter for Tasks */}
-                    <div className="flex items-center gap-2">
-                        <Filter size={16} className="text-slate-500" />
-                        <select 
-                            value={taskProjectFilter}
-                            onChange={(e) => setTaskProjectFilter(e.target.value)}
-                            className={`text-xs p-1 rounded-lg outline-none border max-w-[120px] md:max-w-none ${isDark ? 'bg-[#1A1F2C] border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
-                        >
-                            <option value="all">{t.filterByProject}</option>
-                            {projects.filter(p => p.isActive).map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                            ))}
-                        </select>
-                    </div>
+        {/* MIDDLE SECTION: General Tasks / Reminders */}
+        <div className={`lg:col-span-1 xl:col-span-1 border rounded-[2.5rem] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+            <div className="flex justify-between items-center mb-6 z-10">
+                <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.generalTasks}</h2>
+                <div className={`p-2 rounded-lg ${isDark ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-100 text-blue-600'}`}>
+                    <StickyNote size={18} />
                 </div>
+            </div>
 
-                <div className="space-y-4 z-10 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                    {filteredTasks.length === 0 ? (
-                        <p className="text-center text-slate-500 text-sm italic py-4">{t.noTasks}</p>
-                    ) : (
-                        filteredTasks.map((task, i) => (
+            {/* Input for General Task */}
+            <div className={`flex gap-2 p-2 rounded-xl border mb-4 z-10 ${isDark ? 'bg-[#1A1F2C] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                <input 
+                    type="text" 
+                    value={generalTaskInput}
+                    onChange={(e) => setGeneralTaskInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddGeneralTask()}
+                    placeholder={t.generalTasksPlaceholder}
+                    className={`flex-1 bg-transparent outline-none text-sm px-2 ${isDark ? 'text-white placeholder-slate-500' : 'text-slate-900 placeholder-slate-400'}`}
+                />
+                <button 
+                    onClick={handleAddGeneralTask}
+                    className={`p-2 rounded-lg transition-colors ${isDark ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
+                >
+                    <Plus size={16} />
+                </button>
+            </div>
+
+            {/* General Tasks List */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 z-10 min-h-[200px]">
+                {generalTasks.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
+                        <StickyNote size={32} className="mb-2" />
+                        <p className="text-xs text-center">{t.noGeneralTasks}</p>
+                    </div>
+                ) : (
+                    generalTasks.map(task => (
                         <div 
-                            key={`${task.projectId}-${task.id}`} 
-                            className={`p-5 rounded-3xl border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/5 hover:border-[#BEF264]/30' : 'bg-slate-50 border-slate-200 hover:border-[#BEF264]'}`}
-                            onClick={() => toggleTaskCompletion(task.projectId, task.id)}
+                            key={task.id}
+                            className={`flex items-start gap-3 p-3 rounded-xl border transition-all group ${
+                                task.completed 
+                                ? 'opacity-50' 
+                                : isDark ? 'bg-[#1A1F2C] border-white/5 hover:border-blue-500/30' : 'bg-white border-slate-200 hover:border-blue-300'
+                            }`}
                         >
-                            <div className="flex justify-between items-start mb-2">
-                                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${
-                                    task.priority === 'urgent' ? 'bg-red-500/10 text-red-400' : 
-                                    task.priority === 'high' ? 'bg-orange-500/10 text-orange-400' :
-                                    task.priority === 'medium' ? 'bg-blue-500/10 text-blue-400' :
-                                    'bg-slate-500/10 text-slate-400'
-                                }`}>
-                                    {task.priority.toUpperCase()}
-                                </span>
-                                <div className="flex items-center gap-2">
-                                    <span className={`text-[10px] font-bold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{task.projectName}</span>
-                                    <Clock size={14} className="text-slate-500" />
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors flex-shrink-0 ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
-                                    {task.completed && <CheckCircle size={14} className="text-black" />}
-                                </div>
-                                <div>
-                                    <h4 className={`font-bold mb-0.5 transition-colors ${task.completed ? 'line-through text-slate-500' : isDark ? 'text-white group-hover:text-[#BEF264]' : 'text-slate-900 group-hover:text-black'}`}>
-                                        {task.title}
-                                    </h4>
-                                    <p className="text-xs text-slate-500">{task.dueDate}</p>
-                                </div>
+                            <button 
+                                onClick={() => toggleGeneralTask(task.id)}
+                                className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${
+                                    task.completed 
+                                    ? 'bg-blue-500 border-blue-500' 
+                                    : isDark ? 'border-slate-600 hover:border-blue-400' : 'border-slate-300 hover:border-blue-400'
+                                }`}
+                            >
+                                {task.completed && <CheckCircle size={10} className="text-white" />}
+                            </button>
+                            <span className={`text-sm flex-1 break-words ${task.completed ? 'line-through text-slate-500' : isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                                {task.text}
+                            </span>
+                            <button 
+                                onClick={() => deleteGeneralTask(task.id)}
+                                className="text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                                <Trash2 size={14} />
+                            </button>
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
+
+        {/* Right Column: Project Tasks (Specific) */}
+        <div className={`lg:col-span-3 xl:col-span-1 border rounded-[2.5rem] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+            <div className="flex justify-between items-center mb-6 z-10">
+                <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.todoList}</h2>
+                {/* Project Filter for Tasks */}
+                <div className="flex items-center gap-2">
+                    <Filter size={16} className="text-slate-500" />
+                    <select 
+                        value={taskProjectFilter}
+                        onChange={(e) => setTaskProjectFilter(e.target.value)}
+                        className={`text-xs p-1 rounded-lg outline-none border max-w-[120px] md:max-w-none ${isDark ? 'bg-[#1A1F2C] border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
+                    >
+                        <option value="all">{t.filterByProject}</option>
+                        {projects.filter(p => p.isActive).map(p => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            <div className="space-y-4 z-10 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                {filteredTasks.length === 0 ? (
+                    <p className="text-center text-slate-500 text-sm italic py-4">{t.noTasks}</p>
+                ) : (
+                    filteredTasks.map((task, i) => (
+                    <div 
+                        key={`${task.projectId}-${task.id}`} 
+                        className={`p-5 rounded-3xl border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/5 hover:border-[#BEF264]/30' : 'bg-slate-50 border-slate-200 hover:border-[#BEF264]'}`}
+                        onClick={() => toggleTaskCompletion(task.projectId, task.id)}
+                    >
+                        <div className="flex justify-between items-start mb-2">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${
+                                task.priority === 'urgent' ? 'bg-red-500/10 text-red-400' : 
+                                task.priority === 'high' ? 'bg-orange-500/10 text-orange-400' :
+                                task.priority === 'medium' ? 'bg-blue-500/10 text-blue-400' :
+                                'bg-slate-500/10 text-slate-400'
+                            }`}>
+                                {task.priority.toUpperCase()}
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className={`text-[10px] font-bold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{task.projectName}</span>
+                                <Clock size={14} className="text-slate-500" />
                             </div>
                         </div>
-                        ))
-                    )}
-                </div>
+                        <div className="flex items-center gap-3">
+                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors flex-shrink-0 ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
+                                {task.completed && <CheckCircle size={14} className="text-black" />}
+                            </div>
+                            <div>
+                                <h4 className={`font-bold mb-0.5 transition-colors ${task.completed ? 'line-through text-slate-500' : isDark ? 'text-white group-hover:text-[#BEF264]' : 'text-slate-900 group-hover:text-black'}`}>
+                                    {task.title}
+                                </h4>
+                                <p className="text-xs text-slate-500">{task.dueDate}</p>
+                            </div>
+                        </div>
+                    </div>
+                    ))
+                )}
             </div>
         </div>
       </div>

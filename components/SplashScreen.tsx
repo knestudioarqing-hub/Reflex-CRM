@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Branding, Language } from '../types';
 
 interface SplashScreenProps {
@@ -13,14 +13,14 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ branding, lang }) =>
       headline: "All-in-one Platform to Simplify",
       headlineHighlight: "Your BIM Workflow",
       subtitle: "Harness the power of AI and advanced modeling data for seamless project coordination.",
-      poweredBy: "Powered by Reflex Engine"
+      poweredBy: "Powered by KN Growth Engine"
     },
     pt: {
       available: "4.0 já está disponível",
       headline: "Plataforma Tudo-em-um para Simplificar",
       headlineHighlight: "Seu Fluxo de Trabalho BIM",
       subtitle: "Gestor de projetos BIM",
-      poweredBy: "Desenvolvido por Reflex Engine"
+      poweredBy: "Desenvolvido por KN Growth Engine"
     }
   };
 
@@ -45,7 +45,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ branding, lang }) =>
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span className="text-xs font-semibold text-emerald-400 tracking-wide uppercase">
+          <span className="text-xs font-semibold text-emerald-400 tracking-wide">
             {branding.companyName} {text.available}
           </span>
         </div>

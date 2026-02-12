@@ -138,7 +138,12 @@ export const translations = {
     secureConnection: "Establishing Secure Link...",
     connectionEstablished: "Connection Established",
     accessGranted: "Access Granted",
-    invalidCode: "Please enter a valid code."
+    invalidCode: "Please enter a valid code.",
+    // General Tasks
+    generalTasks: "General Reminders",
+    quickAdd: "Quick Add",
+    generalTasksPlaceholder: "Don't forget to...",
+    noGeneralTasks: "No reminders. All clear!"
   },
   pt: {
     dashboard: "Painel de Controle",
@@ -277,6 +282,11 @@ export const translations = {
     secureConnection: "Estabelecendo Link Seguro...",
     connectionEstablished: "Conexão Estabelecida",
     accessGranted: "Acesso Permitido",
-    invalidCode: "Por favor, insira um código válido."
+    invalidCode: "Por favor, insira um código válido.",
+    // General Tasks
+    generalTasks: "Lembretes Gerais",
+    quickAdd: "Adicionar",
+    generalTasksPlaceholder: "Não esquecer de...",
+    noGeneralTasks: "Sem lembretes. Tudo limpo!"
   }
 };
