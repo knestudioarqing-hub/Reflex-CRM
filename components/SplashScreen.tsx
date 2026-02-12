@@ -10,15 +10,15 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ branding, lang }) =>
   const t = {
     en: {
       available: "4.0 is now available",
-      headline: "All-in-one Platform to Simplify",
-      headlineHighlight: "Your BIM Workflow",
+      headline: "CRM BIM",
+      headlineHighlight: "Projects & Management",
       subtitle: "Harness the power of AI and advanced modeling data for seamless project coordination.",
       poweredBy: "Powered by KN Growth Engine"
     },
     pt: {
       available: "4.0 já está disponível",
-      headline: "Plataforma Tudo-em-um para Simplificar",
-      headlineHighlight: "Seu Fluxo de Trabalho BIM",
+      headline: "CRM BIM",
+      headlineHighlight: "Projetos & Gestão",
       subtitle: "Gestor de projetos BIM",
       poweredBy: "Desenvolvido por KN Growth Engine"
     }

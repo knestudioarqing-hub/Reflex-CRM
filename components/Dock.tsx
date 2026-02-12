@@ -71,7 +71,7 @@ export const Dock: React.FC<DockProps> = ({ currentView, setCurrentView, lang, t
                   text-sm font-medium whitespace-nowrap transition-all duration-500
                   ${isActive ? 'opacity-100 max-w-[100px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-4'}
                 `}
-                style={{ fontFamily: "'Urbanist', sans-serif" }}
+                style={{ fontFamily: "'Inter', sans-serif" }}
               >
                 {item.label}
               </div>
