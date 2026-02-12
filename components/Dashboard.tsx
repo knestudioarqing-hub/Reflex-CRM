@@ -811,21 +811,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         document.body
       )}
 
-      {/* Project Details Modal - REDESIGNED FOR FULL SCREEN WITH INTERNAL SCROLLING */}
+      {/* Project Details Modal - OPTIMIZED FOR RESPONSIVE HEIGHT */}
       {selectedProject && createPortal(
         <div 
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
             onClick={() => setSelectedProject(null)}
         >
           <div 
-            className={`w-full max-w-[95vw] h-[92vh] rounded-[2rem] shadow-2xl relative overflow-hidden animate-scale-in flex flex-col ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
+            className={`w-full max-w-[95vw] h-[92vh] min-h-[600px] rounded-[2rem] shadow-2xl relative overflow-hidden animate-scale-in flex flex-col ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Background Glow inside modal */}
             <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#BEF264]/5' : 'bg-[#BEF264]/10'}`} />
 
             {/* HEADER (Fixed) */}
-            <div className={`p-6 md:p-8 border-b ${isDark ? 'border-white/5' : 'border-slate-100'} flex-shrink-0 relative z-10`}>
+            <div className={`p-6 md:p-8 border-b ${isDark ? 'border-white/5 bg-[#151A23]' : 'border-slate-100 bg-white'} flex-shrink-0 relative z-20`}>
                 <div className="flex justify-between items-start">
                     <div>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mb-2">
@@ -859,12 +859,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                 </div>
             </div>
 
-            {/* CONTENT AREA (Fixed layout, Internal Scrolling) */}
+            {/* CONTENT AREA (Hybrid Scroll - Smart layout) */}
             <div className="flex-1 p-6 md:p-8 relative z-10 flex flex-col overflow-hidden">
                 
-                {/* 3-COLUMN LAYOUT - The wrapper handles mobile scroll, but locks on desktop to allow columns to scroll independently */}
+                {/* 3-COLUMN LAYOUT - The wrapper handles mobile scroll, but locks on desktop to allow columns to scroll independently IF there is enough height */}
                 <div className="flex-1 overflow-y-auto xl:overflow-hidden">
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 xl:h-full">
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 xl:h-full min-h-[500px]">
                         
                         {/* COLUMN 1: VITAL INFO & WORK LOG (Scrolls fully as a column) */}
                         <div className="space-y-8 overflow-y-auto custom-scrollbar pr-2 xl:h-full">
@@ -981,8 +981,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
                         {/* COLUMN 2: TASK MANAGEMENT (Fixed Header, Scrollable List) */}
                         <div className={`rounded-[2rem] border flex flex-col xl:h-full xl:overflow-hidden ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
-                            {/* Fixed Header */}
-                            <div className={`p-6 border-b flex-shrink-0 ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                            {/* Fixed Header with solid background to prevent transparency overlap */}
+                            <div className={`p-6 border-b flex-shrink-0 relative z-20 ${isDark ? 'border-white/5 bg-[#12151b] rounded-t-[2rem]' : 'border-slate-100 bg-white rounded-t-[2rem]'}`}>
                                 <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                     <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
                                     <CheckSquare size={20} />
@@ -991,8 +991,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                 </h3>
                             </div>
                             
-                            {/* Fixed Input Area */}
-                            <div className="p-6 border-b border-dashed border-slate-700/50 flex-shrink-0">
+                            {/* Fixed Input Area with solid background */}
+                            <div className={`p-6 border-b border-dashed border-slate-700/50 flex-shrink-0 relative z-10 ${isDark ? 'bg-[#12151b]' : 'bg-white'}`}>
                                 <div className="space-y-3">
                                     <input 
                                     type="text" 
@@ -1030,10 +1030,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                 </div>
                             </div>
 
-                            {/* Scrollable Task List */}
-                            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-3 min-h-0">
+                            {/* Scrollable Task List with min-h-0 to enable flex shrinking properly */}
+                            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-3 min-h-0 relative z-0">
                                 {(!selectedProject.tasks || selectedProject.tasks.length === 0) ? (
-                                    <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
+                                    <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50 min-h-[100px]">
                                         <CheckSquare size={48} className="mb-4" />
                                         <p>{t.noTasks}</p>
                                     </div>
@@ -1078,10 +1078,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                         </div>
 
                         {/* COLUMN 3: NOTES & TEAM */}
-                        <div className="flex flex-col gap-6 xl:h-full xl:overflow-hidden">
+                        <div className="flex flex-col gap-6 xl:h-full xl:overflow-hidden min-h-0">
                             {/* Notes Section - Grows to fill space, independent scroll */}
-                            <div className={`flex-1 rounded-[2rem] border flex flex-col overflow-hidden min-h-[400px] ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
-                                <div className={`p-6 border-b flex-shrink-0 ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                            <div className={`flex-1 rounded-[2rem] border flex flex-col overflow-hidden min-h-[200px] ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                                <div className={`p-6 border-b flex-shrink-0 relative z-20 ${isDark ? 'border-white/5 bg-[#12151b] rounded-t-[2rem]' : 'border-slate-100 bg-white rounded-t-[2rem]'}`}>
                                     <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                         <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
                                         <MessageSquare size={20} />
@@ -1090,7 +1090,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                     </h3>
                                 </div>
 
-                                <div className="p-4 border-b border-dashed border-slate-700/50 flex-shrink-0">
+                                <div className={`p-4 border-b border-dashed border-slate-700/50 flex-shrink-0 relative z-10 ${isDark ? 'bg-[#12151b]' : 'bg-white'}`}>
                                     <div className="flex gap-2">
                                         <input 
                                         type="text" 
@@ -1110,9 +1110,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                     </div>
                                 </div>
 
-                                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4 min-h-0">
+                                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4 min-h-0 relative z-0">
                                     {(!selectedProject.notes || selectedProject.notes.length === 0) ? (
-                                        <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
+                                        <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50 min-h-[100px]">
                                             <MessageSquare size={32} className="mb-2" />
                                             <p className="text-sm">{t.noNotes}</p>
                                         </div>
@@ -1168,28 +1168,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                         </div>
                     </div>
                 </div>
-
-                {/* Footer History - FIXED at the bottom of the modal, outside scrolling grid */}
-                <div className="mt-4 pt-4 border-t border-slate-700/30 flex-shrink-0">
-                     <h3 className={`text-lg font-bold mb-2 flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                        <History size={18} />
-                        {t.activityLog}
-                     </h3>
-                     <div className="flex gap-8 overflow-x-auto pb-2 custom-scrollbar">
-                        {selectedProject.history && selectedProject.history.length > 0 ? (
-                            selectedProject.history.slice(0, 10).map((h, i) => (
-                                <div key={i} className={`min-w-[250px] p-4 rounded-xl border flex-shrink-0 ${isDark ? 'bg-[#0B0E14] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
-                                    <span className="text-xs font-mono text-slate-500 mb-1 block">{new Date(h.timestamp).toLocaleString()}</span>
-                                    <p className={`text-sm font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{h.action.toUpperCase()}</p>
-                                    <p className="text-xs text-slate-400">{h.details}</p>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="text-slate-500 text-sm italic">{t.noHistory}</p>
-                        )}
-                     </div>
-                </div>
-
             </div>
           </div>
         </div>,
