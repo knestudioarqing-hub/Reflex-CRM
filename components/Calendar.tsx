@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar as CalendarIcon, Check, Link, RefreshCw, X, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Calendar as CalendarIcon, Check, RefreshCw, X, ChevronLeft, ChevronRight, Clock, AlertTriangle } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { Language, Theme } from '../types';
 import { translations } from '../translations';
 
 interface CalendarProps {
   lang: Language;
   theme: Theme;
+}
+
+interface CalendarEvent {
+  day: number;
+  monthOffset: number; // 0 for current month, 1 for next, etc.
+  title: string;
+  type: 'google' | 'outlook';
+  time: string;
 }
 
 export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
@@ -15,25 +24,94 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
   const [googleConnected, setGoogleConnected] = useState(false);
   const [outlookConnected, setOutlookConnected] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
-
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showToast, setShowToast] = useState<{message: string, type: 'success' | 'info'} | null>(null);
 
-  // Simulate Connection
-  const handleConnect = (provider: 'google' | 'outlook') => {
-    if ((provider === 'google' && googleConnected) || (provider === 'outlook' && outlookConnected)) {
+  // Dynamic Mock Events generator based on current date
+  const generateMockEvents = (): CalendarEvent[] => {
+    return [
+      { day: 5, monthOffset: 0, title: 'BIM Clash Detection', type: 'google', time: '10:00 AM' },
+      { day: 12, monthOffset: 0, title: 'Client Meeting', type: 'outlook', time: '2:00 PM' },
+      { day: 15, monthOffset: 0, title: 'Project Delivery', type: 'google', time: '5:00 PM' },
+      { day: 22, monthOffset: 0, title: 'Team Sync', type: 'outlook', time: '9:00 AM' },
+      { day: 28, monthOffset: 0, title: 'Site Visit', type: 'google', time: '11:30 AM' },
+      { day: 2, monthOffset: 1, title: 'Planning Phase 2', type: 'google', time: '09:00 AM' },
+    ];
+  };
+
+  const [events] = useState<CalendarEvent[]>(generateMockEvents());
+
+  // Helper to open a fake auth window
+  const simulateAuthWindow = (provider: 'Google' | 'Microsoft') => {
+    return new Promise<void>((resolve) => {
+        const width = 500;
+        const height = 600;
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
+        
+        const popup = window.open(
+            '', 
+            'Auth', 
+            `width=${width},height=${height},top=${top},left=${left}`
+        );
+
+        if (popup) {
+            const color = provider === 'Google' ? '#DB4437' : '#0078D4';
+            popup.document.write(`
+                <html>
+                <head>
+                    <title>Sign in with ${provider}</title>
+                    <style>
+                        body { background-color: #121212; color: white; font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+                        .loader { border: 3px solid #333; border-top: 3px solid ${color}; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+                        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                        h2 { font-weight: 500; margin-bottom: 10px; }
+                        p { color: #888; font-size: 14px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="loader"></div>
+                    <h2>Connecting to ${provider}...</h2>
+                    <p>Verifying credentials securely.</p>
+                </body>
+                </html>
+            `);
+            
+            setTimeout(() => {
+                popup.close();
+                resolve();
+            }, 2500);
+        } else {
+            // If popup blocked
+            setTimeout(resolve, 2000);
+        }
+    });
+  };
+
+  const handleConnect = async (provider: 'google' | 'outlook') => {
+    const isConnected = provider === 'google' ? googleConnected : outlookConnected;
+
+    if (isConnected) {
         if (confirm(t.disconnect + '?')) {
             if (provider === 'google') setGoogleConnected(false);
             if (provider === 'outlook') setOutlookConnected(false);
+            setShowToast({ message: 'Account disconnected successfully', type: 'info' });
+            setTimeout(() => setShowToast(null), 3000);
         }
         return;
     }
 
     setLoading(provider);
-    setTimeout(() => {
-        if (provider === 'google') setGoogleConnected(true);
-        if (provider === 'outlook') setOutlookConnected(true);
-        setLoading(null);
-    }, 2000);
+    
+    // Simulate real OAuth flow
+    await simulateAuthWindow(provider === 'google' ? 'Google' : 'Microsoft');
+
+    if (provider === 'google') setGoogleConnected(true);
+    if (provider === 'outlook') setOutlookConnected(true);
+    
+    setLoading(null);
+    setShowToast({ message: 'Calendar synced successfully (Demo Mode)', type: 'success' });
+    setTimeout(() => setShowToast(null), 3000);
   };
 
   const daysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -47,18 +125,23 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
     return date.toLocaleString(lang === 'pt' ? 'pt-BR' : 'en-US', { month: 'long', year: 'numeric' });
   };
 
-  // Mock Events
-  const mockEvents = [
-    { day: 5, title: 'BIM Clash Detection', type: 'google', time: '10:00 AM' },
-    { day: 12, title: 'Client Meeting', type: 'outlook', time: '2:00 PM' },
-    { day: 15, title: 'Project Delivery', type: 'google', time: '5:00 PM' },
-    { day: 22, title: 'Team Sync', type: 'outlook', time: '9:00 AM' },
-    { day: 28, title: 'Site Visit', type: 'google', time: '11:30 AM' },
-  ];
-
   return (
-    <div className="space-y-8 animate-fade-in pb-20 max-w-7xl mx-auto">
+    <div className="space-y-8 animate-fade-in pb-20 max-w-7xl mx-auto relative">
       
+      {/* Toast Notification */}
+      {showToast && createPortal(
+        <div className={`fixed top-6 right-6 z-[150] animate-slide-up flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${isDark ? 'bg-[#1A1F2C] border-slate-700' : 'bg-white border-slate-200'}`}>
+           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${showToast.type === 'success' ? 'bg-emerald-500' : 'bg-blue-500'}`}>
+              <Check size={18} />
+           </div>
+           <div>
+              <h4 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{showToast.type === 'success' ? 'Success' : 'Info'}</h4>
+              <p className="text-xs text-slate-500">{showToast.message}</p>
+           </div>
+        </div>,
+        document.body
+      )}
+
       {/* Header */}
       <div className="flex flex-col">
         <h1 className={`text-4xl font-light mb-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
@@ -77,8 +160,8 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
                   {/* Google Calendar */}
                   <div className={`p-4 rounded-2xl border mb-4 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
                       <div className="flex items-center gap-4 mb-4">
-                          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                              <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Google" className="w-6 h-6" />
+                          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm p-2">
+                               <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Google" className="w-full h-full object-contain" />
                           </div>
                           <div className="flex-1">
                               <h4 className={`font-bold text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>Google Calendar</h4>
@@ -123,25 +206,35 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
                          {loading === 'outlook' ? <RefreshCw size={14} className="animate-spin" /> : outlookConnected ? t.disconnect : t.connectOutlook}
                       </button>
                   </div>
+
+                  {/* Demo Mode Disclaimer */}
+                  <div className={`mt-4 p-3 rounded-xl border flex items-start gap-3 ${isDark ? 'bg-orange-500/5 border-orange-500/20' : 'bg-orange-50 border-orange-200'}`}>
+                      <AlertTriangle size={16} className="text-orange-500 mt-0.5 flex-shrink-0" />
+                      <p className={`text-[10px] ${isDark ? 'text-orange-200' : 'text-orange-800'}`}>
+                          <strong>Demo Mode:</strong> Actual integration requires backend API keys (Google Console / Azure AD). This demo simulates the OAuth flow and displays mock events.
+                      </p>
+                  </div>
               </div>
 
               {/* Upcoming Events List */}
               {(googleConnected || outlookConnected) && (
-                  <div className={`p-6 rounded-3xl border shadow-xl backdrop-blur-xl ${isDark ? 'bg-[#151A23]/80 border-white/5' : 'bg-white border-slate-200'}`}>
+                  <div className={`p-6 rounded-3xl border shadow-xl backdrop-blur-xl animate-fade-in ${isDark ? 'bg-[#151A23]/80 border-white/5' : 'bg-white border-slate-200'}`}>
                       <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                           <Clock size={18} className="text-emerald-500" />
                           {t.upcomingEvents}
                       </h3>
                       <div className="space-y-3">
-                          {mockEvents
+                          {events
                             .filter(e => (e.type === 'google' && googleConnected) || (e.type === 'outlook' && outlookConnected))
+                            // Only show events for current month in the list or near future
+                            .filter(e => e.monthOffset === 0)
                             .slice(0, 3)
                             .map((event, idx) => (
                               <div key={idx} className={`p-3 rounded-xl border flex items-center gap-3 ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
                                   <div className={`w-1 h-8 rounded-full ${event.type === 'google' ? 'bg-blue-500' : 'bg-[#0078D4]'}`} />
                                   <div className="flex-1">
                                       <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{event.title}</p>
-                                      <p className="text-xs text-slate-500">{event.time} • {new Date().toLocaleString('default', { month: 'short' })} {event.day}</p>
+                                      <p className="text-xs text-slate-500">{event.time} • Day {event.day}</p>
                                   </div>
                               </div>
                           ))}
@@ -185,12 +278,24 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
                   {/* Days */}
                   {Array.from({ length: daysInMonth(currentDate) }).map((_, i) => {
                       const day = i + 1;
-                      const eventsToday = mockEvents.filter(e => 
+                      
+                      // Calculate the month difference between the calendar view and the "now" date
+                      const today = new Date();
+                      const viewMonthIndex = currentDate.getMonth();
+                      const currentMonthIndex = today.getMonth();
+                      // Simple logic: mock events are set with a "monthOffset". 
+                      // 0 = current real month. 
+                      // We need to check if the viewMonthIndex matches the (realMonth + offset)
+                      
+                      const offsetNeeded = viewMonthIndex - currentMonthIndex;
+
+                      const eventsToday = events.filter(e => 
                         e.day === day && 
+                        e.monthOffset === offsetNeeded &&
                         ((e.type === 'google' && googleConnected) || (e.type === 'outlook' && outlookConnected))
                       );
 
-                      const isToday = day === new Date().getDate() && currentDate.getMonth() === new Date().getMonth();
+                      const isToday = day === today.getDate() && viewMonthIndex === currentMonthIndex && currentDate.getFullYear() === today.getFullYear();
 
                       return (
                           <div 
