@@ -146,14 +146,21 @@ export const translations = {
     noGeneralTasks: "No reminders. All clear!",
     // Calendar
     calendar: "Calendar",
-    calendarSubtitle: "Sync your schedule with Google or Outlook to stay organized.",
-    connectGoogle: "Connect Google Calendar",
-    connectOutlook: "Connect Outlook Calendar",
+    calendarSubtitle: "Manage your schedule and sync with external providers.",
+    connectGoogle: "Google Calendar",
+    connectOutlook: "Outlook Calendar",
     disconnect: "Disconnect",
     connected: "Connected",
     connect: "Connect",
     eventsSynced: "Events Synced",
-    upcomingEvents: "Upcoming Events"
+    upcomingEvents: "Upcoming Events",
+    createEvent: "Create Event",
+    eventTitle: "Event Title",
+    eventTime: "Time",
+    eventColor: "Label Color",
+    myCalendar: "My Calendar",
+    integrations: "Integrations",
+    today: "Today"
   },
   pt: {
     dashboard: "Painel de Controle",
@@ -300,13 +307,20 @@ export const translations = {
     noGeneralTasks: "Sem lembretes. Tudo limpo!",
     // Calendar
     calendar: "Calendário",
-    calendarSubtitle: "Sincronize sua agenda com Google ou Outlook para manter-se organizado.",
-    connectGoogle: "Conectar Google Calendar",
-    connectOutlook: "Conectar Outlook Calendar",
+    calendarSubtitle: "Gerencie sua agenda e sincronize com provedores externos.",
+    connectGoogle: "Google Calendar",
+    connectOutlook: "Outlook Calendar",
     disconnect: "Desconectar",
     connected: "Conectado",
     connect: "Conectar",
     eventsSynced: "Eventos Sincronizados",
-    upcomingEvents: "Próximos Eventos"
+    upcomingEvents: "Próximos Eventos",
+    createEvent: "Criar Evento",
+    eventTitle: "Título do Evento",
+    eventTime: "Horário",
+    eventColor: "Cor da Etiqueta",
+    myCalendar: "Meu Calendário",
+    integrations: "Integrações",
+    today: "Hoje"
   }
 };
