@@ -5,6 +5,7 @@ import { Projects } from './components/Projects';
 import { Members } from './components/Members';
 import { Settings } from './components/Settings';
 import { ActivityHistory } from './components/ActivityHistory';
+import { Calendar } from './components/Calendar';
 import { SplashScreen } from './components/SplashScreen';
 import { Search, Bell, Globe, LogOut, Sun, Moon, User } from 'lucide-react';
 import { translations } from './translations';
@@ -186,6 +187,9 @@ const App: React.FC = () => {
             )}
             {currentView === 'members' && (
               <Members members={members} setMembers={setMembers} projects={projects} setProjects={setProjects} lang={lang} theme={theme} />
+            )}
+            {currentView === 'calendar' && (
+               <Calendar lang={lang} theme={theme} />
             )}
             {currentView === 'analytics' && (
                <ActivityHistory projects={projects} lang={lang} theme={theme} />

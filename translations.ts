@@ -143,7 +143,17 @@ export const translations = {
     generalTasks: "General Reminders",
     quickAdd: "Quick Add",
     generalTasksPlaceholder: "Don't forget to...",
-    noGeneralTasks: "No reminders. All clear!"
+    noGeneralTasks: "No reminders. All clear!",
+    // Calendar
+    calendar: "Calendar",
+    calendarSubtitle: "Sync your schedule with Google or Outlook to stay organized.",
+    connectGoogle: "Connect Google Calendar",
+    connectOutlook: "Connect Outlook Calendar",
+    disconnect: "Disconnect",
+    connected: "Connected",
+    connect: "Connect",
+    eventsSynced: "Events Synced",
+    upcomingEvents: "Upcoming Events"
   },
   pt: {
     dashboard: "Painel de Controle",
@@ -287,6 +297,16 @@ export const translations = {
     generalTasks: "Lembretes Gerais",
     quickAdd: "Adicionar",
     generalTasksPlaceholder: "Não esquecer de...",
-    noGeneralTasks: "Sem lembretes. Tudo limpo!"
+    noGeneralTasks: "Sem lembretes. Tudo limpo!",
+    // Calendar
+    calendar: "Calendário",
+    calendarSubtitle: "Sincronize sua agenda com Google ou Outlook para manter-se organizado.",
+    connectGoogle: "Conectar Google Calendar",
+    connectOutlook: "Conectar Outlook Calendar",
+    disconnect: "Desconectar",
+    connected: "Conectado",
+    connect: "Conectar",
+    eventsSynced: "Eventos Sincronizados",
+    upcomingEvents: "Próximos Eventos"
   }
 };

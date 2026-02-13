@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, FolderKanban, History, Settings, Users } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, History, Settings, Users, Calendar } from 'lucide-react';
 import { translations } from '../translations';
 import { Language, Theme } from '../types';
 
@@ -17,6 +17,7 @@ export const Dock: React.FC<DockProps> = ({ currentView, setCurrentView, lang, t
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: t.dashboard },
     { id: 'projects', icon: FolderKanban, label: t.projects },
+    { id: 'calendar', icon: Calendar, label: t.calendar },
     { id: 'members', icon: Users, label: t.members },
     { id: 'analytics', icon: History, label: t.analytics },
     { id: 'settings', icon: Settings, label: t.settings },
