@@ -40,8 +40,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   });
 
   // Note/Observation State
-  const [noteForm, setNoteForm] = useState({ content: '' });
+  const [noteForm, setNoteForm] = useState<{content: string, imageUrl: string | null}>({ content: '', imageUrl: null });
   const [showNotification, setShowNotification] = useState(false);
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const blob = items[i].getAsFile();
+        if (blob) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            if (event.target?.result) {
+              setNoteForm(prev => ({ ...prev, imageUrl: event.target!.result as string }));
+            }
+          };
+          reader.readAsDataURL(blob);
+        }
+      }
+    }
+  };
 
   // General Tasks State (Persisted)
   const [generalTasks, setGeneralTasks] = useState<GeneralTask[]>(() => {
@@ -307,11 +325,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
   // --- NOTE MANAGEMENT LOGIC ---
   const handleAddNote = () => {
-    if (!selectedProject || !noteForm.content) return;
+    if (!selectedProject || (!noteForm.content && !noteForm.imageUrl)) return;
 
     const newNote: ProjectNote = {
       id: Date.now().toString(),
       content: noteForm.content,
+      imageUrl: noteForm.imageUrl || undefined,
       timestamp: new Date().toISOString(),
       user: 'Gianfranco'
     };
@@ -329,7 +348,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
     const updatedSelectedProject = updatedProjects.find(p => p.id === selectedProject.id);
     if (updatedSelectedProject) setSelectedProject(updatedSelectedProject);
 
-    setNoteForm({ content: '' });
+    setNoteForm({ content: '', imageUrl: null });
     
     // Trigger Notification
     setShowNotification(true);
@@ -1199,18 +1218,30 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                 </div>
 
                                 <div className={`p-4 border-b border-dashed border-slate-700/50 flex-shrink-0 relative z-10 ${isDark ? 'bg-[#12151b]' : 'bg-white'}`}>
+                                    {noteForm.imageUrl && (
+                                        <div className="mb-2 relative inline-block group">
+                                            <img src={noteForm.imageUrl} alt="Pasted" className="h-20 rounded-lg border border-slate-500/50" />
+                                            <button 
+                                                onClick={() => setNoteForm({...noteForm, imageUrl: null})}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    )}
                                     <div className="flex gap-2">
                                         <input 
                                         type="text" 
                                         value={noteForm.content}
                                         onChange={(e) => setNoteForm({...noteForm, content: e.target.value})}
                                         onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
+                                        onPaste={handlePaste}
                                         placeholder={t.notePlaceholder}
                                         className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
                                         />
                                         <button 
                                         onClick={handleAddNote}
-                                        disabled={!noteForm.content}
+                                        disabled={!noteForm.content && !noteForm.imageUrl}
                                         className="px-4 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold disabled:opacity-50"
                                         >
                                         <Plus size={20} />
@@ -1227,6 +1258,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                     ) : (
                                         selectedProject.notes.map(note => (
                                             <div key={note.id} className={`p-4 rounded-2xl rounded-tl-none border text-sm relative group ${isDark ? 'bg-[#0B0E14] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
+                                                {note.imageUrl && (
+                                                    <div className="mb-2">
+                                                        <img src={note.imageUrl} alt="Attachment" className="max-w-full rounded-lg border border-slate-500/20 max-h-48 object-contain" />
+                                                    </div>
+                                                )}
                                                 <p className={`mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{note.content}</p>
                                                 <div className="flex justify-between items-center text-xs text-slate-500">
                                                     <span>{new Date(note.timestamp).toLocaleString()}</span>

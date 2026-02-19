@@ -35,6 +35,7 @@ export interface WorkLog {
 export interface ProjectNote {
   id: string;
   content: string;
+  imageUrl?: string;
   timestamp: string;
   user: string;
 }
