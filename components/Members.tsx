@@ -139,7 +139,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
         <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.members}</h2>
         <button
           onClick={handleOpenAdd}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl transition-colors font-medium shadow-lg shadow-emerald-500/20"
+          className="flex items-center gap-2 bg-[#FF5500] hover:bg-[#e04b00] text-white px-4 py-2 rounded-xl transition-colors font-medium shadow-lg shadow-[#FF5500]/20"
         >
           <Plus size={18} />
           {t.addMember}
@@ -157,7 +157,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                 placeholder="e.g. Sarah Smith"
               />
             </div>
@@ -167,7 +167,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
                 type="text"
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                 placeholder="e.g. BIM Coordinator"
               />
             </div>
@@ -176,7 +176,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
           <div className="mb-8">
             <label className="block text-sm font-medium text-slate-400 mb-3">{t.assignedProjects}</label>
             {projects.length === 0 ? (
-                <div className={`p-4 rounded-xl border border-dashed text-sm text-center ${isDark ? 'bg-[#0B0E14] border-slate-700 text-slate-500' : 'bg-slate-50 border-slate-300 text-slate-500'}`}>
+                <div className={`p-4 rounded-xl border border-dashed text-sm text-center ${isDark ? 'bg-[#050505] border-slate-700 text-slate-500' : 'bg-slate-50 border-slate-300 text-slate-500'}`}>
                     {t.noProjects}
                 </div>
             ) : (
@@ -187,13 +187,13 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
                             onClick={() => toggleProjectSelection(project.id)}
                             className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-3 ${
                                 formData.projectIds.includes(project.id)
-                                ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-600 dark:text-white'
-                                : isDark ? 'bg-[#0B0E14] border-slate-700 text-slate-400 hover:border-slate-500' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                                ? 'bg-[#FF5500]/10 border-[#FF5500]/50 text-[#FF5500] dark:text-white'
+                                : isDark ? 'bg-[#050505] border-slate-700 text-slate-400 hover:border-slate-500' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
                             }`}
                         >
                             <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
                                 formData.projectIds.includes(project.id)
-                                ? 'bg-emerald-500 border-emerald-500'
+                                ? 'bg-[#FF5500] border-[#FF5500]'
                                 : isDark ? 'border-slate-600' : 'border-slate-300'
                             }`}>
                                 {formData.projectIds.includes(project.id) && <Check size={14} className="text-white" />}
@@ -215,7 +215,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
             <button
               onClick={handleSaveMember}
               disabled={!formData.name || !formData.role}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-2.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-emerald-500/20 font-medium"
+              className="bg-[#FF5500] hover:bg-[#e04b00] text-white px-8 py-2.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-[#FF5500]/20 font-medium"
             >
               {t.saveMember}
             </button>
@@ -234,7 +234,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
             const assignedCount = projects.filter(p => p.teamMembers.includes(member.id)).length;
             
             return (
-                <div key={member.id} className={`backdrop-blur-md border rounded-2xl p-6 group transition-all shadow-lg ${isDark ? 'bg-[#151A23]/80 border-white/5 hover:border-emerald-500/30' : 'bg-white border-slate-200 hover:border-emerald-500'}`}>
+                <div key={member.id} className={`backdrop-blur-md border rounded-2xl p-6 group transition-all shadow-lg ${isDark ? 'bg-[#151A23]/80 border-white/5 hover:border-[#FF5500]/30' : 'bg-white border-slate-200 hover:border-[#FF5500]'}`}>
                 <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold shadow-inner ${isDark ? 'bg-gradient-to-br from-slate-700 to-slate-600 text-white' : 'bg-slate-100 text-slate-700'}`}>

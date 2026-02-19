@@ -161,7 +161,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
       {/* Toast */}
       {showToast && createPortal(
         <div className={`fixed top-6 right-6 z-[150] animate-slide-up flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${isDark ? 'bg-[#1A1F2C] border-slate-700' : 'bg-white border-slate-200'}`}>
-           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${showToast.type === 'success' ? 'bg-emerald-500' : 'bg-blue-500'}`}>
+           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${showToast.type === 'success' ? 'bg-[#FF5500]' : 'bg-blue-500'}`}>
               <Check size={18} />
            </div>
            <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{showToast.message}</p>
@@ -175,7 +175,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
          {/* Create Button */}
          <button 
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-[#BEF264] text-black font-bold shadow-lg shadow-[#BEF264]/20 hover:scale-[1.02] transition-transform"
+            className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-[#FF5500] text-white font-bold shadow-lg shadow-[#FF5500]/20 hover:scale-[1.02] transition-transform"
          >
             <Plus size={20} />
             {t.createEvent}
@@ -197,7 +197,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
                  {['S','M','T','W','T','F','S'].map(d => <span key={d} className="text-slate-500 font-bold">{d}</span>)}
                  {Array.from({ length: firstDayOfMonth(currentDate) }).map((_, i) => <span key={`e-${i}`} />)}
                  {Array.from({ length: daysInMonth(currentDate) }).map((_, i) => (
-                     <span key={i} className={`p-1 rounded-full ${i + 1 === new Date().getDate() && currentDate.getMonth() === new Date().getMonth() ? 'bg-[#BEF264] text-black font-bold' : isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                     <span key={i} className={`p-1 rounded-full ${i + 1 === new Date().getDate() && currentDate.getMonth() === new Date().getMonth() ? 'bg-[#FF5500] text-white font-bold' : isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                          {i + 1}
                      </span>
                  ))}
@@ -208,7 +208,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
          <div className="flex flex-col gap-2">
             <h4 className="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">{t.myCalendar}</h4>
             <div className="flex items-center gap-2">
-                <input type="checkbox" checked readOnly className="accent-[#BEF264]" />
+                <input type="checkbox" checked readOnly className="accent-[#FF5500]" />
                 <span className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Personal</span>
             </div>
          </div>
@@ -287,7 +287,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
                         `}
                       >
                           <div className="flex justify-center mb-1">
-                              <span className={`text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-[#BEF264] text-black' : 'text-slate-500'}`}>
+                              <span className={`text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-[#FF5500] text-white' : 'text-slate-500'}`}>
                                   {day}
                               </span>
                           </div>
@@ -347,7 +347,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
                             type="text" 
                             value={newEvent.title}
                             onChange={e => setNewEvent({...newEvent, title: e.target.value})}
-                            className={`w-full p-3 rounded-xl border outline-none ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                            className={`w-full p-3 rounded-xl border outline-none ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                             placeholder="e.g. Project Review"
                             autoFocus
                         />
@@ -359,7 +359,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
                                 type="date" 
                                 value={newEvent.date}
                                 onChange={e => setNewEvent({...newEvent, date: e.target.value})}
-                                className={`w-full p-3 rounded-xl border outline-none ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                                className={`w-full p-3 rounded-xl border outline-none ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                             />
                         </div>
                         <div>
@@ -368,7 +368,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
                                 type="time" 
                                 value={newEvent.time}
                                 onChange={e => setNewEvent({...newEvent, time: e.target.value})}
-                                className={`w-full p-3 rounded-xl border outline-none ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                                className={`w-full p-3 rounded-xl border outline-none ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                             />
                         </div>
                     </div>
@@ -390,7 +390,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
 
                     <div className="pt-4 flex justify-end gap-3">
                         <button onClick={() => setIsModalOpen(false)} className={`px-4 py-2 rounded-xl font-bold text-sm ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}>{t.cancel}</button>
-                        <button onClick={handleSaveEvent} className="px-6 py-2 rounded-xl bg-[#BEF264] text-black font-bold text-sm shadow-lg hover:bg-[#a3d954]">
+                        <button onClick={handleSaveEvent} className="px-6 py-2 rounded-xl bg-[#FF5500] text-white font-bold text-sm shadow-lg hover:bg-[#e04b00]">
                             {t.createEvent}
                         </button>
                     </div>

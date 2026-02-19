@@ -22,13 +22,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setCurrentView, l
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-[#0B0E14]/95 backdrop-blur-xl border-r border-white/5 flex flex-col z-20 transition-transform duration-300 ease-in-out">
+    <aside className="fixed left-0 top-0 h-full w-64 bg-[#050505]/95 backdrop-blur-xl border-r border-white/5 flex flex-col z-20 transition-transform duration-300 ease-in-out">
       {/* Branding Header */}
       <div className="p-8 flex items-center gap-3">
         {branding.logoUrl ? (
           <img src={branding.logoUrl} alt="Logo" className="w-8 h-8 object-contain" />
         ) : (
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-blue-500 flex items-center justify-center font-bold text-white">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center font-bold text-white">
             {branding.companyName.substring(0, 1)}
           </div>
         )}
@@ -43,7 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setCurrentView, l
             onClick={() => setCurrentView(item.id)}
             className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group ${
               currentView === item.id
-                ? 'bg-gradient-to-r from-emerald-500/20 to-blue-500/10 text-white border border-emerald-500/20 shadow-[0_0_15px_-3px_rgba(16,185,129,0.2)]'
+                ? 'bg-gradient-to-r from-orange-500/20 to-orange-600/10 text-white border border-orange-500/20 shadow-[0_0_15px_-3px_rgba(255,85,0,0.2)]'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
@@ -51,7 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setCurrentView, l
               size={20}
               className={`${
                 currentView === item.id 
-                  ? 'text-emerald-400' 
+                  ? 'text-orange-400' 
                   : 'text-slate-500 group-hover:text-slate-300'
               }`}
             />

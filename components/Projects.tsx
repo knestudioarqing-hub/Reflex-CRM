@@ -174,13 +174,13 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
             <div className="flex bg-black/10 dark:bg-white/10 p-1 rounded-xl">
                <button 
                   onClick={() => setActiveTab('details')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'details' ? 'bg-[#BEF264] text-black shadow-lg' : 'text-slate-500 hover:text-slate-400'}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'details' ? 'bg-[#FF5500] text-white shadow-lg' : 'text-slate-500 hover:text-slate-400'}`}
                >
                  {t.details || "Details"}
                </button>
                <button 
                   onClick={() => setActiveTab('history')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-[#BEF264] text-black shadow-lg' : 'text-slate-500 hover:text-slate-400'}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-[#FF5500] text-white shadow-lg' : 'text-slate-500 hover:text-slate-400'}`}
                >
                  <History size={16} />
                  <span className="hidden sm:inline">{t.history}</span>
@@ -194,9 +194,9 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div className="space-y-4">
                 {/* Active/Inactive Switch */}
-                <div className={`p-4 rounded-xl border flex items-center justify-between ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                <div className={`p-4 rounded-xl border flex items-center justify-between ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-full ${currentProject.isActive ? 'bg-[#BEF264]/20 text-[#BEF264]' : 'bg-slate-500/20 text-slate-500'}`}>
+                      <div className={`p-2 rounded-full ${currentProject.isActive ? 'bg-[#FF5500]/20 text-[#FF5500]' : 'bg-slate-500/20 text-slate-500'}`}>
                          <Power size={18} />
                       </div>
                       <div>
@@ -207,7 +207,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                    <button 
                       type="button"
                       onClick={() => setCurrentProject(prev => ({...prev, isActive: !prev.isActive}))}
-                      className={`w-12 h-6 rounded-full p-1 transition-colors relative ${currentProject.isActive ? 'bg-[#BEF264]' : 'bg-slate-600'}`}
+                      className={`w-12 h-6 rounded-full p-1 transition-colors relative ${currentProject.isActive ? 'bg-[#FF5500]' : 'bg-slate-600'}`}
                    >
                       <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${currentProject.isActive ? 'translate-x-6' : 'translate-x-0'}`} />
                    </button>
@@ -219,7 +219,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                     type="text" 
                     value={currentProject.name}
                     onChange={(e) => setCurrentProject({...currentProject, name: e.target.value})}
-                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                   />
                 </div>
                 <div>
@@ -228,7 +228,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                     type="text" 
                     value={currentProject.client}
                     onChange={(e) => setCurrentProject({...currentProject, client: e.target.value})}
-                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                   />
                 </div>
                 <div>
@@ -236,7 +236,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                   <select 
                     value={currentProject.status}
                     onChange={(e) => setCurrentProject({...currentProject, status: e.target.value as any})}
-                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                   >
                     <option value="planning">{t.statusPlanning}</option>
                     <option value="modeling">{t.statusModeling}</option>
@@ -254,7 +254,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                             type="date" 
                             value={currentProject.startDate}
                             onChange={(e) => setCurrentProject({...currentProject, startDate: e.target.value})}
-                            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                         />
                     </div>
                     <div>
@@ -263,7 +263,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                             type="date" 
                             value={currentProject.deadline}
                             onChange={(e) => setCurrentProject({...currentProject, deadline: e.target.value})}
-                            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                         />
                     </div>
                 </div>
@@ -271,7 +271,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                 {/* KPI PROGRESS CALCULATOR */}
                 <div className={`p-5 rounded-2xl border relative ${isDark ? 'bg-[#1A1F2C]/50 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                     <div className="flex items-center gap-2 mb-4">
-                        <Calculator size={16} className="text-[#BEF264]" />
+                        <Calculator size={16} className="text-[#FF5500]" />
                         <h4 className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.kpiTitle}</h4>
                     </div>
                     
@@ -283,7 +283,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                                 min="0"
                                 value={currentProject.totalScope || 0}
                                 onChange={(e) => handleScopeChange('total', e.target.value)}
-                                className={`w-full px-3 py-2 rounded-lg text-sm font-mono border focus:outline-none focus:border-[#BEF264] ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                                className={`w-full px-3 py-2 rounded-lg text-sm font-mono border focus:outline-none focus:border-[#FF5500] ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                             />
                         </div>
                         <div>
@@ -293,7 +293,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                                 min="0"
                                 value={currentProject.completedScope || 0}
                                 onChange={(e) => handleScopeChange('completed', e.target.value)}
-                                className={`w-full px-3 py-2 rounded-lg text-sm font-mono border focus:outline-none focus:border-[#BEF264] ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                                className={`w-full px-3 py-2 rounded-lg text-sm font-mono border focus:outline-none focus:border-[#FF5500] ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                             />
                         </div>
                     </div>
@@ -301,7 +301,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                     <div>
                         <div className="flex justify-between items-end mb-2">
                              <label className="block text-sm font-medium text-slate-400">{t.progress}</label>
-                             <span className={`text-xl font-bold ${isDark ? 'text-[#BEF264]' : 'text-emerald-600'}`}>
+                             <span className={`text-xl font-bold ${isDark ? 'text-[#FF5500]' : 'text-[#FF5500]'}`}>
                                  {currentProject.progress}%
                              </span>
                         </div>
@@ -320,7 +320,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                                     completedScope: 0
                                 })
                             }}
-                            className={`w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#BEF264] ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}
+                            className={`w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#FF5500] ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}
                         />
                         {(currentProject.totalScope || 0) > 0 && (
                             <p className="text-[10px] text-slate-500 mt-2 text-right italic flex items-center justify-end gap-1">
@@ -343,12 +343,12 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                     onClick={() => toggleMember(member.id)}
                     className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-2 ${
                       currentProject.teamMembers.includes(member.id) 
-                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-600 dark:text-white' 
-                      : isDark ? 'bg-[#0B0E14] border-slate-700 text-slate-400 hover:border-slate-500' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300'
+                      ? 'bg-[#FF5500]/20 border-[#FF5500] text-[#FF5500] dark:text-white' 
+                      : isDark ? 'bg-[#050505] border-slate-700 text-slate-400 hover:border-slate-500' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300'
                     }`}
                   >
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                      currentProject.teamMembers.includes(member.id) ? 'bg-emerald-500 text-white' : isDark ? 'bg-slate-700' : 'bg-slate-300 text-slate-600'
+                      currentProject.teamMembers.includes(member.id) ? 'bg-[#FF5500] text-white' : isDark ? 'bg-slate-700' : 'bg-slate-300 text-slate-600'
                     }`}>
                       {member.name.substring(0, 1)}
                     </div>
@@ -409,7 +409,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                   <div className="relative border-l border-slate-700 ml-4 space-y-8">
                     {filteredProjectHistory.map((entry, idx) => (
                       <div key={entry.id} className="relative pl-6">
-                        <div className={`absolute -left-1.5 top-1 w-3 h-3 rounded-full border-2 ${idx === 0 ? 'bg-[#BEF264] border-[#BEF264]' : 'bg-[#0B0E14] border-slate-500'}`}></div>
+                        <div className={`absolute -left-1.5 top-1 w-3 h-3 rounded-full border-2 ${idx === 0 ? 'bg-[#FF5500] border-[#FF5500]' : 'bg-[#050505] border-slate-500'}`}></div>
                         <div className="flex flex-col gap-1">
                           <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                             {formatDate(entry.timestamp)}
@@ -438,7 +438,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
           </button>
           <button 
             onClick={handleSave}
-            className="px-8 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-500/20 transition-all transform hover:scale-105"
+            className="px-8 py-3 rounded-xl bg-[#FF5500] hover:bg-[#e04b00] text-white font-bold shadow-lg shadow-[#FF5500]/20 transition-all transform hover:scale-105"
           >
             {t.saveProject}
           </button>
@@ -457,7 +457,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
         </div>
         <button 
           onClick={handleCreateNew}
-          className="bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(190,242,100,0.4)]"
+          className="bg-[#FF5500] hover:bg-[#e04b00] text-white font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(255,85,0,0.4)]"
         >
           <Plus size={18} />
           {t.addProject}
@@ -510,13 +510,13 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
-                 <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                 <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
                     <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.startDate}</span>
                     <span className={`text-xs font-bold px-2 py-0.5 rounded ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                       {project.startDate || '-'}
                     </span>
                  </div>
-                 <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                 <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
                     <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.deadline}</span>
                     <span className={`text-xs font-mono font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{project.deadline}</span>
                  </div>
@@ -527,7 +527,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                  <span>{project.progress}%</span>
               </div>
               <div className={`h-1.5 rounded-full overflow-hidden mb-6 ${isDark ? 'bg-[#1A1F2C]' : 'bg-slate-100'}`}>
-                <div className={`h-full rounded-full ${project.status === 'completed' ? 'bg-emerald-500' : 'bg-[#BEF264]'}`} style={{ width: `${project.progress}%` }} />
+                <div className={`h-full rounded-full ${project.status === 'completed' ? 'bg-[#FF5500]' : 'bg-[#FF5500]'}`} style={{ width: `${project.progress}%` }} />
               </div>
 
               <div className={`pt-4 border-t flex items-center justify-between ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
@@ -551,7 +551,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                  
                  {/* Status Badge moved here since LOD is gone */}
                  <span className={`text-xs font-bold uppercase tracking-wider ${
-                    project.status === 'completed' ? 'text-emerald-500' : 
+                    project.status === 'completed' ? 'text-[#FF5500]' : 
                     project.status === 'modeling' ? 'text-blue-500' : 
                     'text-slate-500'
                  }`}>

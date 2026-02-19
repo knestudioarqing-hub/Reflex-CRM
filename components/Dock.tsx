@@ -48,11 +48,11 @@ export const Dock: React.FC<DockProps> = ({ currentView, setCurrentView, lang, t
                 relative flex items-center justify-center h-11 rounded-full transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden
                 ${isActive 
                   ? isDark 
-                    ? 'w-auto pl-3 pr-5 bg-[#1A1A1A] text-white shadow-[0_2px_10px_rgba(0,0,0,0.3)] border border-white/5' 
-                    : 'w-auto pl-3 pr-5 bg-slate-100 text-slate-900 shadow-sm border border-slate-200'
+                    ? 'w-auto pl-3 pr-5 bg-[#FF5500] text-white shadow-[0_0_20px_-5px_rgba(255,85,0,0.4)] border border-[#FF5500]/20' 
+                    : 'w-auto pl-3 pr-5 bg-[#FF5500] text-white shadow-lg shadow-orange-500/20 border border-orange-400'
                   : isDark
-                    ? 'w-11 text-zinc-500 hover:text-zinc-300 hover:bg-white/5'
-                    : 'w-11 text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                    ? 'w-11 text-zinc-500 hover:text-white hover:bg-white/10'
+                    : 'w-11 text-slate-400 hover:text-slate-900 hover:bg-slate-100'
                 }
               `}
               title={item.label}

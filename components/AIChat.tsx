@@ -52,7 +52,7 @@ export const AIChat: React.FC<AIChatProps> = ({ lang, projects }) => {
     <div className="h-[calc(100vh-140px)] flex flex-col bg-[#151A23]/80 backdrop-blur-md border border-white/5 rounded-3xl shadow-2xl overflow-hidden relative">
       {/* Background Glow */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 blur-[100px] pointer-events-none" />
 
       {/* Header */}
       <div className="p-6 border-b border-white/5 flex items-center gap-3 bg-[#151A23]/90">
@@ -62,7 +62,7 @@ export const AIChat: React.FC<AIChatProps> = ({ lang, projects }) => {
         <div>
           <h2 className="text-lg font-bold text-white">{t.aiAssistant}</h2>
           <p className="text-xs text-slate-400 flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse" />
             {/* Updated model name to match the service configuration and Gemini API rules */}
             Online - Gemini 3 Flash
           </p>
@@ -79,7 +79,7 @@ export const AIChat: React.FC<AIChatProps> = ({ lang, projects }) => {
             <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
               msg.role === 'user' 
                 ? 'bg-slate-700 text-white rounded-tr-none' 
-                : 'bg-[#0B0E14] border border-white/10 text-slate-300 rounded-tl-none shadow-lg'
+                : 'bg-[#050505] border border-white/10 text-slate-300 rounded-tl-none shadow-lg'
             }`}>
               {msg.content}
             </div>
@@ -90,7 +90,7 @@ export const AIChat: React.FC<AIChatProps> = ({ lang, projects }) => {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center flex-shrink-0">
                <Bot size={16} className="text-white" />
             </div>
-            <div className="bg-[#0B0E14] border border-white/10 px-4 py-3 rounded-2xl rounded-tl-none text-xs text-purple-400 animate-pulse">
+            <div className="bg-[#050505] border border-white/10 px-4 py-3 rounded-2xl rounded-tl-none text-xs text-purple-400 animate-pulse">
               {t.aiThinking}
             </div>
           </div>
@@ -99,7 +99,7 @@ export const AIChat: React.FC<AIChatProps> = ({ lang, projects }) => {
       </div>
 
       {/* Input */}
-      <div className="p-4 bg-[#0B0E14]/50 border-t border-white/5">
+      <div className="p-4 bg-[#050505]/50 border-t border-white/5">
         <div className="relative">
           <input
             type="text"

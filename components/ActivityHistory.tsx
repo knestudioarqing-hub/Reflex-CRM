@@ -93,7 +93,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ projects, lang
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder={t.searchHistory}
-                        className={`w-full pl-9 pr-4 py-2 rounded-xl text-sm border focus:outline-none focus:border-emerald-500 transition-colors ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white placeholder-slate-600' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'}`}
+                        className={`w-full pl-9 pr-4 py-2 rounded-xl text-sm border focus:outline-none focus:border-orange-500 transition-colors ${isDark ? 'bg-[#050505] border-slate-700 text-white placeholder-slate-600' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'}`}
                     />
                    </div>
                 </div>
@@ -104,7 +104,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ projects, lang
                         type="date" 
                         value={dateFilter.start}
                         onChange={(e) => setDateFilter(prev => ({ ...prev, start: e.target.value }))}
-                        className={`w-full md:w-auto px-4 py-2 rounded-xl text-sm border focus:outline-none focus:border-emerald-500 transition-colors ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                        className={`w-full md:w-auto px-4 py-2 rounded-xl text-sm border focus:outline-none focus:border-orange-500 transition-colors ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                     />
                 </div>
                 
@@ -114,7 +114,7 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ projects, lang
                         type="date" 
                         value={dateFilter.end}
                         onChange={(e) => setDateFilter(prev => ({ ...prev, end: e.target.value }))}
-                        className={`w-full md:w-auto px-4 py-2 rounded-xl text-sm border focus:outline-none focus:border-emerald-500 transition-colors ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                        className={`w-full md:w-auto px-4 py-2 rounded-xl text-sm border focus:outline-none focus:border-orange-500 transition-colors ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
                     />
                 </div>
 
@@ -168,8 +168,8 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ projects, lang
                         </td>
                         <td className="py-5">
                         <div className="flex items-center gap-2">
-                            <Layers size={14} className="text-emerald-500" />
-                            <span className={`${isDark ? 'text-emerald-400' : 'text-emerald-600'} font-medium`}>
+                            <Layers size={14} className="text-orange-500" />
+                            <span className={`${isDark ? 'text-orange-400' : 'text-orange-600'} font-medium`}>
                                 {entry.projectName}
                             </span>
                         </div>

@@ -382,7 +382,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
   const generatePDF = () => {
     const doc = new jsPDF();
-    const primaryColor = [190, 242, 100]; // #BEF264 RGB
+    const primaryColor = [255, 85, 0]; // #FF5500 RGB
     const slateColor = [30, 41, 59];
 
     // Filter Logic
@@ -474,7 +474,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         startY: historyY + 5,
         head: [['Timestamp', 'Project', 'Action', 'Details', 'User']],
         body: historyData,
-        headStyles: { fillColor: [190, 242, 100], textColor: [0,0,0] }, // Neon header
+        headStyles: { fillColor: [255, 85, 0], textColor: [255,255,255] }, // Neon header
         styles: { fontSize: 8 },
       });
     } else {
@@ -491,8 +491,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       
       {/* Toast Notification */}
       {showNotification && createPortal(
-        <div className={`fixed top-6 right-6 z-[150] animate-slide-up flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${isDark ? 'bg-[#1A1F2C] border-emerald-500/30' : 'bg-white border-emerald-200'}`}>
-           <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-black">
+        <div className={`fixed top-6 right-6 z-[150] animate-slide-up flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${isDark ? 'bg-[#1A1F2C] border-[#FF5500]/30' : 'bg-white border-orange-200'}`}>
+           <div className="w-8 h-8 rounded-full bg-[#FF5500] flex items-center justify-center text-white">
               <CheckCircle size={18} />
            </div>
            <div>
@@ -513,7 +513,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </div>
         <button 
           onClick={() => setIsReportModalOpen(true)}
-          className="bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(190,242,100,0.3)] w-full md:w-auto justify-center"
+          className="bg-[#FF5500] hover:bg-[#e04b00] text-white font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(255,85,0,0.3)] w-full md:w-auto justify-center"
         >
           <span className="text-sm">{t.generateReport}</span>
           <FileDown size={18} />
@@ -559,7 +559,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             {/* Top Row: Icon and Badge */}
             <div className="flex justify-between items-start">
                {/* Icon Container */}
-               <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${isDark ? 'bg-white/5 border-white/5 text-[#BEF264]' : 'bg-slate-100 border-slate-200 text-slate-700'}`}>
+               <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${isDark ? 'bg-white/5 border-white/5 text-[#FF5500]' : 'bg-slate-100 border-slate-200 text-slate-700'}`}>
                  <stat.icon size={18} />
                </div>
                
@@ -582,7 +582,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             {/* Bottom: Progress Bar */}
             <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                 <div 
-                    className="h-full bg-[#BEF264] shadow-[0_0_10px_rgba(190,242,100,0.5)] transition-all duration-1000 ease-out" 
+                    className="h-full bg-[#FF5500] shadow-[0_0_10px_rgba(255,85,0,0.5)] transition-all duration-1000 ease-out" 
                     style={{ width: `${stat.progress}%` }} 
                 />
             </div>
@@ -596,7 +596,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         {/* Projects Table - Spans 2 cols on Large screens */}
         <div className={`lg:col-span-2 xl:col-span-2 border rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
           {/* Decorative Glow */}
-          <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#BEF264]/5' : 'bg-[#BEF264]/20'}`} />
+          <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#FF5500]/5' : 'bg-[#FF5500]/20'}`} />
 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 relative z-10">
             <h2 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.ongoingProjects}</h2>
@@ -605,7 +605,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                 {/* Quick Add Project Button */}
                 <button 
                   onClick={() => setIsNewProjectModalOpen(true)}
-                  className="w-full sm:w-auto mr-0 sm:mr-2 flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-[#BEF264] text-black shadow-lg shadow-[#BEF264]/10 transition-transform hover:scale-105"
+                  className="w-full sm:w-auto mr-0 sm:mr-2 flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-[#FF5500] text-white shadow-lg shadow-[#FF5500]/10 transition-transform hover:scale-105"
                 >
                   <Plus size={16} />
                   {t.addProject}
@@ -672,7 +672,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     >
                         <td className="py-4 md:py-5 pl-2 md:pl-4">
                         <div className="flex items-center gap-4">
-                            <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-xs font-bold transition-colors flex-shrink-0 ${isDark ? 'bg-[#1A1F2C] border-white/10 text-white group-hover:border-[#BEF264]/50' : 'bg-slate-100 border-slate-200 text-slate-700 group-hover:border-[#BEF264]'}`}>
+                            <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-xs font-bold transition-colors flex-shrink-0 ${isDark ? 'bg-[#1A1F2C] border-white/10 text-white group-hover:border-[#FF5500]/50' : 'bg-slate-100 border-slate-200 text-slate-700 group-hover:border-[#FF5500]'}`}>
                             {project.name.substring(0, 2).toUpperCase()}
                             </div>
                             <div>
@@ -686,7 +686,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                         </td>
                         <td className="py-4 md:py-5 px-2">
                           {project.status === 'completed' || project.status === 'modeling' ? (
-                            <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-[#BEF264] text-black shadow-[0_0_10px_-3px_rgba(190,242,100,0.4)] whitespace-nowrap">
+                            <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-[#FF5500] text-white shadow-[0_0_10px_-3px_rgba(255,85,0,0.4)] whitespace-nowrap">
                               {project.status === 'completed' ? t.statusCompleted : t.statusModeling}
                             </span>
                           ) : (
@@ -706,7 +706,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             </div>
                             <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#1A1F2C]' : 'bg-slate-100'}`}>
                                 <div 
-                                    className={`h-full rounded-full ${project.status === 'completed' ? 'bg-emerald-500' : 'bg-[#BEF264]'}`} 
+                                    className={`h-full rounded-full ${project.status === 'completed' ? 'bg-emerald-500' : 'bg-[#FF5500]'}`} 
                                     style={{ width: `${project.progress}%` }}
                                 />
                             </div>
@@ -716,7 +716,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                            {project.status !== 'completed' && (
                              <button 
                                 onClick={(e) => handleDeliverProject(project.id, e)}
-                                className={`p-2 rounded-full transition-all hover:scale-110 ${isDark ? 'hover:bg-[#BEF264]/20 text-slate-400 hover:text-[#BEF264]' : 'hover:bg-[#BEF264]/10 text-slate-400 hover:text-emerald-600'}`}
+                                className={`p-2 rounded-full transition-all hover:scale-110 ${isDark ? 'hover:bg-[#FF5500]/20 text-slate-400 hover:text-[#FF5500]' : 'hover:bg-[#FF5500]/10 text-slate-400 hover:text-emerald-600'}`}
                                 title={lang === 'pt' ? 'Entregar' : 'Deliver'}
                              >
                                <CheckCircle size={20} />
@@ -827,7 +827,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     filteredTasks.map((task, i) => (
                     <div 
                         key={`${task.projectId}-${task.id}`} 
-                        className={`p-5 rounded-3xl border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/5 hover:border-[#BEF264]/30' : 'bg-slate-50 border-slate-200 hover:border-[#BEF264]'}`}
+                        className={`p-5 rounded-3xl border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/5 hover:border-[#FF5500]/30' : 'bg-slate-50 border-slate-200 hover:border-[#FF5500]'}`}
                         onClick={() => toggleTaskCompletion(task.projectId, task.id)}
                     >
                         <div className="flex justify-between items-start mb-2">
@@ -845,11 +845,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors flex-shrink-0 ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
-                                {task.completed && <CheckCircle size={14} className="text-black" />}
+                            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors flex-shrink-0 ${task.completed ? 'bg-[#FF5500] border-[#FF5500]' : 'border-slate-500'}`}>
+                                {task.completed && <CheckCircle size={14} className="text-white" />}
                             </div>
                             <div>
-                                <h4 className={`font-bold mb-0.5 transition-colors ${task.completed ? 'line-through text-slate-500' : isDark ? 'text-white group-hover:text-[#BEF264]' : 'text-slate-900 group-hover:text-black'}`}>
+                                <h4 className={`font-bold mb-0.5 transition-colors ${task.completed ? 'line-through text-slate-500' : isDark ? 'text-white group-hover:text-[#FF5500]' : 'text-slate-900 group-hover:text-black'}`}>
                                     {task.title}
                                 </h4>
                                 <p className="text-xs text-slate-500">{task.dueDate}</p>
@@ -872,7 +872,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             className={`w-full max-w-lg rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className={`absolute top-0 right-0 w-[200px] h-[200px] rounded-full blur-[80px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#BEF264]/10' : 'bg-[#BEF264]/20'}`} />
+            <div className={`absolute top-0 right-0 w-[200px] h-[200px] rounded-full blur-[80px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#FF5500]/10' : 'bg-[#FF5500]/20'}`} />
             
             <div className="relative z-10">
               <div className="flex justify-between items-center mb-6">
@@ -890,7 +890,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     value={newProjectForm.name}
                     onChange={(e) => setNewProjectForm({...newProjectForm, name: e.target.value})}
                     placeholder="Project Title"
-                    className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white focus:border-[#BEF264]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#BEF264]'}`}
+                    className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white focus:border-[#FF5500]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#FF5500]'}`}
                   />
                 </div>
                 <div>
@@ -900,7 +900,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     value={newProjectForm.client}
                     onChange={(e) => setNewProjectForm({...newProjectForm, client: e.target.value})}
                     placeholder="Client Name"
-                    className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white focus:border-[#BEF264]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#BEF264]'}`}
+                    className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white focus:border-[#FF5500]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#FF5500]'}`}
                   />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -910,7 +910,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                       type="date" 
                       value={newProjectForm.startDate}
                       onChange={(e) => setNewProjectForm({...newProjectForm, startDate: e.target.value})}
-                      className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white focus:border-[#BEF264]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#BEF264]'}`}
+                      className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white focus:border-[#FF5500]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#FF5500]'}`}
                     />
                   </div>
                   <div className="flex-1">
@@ -919,7 +919,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                       type="date" 
                       value={newProjectForm.deadline}
                       onChange={(e) => setNewProjectForm({...newProjectForm, deadline: e.target.value})}
-                      className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white focus:border-[#BEF264]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#BEF264]'}`}
+                      className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white focus:border-[#FF5500]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#FF5500]'}`}
                     />
                   </div>
                 </div>
@@ -927,7 +927,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                 <button 
                   onClick={handleCreateQuickProject}
                   disabled={!newProjectForm.name}
-                  className="w-full mt-4 py-4 rounded-2xl bg-[#BEF264] hover:bg-[#a3d954] disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold text-lg shadow-lg shadow-[#BEF264]/20 transition-all hover:scale-[1.02]"
+                  className="w-full mt-4 py-4 rounded-2xl bg-[#FF5500] hover:bg-[#e04b00] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-lg shadow-lg shadow-[#FF5500]/20 transition-all hover:scale-[1.02]"
                 >
                   {t.saveProject}
                 </button>
@@ -949,7 +949,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             onClick={(e) => e.stopPropagation()}
           >
             {/* Background Glow inside modal */}
-            <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#BEF264]/5' : 'bg-[#BEF264]/10'}`} />
+            <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#FF5500]/5' : 'bg-[#FF5500]/10'}`} />
 
             {/* HEADER (Fixed) */}
             <div className={`p-6 md:p-8 border-b ${isDark ? 'border-white/5 bg-[#151A23]' : 'border-slate-100 bg-white'} flex-shrink-0 relative z-20`}>
@@ -969,7 +969,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                         {selectedProject.status !== 'completed' && (
                           <button 
                             onClick={() => handleDeliverProject(selectedProject.id)}
-                            className="bg-[#BEF264] hover:bg-[#a3d954] text-black text-sm font-bold py-3 px-6 rounded-full flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(190,242,100,0.4)] transition-transform hover:scale-105"
+                            className="bg-[#FF5500] hover:bg-[#e04b00] text-white text-sm font-bold py-3 px-6 rounded-full flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(255,85,0,0.4)] transition-transform hover:scale-105"
                             title={lang === 'pt' ? 'Entregar Modelo' : 'Deliver Model'}
                           >
                             <Package size={18} />
@@ -999,11 +999,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             {/* Status/Progress Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Status Box */}
-                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
                                     <div className="flex justify-between items-center mb-4">
                                         <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.status}</span>
                                         <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                                            selectedProject.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                            selectedProject.status === 'completed' ? 'bg-[#FF5500]/10 text-[#FF5500] border-[#FF5500]/20' :
                                             selectedProject.status === 'coordination' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
                                             'bg-blue-500/10 text-blue-400 border-blue-500/20'
                                         }`}>
@@ -1019,7 +1019,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                 </div>
 
                                 {/* Deadline Box */}
-                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
                                     <div className="flex justify-between items-center mb-4">
                                         <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.deadline}</span>
                                         <span className={`font-mono font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedProject.deadline}</span>
@@ -1031,7 +1031,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                         </div>
                                         <div className={`h-2 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
                                             <div 
-                                                className={`h-full rounded-full ${selectedProject.status === 'completed' ? 'bg-emerald-500' : selectedProject.isActive ? 'bg-[#BEF264]' : 'bg-slate-500'}`}
+                                                className={`h-full rounded-full ${selectedProject.status === 'completed' ? 'bg-[#FF5500]' : selectedProject.isActive ? 'bg-[#FF5500]' : 'bg-slate-500'}`}
                                                 style={{ width: `${selectedProject.progress}%` }}
                                             />
                                         </div>
@@ -1048,12 +1048,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                     </div>
                                     {t.workLog}
                                 </h3>
-                                <span className="text-xl font-mono font-bold text-[#BEF264]">
+                                <span className="text-xl font-mono font-bold text-[#FF5500]">
                                     {getProjectTotalHours(selectedProject)}h
                                 </span>
                             </div>
                             
-                            <div className={`p-4 rounded-2xl border mb-6 ${isDark ? 'bg-[#0B0E14]/50 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                            <div className={`p-4 rounded-2xl border mb-6 ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                                 <div className="space-y-3">
                                     <div className="flex gap-3">
                                         <input 
@@ -1082,7 +1082,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                     <button 
                                         onClick={handleAddWorkLog}
                                         disabled={!logForm.hours || !logForm.date}
-                                        className="w-full py-3 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-transform active:scale-95"
+                                        className="w-full py-3 rounded-xl bg-[#FF5500] hover:bg-[#e04b00] text-white font-bold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-transform active:scale-95"
                                     >
                                         <Plus size={16} />
                                         {t.addTime}
@@ -1098,7 +1098,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                             <span className={`font-mono text-xs mb-1 opacity-50 ${isDark ? 'text-white' : 'text-slate-900'}`}>{log.date}</span>
                                             <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>{log.description || 'No description'}</span>
                                             </div>
-                                            <span className="font-bold font-mono text-[#BEF264]">{log.hours}h</span>
+                                            <span className="font-bold font-mono text-[#FF5500]">{log.hours}h</span>
                                         </div>
                                     ))}
                                 </div>
@@ -1149,7 +1149,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                     <button 
                                     onClick={handleAddTask}
                                     disabled={!taskForm.title}
-                                    className="w-full py-3 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold text-sm shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                                    className="w-full py-3 rounded-xl bg-[#FF5500] hover:bg-[#e04b00] text-white font-bold text-sm shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
                                     >
                                     <Plus size={16} />
                                     {t.addTask}
@@ -1171,7 +1171,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                             className={`group p-4 rounded-xl border transition-all cursor-pointer relative ${
                                                 task.completed 
                                                 ? isDark ? 'bg-white/5 border-transparent opacity-60' : 'bg-slate-50 border-slate-100 opacity-60'
-                                                : isDark ? 'bg-[#0B0E14] border-white/5 hover:border-[#BEF264]/30' : 'bg-white border-slate-200 hover:border-[#BEF264]'
+                                                : isDark ? 'bg-[#050505] border-white/5 hover:border-[#FF5500]/30' : 'bg-white border-slate-200 hover:border-[#FF5500]'
                                             }`}
                                             onClick={() => toggleTaskCompletion(selectedProject.id, task.id)}
                                         >
@@ -1192,8 +1192,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                                 </button>
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${task.completed ? 'bg-[#BEF264] border-[#BEF264]' : 'border-slate-500'}`}>
-                                                    {task.completed && <CheckCircle size={14} className="text-black" />}
+                                                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${task.completed ? 'bg-[#FF5500] border-[#FF5500]' : 'border-slate-500'}`}>
+                                                    {task.completed && <CheckCircle size={14} className="text-white" />}
                                                 </div>
                                                 <h4 className={`font-bold text-sm ${task.completed ? 'line-through' : ''} ${isDark ? 'text-white' : 'text-slate-900'}`}>{task.title}</h4>
                                             </div>
@@ -1210,7 +1210,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             <div className={`flex-1 rounded-[2rem] border flex flex-col overflow-hidden min-h-[200px] ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
                                 <div className={`p-6 border-b flex-shrink-0 relative z-20 ${isDark ? 'border-white/5 bg-[#12151b] rounded-t-[2rem]' : 'border-slate-100 bg-white rounded-t-[2rem]'}`}>
                                     <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                        <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
+                                        <div className="p-2 rounded-lg bg-[#FF5500]/10 text-[#FF5500]">
                                         <MessageSquare size={20} />
                                         </div>
                                         {t.observations}
@@ -1242,7 +1242,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                         <button 
                                         onClick={handleAddNote}
                                         disabled={!noteForm.content && !noteForm.imageUrl}
-                                        className="px-4 rounded-xl bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold disabled:opacity-50"
+                                        className="px-4 rounded-xl bg-[#FF5500] hover:bg-[#e04b00] text-white font-bold disabled:opacity-50"
                                         >
                                         <Plus size={20} />
                                         </button>
@@ -1257,7 +1257,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                         </div>
                                     ) : (
                                         selectedProject.notes.map(note => (
-                                            <div key={note.id} className={`p-4 rounded-2xl rounded-tl-none border text-sm relative group ${isDark ? 'bg-[#0B0E14] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
+                                            <div key={note.id} className={`p-4 rounded-2xl rounded-tl-none border text-sm relative group ${isDark ? 'bg-[#050505] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
                                                 {note.imageUrl && (
                                                     <div className="mb-2">
                                                         <img src={note.imageUrl} alt="Attachment" className="max-w-full rounded-lg border border-slate-500/20 max-h-48 object-contain" />
@@ -1295,7 +1295,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                             const m = members.find(mem => mem.id === mid);
                                             if(!m) return null;
                                             return (
-                                                <div key={mid} className={`flex items-center gap-3 p-2 pr-4 rounded-full border ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                                                <div key={mid} className={`flex items-center gap-3 p-2 pr-4 rounded-full border ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
                                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isDark ? 'bg-slate-800 text-white' : 'bg-white text-slate-700 shadow-sm'}`}>
                                                         {m.name.substring(0,1)}
                                                     </div>
@@ -1338,20 +1338,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                           type="date" 
                           value={reportFilters.startDate}
                           onChange={(e) => setReportFilters({...reportFilters, startDate: e.target.value})}
-                          className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
+                          className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
                        />
                        <input 
                           type="date" 
                           value={reportFilters.endDate}
                           onChange={(e) => setReportFilters({...reportFilters, endDate: e.target.value})}
-                          className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
+                          className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
                        />
                     </div>
                  </div>
 
                  <div>
                     <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">{t.selectProjects}</label>
-                    <div className={`max-h-40 overflow-y-auto border rounded-xl p-2 custom-scrollbar ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                    <div className={`max-h-40 overflow-y-auto border rounded-xl p-2 custom-scrollbar ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
                         {projects.map(p => (
                            <div 
                               key={p.id} 
@@ -1360,10 +1360,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                            >
                               <div className={`w-4 h-4 rounded border flex items-center justify-center ${
                                  reportFilters.selectedProjectIds.includes(p.id) 
-                                 ? 'bg-emerald-500 border-emerald-500' 
+                                 ? 'bg-[#FF5500] border-[#FF5500]' 
                                  : 'border-slate-500'
                               }`}>
-                                 {reportFilters.selectedProjectIds.includes(p.id) && <CheckSquare size={10} className="text-black" />}
+                                 {reportFilters.selectedProjectIds.includes(p.id) && <CheckSquare size={10} className="text-white" />}
                               </div>
                               <span className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{p.name}</span>
                            </div>
@@ -1384,7 +1384,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                  </button>
                  <button 
                     onClick={generatePDF}
-                    className="bg-[#BEF264] hover:bg-[#a3d954] text-black font-bold py-2 px-6 rounded-xl shadow-lg flex items-center gap-2"
+                    className="bg-[#FF5500] hover:bg-[#e04b00] text-white font-bold py-2 px-6 rounded-xl shadow-lg flex items-center gap-2"
                  >
                     <FileDown size={18} />
                     {t.downloadPDF}

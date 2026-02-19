@@ -27,11 +27,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ branding, lang }) =>
   const text = t[lang] || t.pt; // Default fallback to PT if needed, though lang prop drives it.
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050608] text-white overflow-hidden">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050505] text-white overflow-hidden">
       
       {/* Ambient Background Effects */}
-      <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-[-10%] right-[20%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] animate-pulse delay-500" />
+      <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] bg-orange-500/10 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute bottom-[-10%] right-[20%] w-[500px] h-[500px] bg-orange-600/10 rounded-full blur-[120px] animate-pulse delay-500" />
       
       {/* Grid Pattern Overlay - White Lines */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
@@ -40,12 +40,12 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ branding, lang }) =>
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center">
         
         {/* Pill Badge */}
-        <div className="animate-slide-up mb-8 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-md">
+        <div className="animate-slide-up mb-8 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 backdrop-blur-md">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
           </span>
-          <span className="text-xs font-semibold text-emerald-400 tracking-wide">
+          <span className="text-xs font-semibold text-orange-400 tracking-wide">
             {branding.companyName} {text.available}
           </span>
         </div>
@@ -65,7 +65,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ branding, lang }) =>
 
         {/* Loading Indicator */}
         <div className="animate-slide-up delay-300 w-full max-w-xs h-1 bg-white/5 rounded-full overflow-hidden mt-8">
-            <div className="h-full bg-gradient-to-r from-emerald-500 to-blue-500 animate-[loading_3s_ease-in-out_forwards] w-0" style={{ animationName: 'widthGrow' }} />
+            <div className="h-full bg-gradient-to-r from-orange-500 to-orange-600 animate-[loading_3s_ease-in-out_forwards] w-0" style={{ animationName: 'widthGrow' }} />
         </div>
         
         {/* Inline style for the specific width animation */}

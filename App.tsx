@@ -14,7 +14,7 @@ import { loadUserData, saveUserData } from './services/storageService';
 
 const DEFAULT_BRANDING: Branding = {
   companyName: 'KN Growth - Software & Services',
-  primaryColor: '#BEF264', // Neon Lime
+  primaryColor: '#FF5500', // Neon Orange
   logoUrl: null
 };
 
@@ -97,11 +97,11 @@ const App: React.FC = () => {
   const isDark = theme === 'dark';
   
   return (
-    <div className={`flex h-[100dvh] font-sans animate-fade-in transition-colors duration-500 overflow-hidden ${isDark ? 'bg-[#0B0E14] text-white selection:bg-[#BEF264]/30 selection:text-[#BEF264]' : 'bg-[#F8FAFC] text-slate-900 selection:bg-[#BEF264] selection:text-black'}`}>
+    <div className={`flex h-[100dvh] font-sans animate-fade-in transition-colors duration-500 overflow-hidden ${isDark ? 'bg-[#050505] text-white selection:bg-[#FF5500]/30 selection:text-[#FF5500]' : 'bg-[#F8FAFC] text-slate-900 selection:bg-[#FF5500] selection:text-black'}`}>
       
       {/* Background Ambient Glow */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] transition-colors duration-700 ${isDark ? 'bg-[#BEF264]/5' : 'bg-[#BEF264]/20'}`} />
+        <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] transition-colors duration-700 ${isDark ? 'bg-[#FF5500]/5' : 'bg-[#FF5500]/20'}`} />
         <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] transition-colors duration-700 ${isDark ? 'bg-blue-500/5' : 'bg-blue-500/10'}`} />
       </div>
 
@@ -119,14 +119,14 @@ const App: React.FC = () => {
           {/* Left: Search (Desktop Only) */}
           <div className="hidden md:block w-full max-w-xs z-20">
             <div className="relative group">
-              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[#BEF264]' : 'text-slate-400 group-focus-within:text-black'}`} size={18} />
+              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[#FF5500]' : 'text-slate-400 group-focus-within:text-black'}`} size={18} />
               <input 
                 type="text" 
                 placeholder={t.searchPlaceholder}
                 className={`w-full backdrop-blur-md border rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none transition-all shadow-lg
                   ${isDark 
-                    ? 'bg-[#151A23]/50 border-white/10 text-white focus:border-[#BEF264]/50 hover:bg-white/5' 
-                    : 'bg-white/70 border-slate-200 text-slate-800 focus:border-[#BEF264] hover:bg-white'
+                    ? 'bg-[#151A23]/50 border-white/10 text-white focus:border-[#FF5500]/50 hover:bg-white/5' 
+                    : 'bg-white/70 border-slate-200 text-slate-800 focus:border-[#FF5500] hover:bg-white'
                   }`}
               />
             </div>
@@ -166,7 +166,7 @@ const App: React.FC = () => {
             <div className={`h-10 w-[1px] mx-1 md:mx-2 hidden sm:block ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}></div>
 
             <div className="flex items-center gap-3 pl-1 md:pl-2 cursor-pointer group">
-                <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center border-2 transition-colors shadow-lg bg-[#BEF264] text-black ${isDark ? 'border-slate-700 group-hover:border-[#BEF264]' : 'border-slate-200 group-hover:border-[#BEF264]'}`}>
+                <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center border-2 transition-colors shadow-lg bg-[#FF5500] text-white ${isDark ? 'border-slate-700 group-hover:border-[#FF5500]' : 'border-slate-200 group-hover:border-[#FF5500]'}`}>
                     <User size={20} />
                 </div>
                 <div className="hidden sm:block text-right">

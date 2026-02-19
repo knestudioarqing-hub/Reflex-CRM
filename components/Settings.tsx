@@ -95,7 +95,7 @@ export const Settings: React.FC<SettingsProps> = ({
             type="text"
             value={localBranding.companyName}
             onChange={(e) => setLocalBranding({ ...localBranding, companyName: e.target.value })}
-            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`}
+            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`}
           />
         </div>
 
@@ -112,7 +112,7 @@ export const Settings: React.FC<SettingsProps> = ({
               type="text"
               value={localBranding.primaryColor}
               onChange={(e) => setLocalBranding({ ...localBranding, primaryColor: e.target.value })}
-              className={`flex-1 border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 font-mono ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`}
+              className={`flex-1 border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] font-mono ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`}
             />
           </div>
         </div>
@@ -124,7 +124,7 @@ export const Settings: React.FC<SettingsProps> = ({
             placeholder="https://example.com/logo.png"
             value={localBranding.logoUrl || ''}
             onChange={(e) => setLocalBranding({ ...localBranding, logoUrl: e.target.value })}
-            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500 transition-all ${isDark ? 'bg-[#0B0E14] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`}
+            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`}
           />
           <p className="mt-2 text-xs text-slate-500">Paste a direct image URL for the sidebar logo.</p>
         </div>
@@ -132,7 +132,7 @@ export const Settings: React.FC<SettingsProps> = ({
         <div className="pt-6">
           <button
             onClick={handleSave}
-            className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02]"
+            className="w-full bg-gradient-to-r from-[#FF5500] to-[#e04b00] hover:from-[#ff7033] hover:to-[#FF5500] text-white font-bold py-4 rounded-xl shadow-lg shadow-[#FF5500]/20 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02]"
           >
             <Save size={20} />
             {t.saveSettings}
@@ -143,7 +143,7 @@ export const Settings: React.FC<SettingsProps> = ({
       {/* Preview Section */}
       <div className={`backdrop-blur-md border rounded-3xl p-8 text-center opacity-75 ${isDark ? 'bg-[#151A23]/80 border-white/5' : 'bg-white/80 border-slate-200'}`}>
         <h3 className={`text-lg font-medium mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Preview</h3>
-        <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg border ${isDark ? 'bg-[#0B0E14] border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
+        <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg border ${isDark ? 'bg-[#050505] border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             {localBranding.logoUrl && <img src={localBranding.logoUrl} className="w-6 h-6 object-contain" />}
             <span style={{ color: localBranding.primaryColor }} className="font-bold">{localBranding.companyName}</span>
         </div>
@@ -159,14 +159,14 @@ export const Settings: React.FC<SettingsProps> = ({
          </div>
 
          {/* Export */}
-         <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+         <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
             <h4 className={`font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{t.exportData}</h4>
             <p className="text-xs text-slate-500 mb-4">{t.exportDescription}</p>
             
             {!exportString ? (
                <button 
                   onClick={handleExport}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${isDark ? 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10' : 'border-emerald-500 text-emerald-600 hover:bg-emerald-50'}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${isDark ? 'border-[#FF5500]/30 text-[#FF5500] hover:bg-[#FF5500]/10' : 'border-[#FF5500] text-[#FF5500] hover:bg-orange-50'}`}
                >
                   Generate Data Code
                </button>
@@ -179,7 +179,7 @@ export const Settings: React.FC<SettingsProps> = ({
                   />
                   <button 
                      onClick={handleCopy}
-                     className="flex items-center gap-2 text-xs font-bold text-emerald-500 hover:text-emerald-400 transition-colors"
+                     className="flex items-center gap-2 text-xs font-bold text-[#FF5500] hover:text-[#e04b00] transition-colors"
                   >
                      {copySuccess ? <CheckCircle size={14} /> : <Copy size={14} />}
                      {copySuccess ? 'Copied!' : t.copyToClipboard}
@@ -189,7 +189,7 @@ export const Settings: React.FC<SettingsProps> = ({
          </div>
 
          {/* Import */}
-         <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#0B0E14] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+         <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
             <h4 className={`font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{t.importData}</h4>
             <p className="text-xs text-slate-500 mb-4">{t.importDescription}</p>
             
@@ -210,7 +210,7 @@ export const Settings: React.FC<SettingsProps> = ({
                   {t.loadData}
                </button>
                
-               {importStatus === 'success' && <span className="text-emerald-500 text-xs font-bold animate-pulse">{t.importSuccess}</span>}
+               {importStatus === 'success' && <span className="text-[#FF5500] text-xs font-bold animate-pulse">{t.importSuccess}</span>}
                {importStatus === 'error' && <span className="text-red-500 text-xs font-bold">{t.importError}</span>}
             </div>
          </div>
