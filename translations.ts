@@ -47,6 +47,7 @@ export const translations = {
     startDate: "Start Date", // New
     endDate: "End Date", // Added missing key
     deliveryDate: "Delivery Date", // New specific key
+    dueDate: "Due Date",
     description: "Description",
     selectMembers: "Select Team Members",
     addMember: "Add Member",
@@ -208,6 +209,7 @@ export const translations = {
     startDate: "Data de Início", // New
     endDate: "Data de Fim", // Added missing key
     deliveryDate: "Data de Entrega", // New
+    dueDate: "Data Limite",
     description: "Descrição",
     selectMembers: "Selecionar Membros",
     addMember: "Adicionar Membro",

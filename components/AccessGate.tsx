@@ -68,7 +68,7 @@ export const AccessGate: React.FC<AccessGateProps> = ({ onAccessGranted, lang })
          </div>
 
          {/* Content Container */}
-         <div className="bg-[#151A23]/50 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+         <div className="bg-[#151A23] border border-white/10 rounded-3xl p-8 shadow-2xl">
             
             {step === 'input' && (
                 <div className="animate-fade-in space-y-6">

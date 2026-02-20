@@ -234,7 +234,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
             const assignedCount = projects.filter(p => p.teamMembers.includes(member.id)).length;
             
             return (
-                <div key={member.id} className={`backdrop-blur-md border rounded-2xl p-6 group transition-all shadow-lg ${isDark ? 'bg-[#151A23]/80 border-white/5 hover:border-[#FF5500]/30' : 'bg-white border-slate-200 hover:border-[#FF5500]'}`}>
+                <div key={member.id} className={`backdrop-blur-md border rounded-2xl p-6 group transition-all shadow-lg ${isDark ? 'bg-[#151A23] border-white/10 hover:border-[#FF5500]/50' : 'bg-white border-slate-200 hover:border-[#FF5500]'}`}>
                 <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold shadow-inner ${isDark ? 'bg-gradient-to-br from-slate-700 to-slate-600 text-white' : 'bg-slate-100 text-slate-700'}`}>

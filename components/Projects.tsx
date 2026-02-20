@@ -165,7 +165,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
 
   if (isEditing) {
     return (
-      <div className={`max-w-4xl mx-auto backdrop-blur-xl border rounded-[2.5rem] p-4 md:p-8 shadow-2xl animate-fade-in mb-32 ${isDark ? 'bg-[#151A23]/90 border-white/5' : 'bg-white/90 border-slate-200'}`}>
+      <div className={`max-w-4xl mx-auto backdrop-blur-xl border rounded-[2.5rem] p-4 md:p-8 shadow-2xl animate-fade-in mb-32 ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white/90 border-slate-200'}`}>
         <div className="flex justify-between items-center mb-6">
           <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {currentProject.id ? t.editProject : t.addProject}
@@ -476,7 +476,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
               key={project.id}
               className={`relative overflow-hidden p-5 md:p-6 rounded-[2rem] border transition-all duration-300 group
                 ${isDark 
-                    ? `bg-[#12141a]/60 backdrop-blur-xl border-white/10 shadow-2xl hover:-translate-y-1` 
+                    ? `bg-[#151A23] border-white/10 shadow-2xl hover:-translate-y-1` 
                     : 'bg-white border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1'
                 }
               `}

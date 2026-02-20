@@ -394,13 +394,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
     // Header
     doc.setFontSize(22);
     doc.setTextColor(slateColor[0], slateColor[1], slateColor[2]);
-    doc.text('KN Growth - Software & Services - Project Report', 14, 20);
+    doc.text(`KN Growth - ${t.generateReport}`, 14, 20);
 
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);
+    doc.text(`${lang === 'pt' ? 'Gerado em' : 'Generated on'}: ${new Date().toLocaleString()}`, 14, 28);
     if (reportFilters.startDate || reportFilters.endDate) {
-        doc.text(`Activity Filter: ${reportFilters.startDate || 'Start'} to ${reportFilters.endDate || 'Now'}`, 14, 34);
+        doc.text(`${t.dateRange}: ${reportFilters.startDate || '...'} - ${reportFilters.endDate || '...'}`, 14, 34);
     }
 
     // Summary Stats
@@ -409,20 +409,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
     
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(12);
-    doc.text('Projects Overview', 20, 50);
+    doc.text(lang === 'pt' ? 'Visão Geral' : 'Overview', 20, 50);
     
     doc.setFontSize(10);
-    doc.text(`Total: ${filteredProjects.length}`, 20, 58);
-    doc.text(`Active: ${filteredProjects.filter(p => p.isActive).length}`, 60, 58);
-    doc.text(`Completed: ${filteredProjects.filter(p => p.status === 'completed').length}`, 100, 58);
-    doc.text(`Avg Progress: ${Math.round(filteredProjects.reduce((acc, p) => acc + p.progress, 0) / (filteredProjects.length || 1))}%`, 140, 58);
+    doc.text(`${lang === 'pt' ? 'Total' : 'Total'}: ${filteredProjects.length}`, 20, 58);
+    doc.text(`${t.activeState}: ${filteredProjects.filter(p => p.isActive).length}`, 60, 58);
+    doc.text(`${t.statusCompleted}: ${filteredProjects.filter(p => p.status === 'completed').length}`, 100, 58);
+    doc.text(`${lang === 'pt' ? 'Progresso Médio' : 'Avg Progress'}: ${Math.round(filteredProjects.reduce((acc, p) => acc + p.progress, 0) / (filteredProjects.length || 1))}%`, 140, 58);
 
-    // Projects Table
+    // Projects Table (General List)
     const tableData = filteredProjects.map(p => [
       p.name,
       p.client,
       p.status.toUpperCase(),
-      p.isActive ? 'Active' : 'Inactive',
+      p.isActive ? t.activeState : t.inactiveState,
       p.deadline,
       `${p.progress}%`,
       `${getProjectTotalHours(p)}h`
@@ -430,59 +430,129 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
     autoTable(doc, {
       startY: 70,
-      head: [['Project Name', 'Client', 'Status', 'State', 'Deadline', 'Progress', 'Hours']],
+      head: [[t.projectName, t.clientName, t.status, t.projectState, t.deadline, t.progress, t.hours]],
       body: tableData,
       headStyles: { fillColor: slateColor as any },
       styles: { fontSize: 9 },
     });
 
-    // History Log Table (Aggregated)
-    let historyY = (doc as any).lastAutoTable.finalY + 15;
-    
-    // Filter history logs based on date range
-    let allHistory = filteredProjects.flatMap(p => 
-      (p.history || []).map(h => ({ ...h, projectName: p.name }))
-    );
+    // Detailed Project Sections
+    let currentY = (doc as any).lastAutoTable.finalY + 15;
 
-    if (reportFilters.startDate) {
-      const start = new Date(reportFilters.startDate).getTime();
-      allHistory = allHistory.filter(h => new Date(h.timestamp).getTime() >= start);
-    }
-    if (reportFilters.endDate) {
-      const end = new Date(reportFilters.endDate).getTime();
-      // Add one day to end date to include the day itself
-      allHistory = allHistory.filter(h => new Date(h.timestamp).getTime() <= end + 86400000);
-    }
-    
-    // Sort by newest
-    allHistory.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    filteredProjects.forEach((p, index) => {
+      // Check if we need a new page for the project header
+      if (currentY > 240) {
+        doc.addPage();
+        currentY = 20;
+      }
 
-    if (allHistory.length > 0) {
-      doc.setFontSize(14);
+      doc.setFontSize(16);
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text(`${t.projectDetails}: ${p.name}`, 14, currentY);
+      currentY += 10;
+
+      doc.setFontSize(10);
       doc.setTextColor(slateColor[0], slateColor[1], slateColor[2]);
-      doc.text('Recent Activity Logs', 14, historyY);
-
-      const historyData = allHistory.map(h => [
-        new Date(h.timestamp).toLocaleString(),
-        h.projectName,
-        h.action.toUpperCase(),
-        h.details,
-        h.user
-      ]);
+      
+      // Metadata Grid
+      const metadata = [
+        [`${t.clientName}: ${p.client}`, `${t.status}: ${p.status.toUpperCase()}`],
+        [`${t.startDate}: ${p.startDate || '-'}`, `${t.deadline}: ${p.deadline || '-'}`],
+        [`${t.progress}: ${p.progress}%`, `${t.projectState}: ${p.isActive ? t.activeState : t.inactiveState}`],
+        [`${t.totalScope}: ${p.totalScope || 0}`, `${t.completedScope}: ${p.completedScope || 0}`],
+        [`${t.description}: ${p.description || '-'}`]
+      ];
 
       autoTable(doc, {
-        startY: historyY + 5,
-        head: [['Timestamp', 'Project', 'Action', 'Details', 'User']],
-        body: historyData,
-        headStyles: { fillColor: [255, 85, 0], textColor: [255,255,255] }, // Neon header
-        styles: { fontSize: 8 },
+        startY: currentY,
+        body: metadata,
+        theme: 'plain',
+        styles: { fontSize: 9, cellPadding: 1 },
+        columnStyles: { 0: { cellWidth: 90 }, 1: { cellWidth: 90 } }
       });
-    } else {
-        doc.setFontSize(10);
-        doc.text('No activity found for the selected range.', 14, historyY);
-    }
 
-    doc.save('reflex_crm_report.pdf');
+      currentY = (doc as any).lastAutoTable.finalY + 10;
+
+      // Work Logs (Hours)
+      if (p.workLogs && p.workLogs.length > 0) {
+        doc.setFontSize(12);
+        doc.text(t.workLog, 14, currentY);
+        currentY += 5;
+
+        const logData = p.workLogs.map(log => [
+          log.date,
+          log.description || '-',
+          `${log.hours}h`
+        ]);
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [[t.date, t.description, t.hours]],
+          body: logData,
+          headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
+          styles: { fontSize: 8 },
+        });
+
+        currentY = (doc as any).lastAutoTable.finalY + 10;
+      }
+
+      // Tasks
+      if (p.tasks && p.tasks.length > 0) {
+        if (currentY > 240) { doc.addPage(); currentY = 20; }
+        doc.setFontSize(12);
+        doc.text(t.tasks, 14, currentY);
+        currentY += 5;
+
+        const taskData = p.tasks.map(task => [
+          task.title,
+          task.dueDate,
+          t[`priority${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}` as keyof typeof t] || task.priority,
+          task.completed ? (lang === 'pt' ? 'CONCLUÍDA' : 'COMPLETED') : (lang === 'pt' ? 'PENDENTE' : 'PENDING')
+        ]);
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [[t.taskTitle, t.dueDate, t.priority, t.status]],
+          body: taskData,
+          headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
+          styles: { fontSize: 8 },
+        });
+
+        currentY = (doc as any).lastAutoTable.finalY + 10;
+      }
+
+      // Notes (Annotations)
+      if (p.notes && p.notes.length > 0) {
+        if (currentY > 240) { doc.addPage(); currentY = 20; }
+        doc.setFontSize(12);
+        doc.text(t.observations, 14, currentY);
+        currentY += 5;
+
+        const noteData = p.notes.map(note => [
+          new Date(note.timestamp).toLocaleString(),
+          note.content,
+          note.user
+        ]);
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [[t.time, t.details, t.user]],
+          body: noteData,
+          headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
+          styles: { fontSize: 8 },
+        });
+
+        currentY = (doc as any).lastAutoTable.finalY + 15;
+      }
+
+      // Add a separator or new page if not the last project
+      if (index < filteredProjects.length - 1) {
+        doc.setDrawColor(230);
+        doc.line(14, currentY - 5, 196, currentY - 5);
+      }
+    });
+
+    doc.save(`KN_Growth_Report_${new Date().toISOString().split('T')[0]}.pdf`);
     setIsReportModalOpen(false);
   };
 
@@ -553,7 +623,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             onClick={stat.onClick}
             className={`
                 relative p-5 md:p-6 rounded-3xl h-[180px] md:h-[200px] flex flex-col justify-between cursor-pointer transition-transform duration-300 hover:scale-[1.02]
-                ${isDark ? 'bg-[#0E1116] border border-white/5' : 'bg-white border border-slate-200 shadow-xl'}
+                ${isDark ? 'bg-[#151A23] border border-white/10 shadow-lg' : 'bg-white border border-slate-200 shadow-xl'}
             `}
           >
             {/* Top Row: Icon and Badge */}
@@ -594,7 +664,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         
         {/* Projects Table - Spans 2 cols on Large screens */}
-        <div className={`lg:col-span-2 xl:col-span-2 border rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+        <div className={`lg:col-span-2 xl:col-span-2 border rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
           {/* Decorative Glow */}
           <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#FF5500]/5' : 'bg-[#FF5500]/20'}`} />
 
@@ -801,7 +871,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </div>
 
         {/* Right Column: Project Tasks (Specific) */}
-        <div className={`lg:col-span-3 xl:col-span-1 border rounded-[2.5rem] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+        <div className={`lg:col-span-3 xl:col-span-1 border rounded-[2.5rem] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
             <div className="flex justify-between items-center mb-6 z-10">
                 <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.todoList}</h2>
                 {/* Project Filter for Tasks */}
@@ -827,7 +897,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     filteredTasks.map((task, i) => (
                     <div 
                         key={`${task.projectId}-${task.id}`} 
-                        className={`p-5 rounded-3xl border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/5 hover:border-[#FF5500]/30' : 'bg-slate-50 border-slate-200 hover:border-[#FF5500]'}`}
+                        className={`p-5 rounded-3xl border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/10 hover:border-[#FF5500]/50' : 'bg-slate-50 border-slate-200 hover:border-[#FF5500]'}`}
                         onClick={() => toggleTaskCompletion(task.projectId, task.id)}
                     >
                         <div className="flex justify-between items-start mb-2">
@@ -999,7 +1069,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             {/* Status/Progress Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Status Box */}
-                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-slate-50 border-slate-100'}`}>
                                     <div className="flex justify-between items-center mb-4">
                                         <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.status}</span>
                                         <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
@@ -1019,7 +1089,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                 </div>
 
                                 {/* Deadline Box */}
-                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-slate-50 border-slate-100'}`}>
                                     <div className="flex justify-between items-center mb-4">
                                         <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.deadline}</span>
                                         <span className={`font-mono font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedProject.deadline}</span>
@@ -1040,7 +1110,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             </div>
 
                             {/* Work Log Section */}
-                            <div className={`p-6 rounded-[2rem] border ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                            <div className={`p-6 rounded-[2rem] border ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                     <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
@@ -1053,14 +1123,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                 </span>
                             </div>
                             
-                            <div className={`p-4 rounded-2xl border mb-6 ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                            <div className={`p-4 rounded-2xl border mb-6 ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
                                 <div className="space-y-3">
                                     <div className="flex gap-3">
                                         <input 
                                         type="date" 
                                         value={logForm.date}
                                         onChange={(e) => setLogForm({...logForm, date: e.target.value})}
-                                        className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                        className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
                                         />
                                         <input 
                                         type="number" 
@@ -1069,7 +1139,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                         placeholder="Hrs"
                                         value={logForm.hours}
                                         onChange={(e) => setLogForm({...logForm, hours: e.target.value})}
-                                        className={`w-24 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                        className={`w-24 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
                                         />
                                     </div>
                                     <input 
@@ -1077,7 +1147,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                         placeholder={t.logDescription}
                                         value={logForm.description}
                                         onChange={(e) => setLogForm({...logForm, description: e.target.value})}
-                                        className={`w-full p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                        className={`w-full p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
                                     />
                                     <button 
                                         onClick={handleAddWorkLog}
@@ -1107,9 +1177,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                         </div>
 
                         {/* COLUMN 2: TASK MANAGEMENT (Fixed Header, Scrollable List) */}
-                        <div className={`rounded-[2rem] border flex flex-col xl:h-full xl:overflow-hidden ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                        <div className={`rounded-[2rem] border flex flex-col xl:h-full xl:overflow-hidden ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                             {/* Fixed Header with solid background to prevent transparency overlap */}
-                            <div className={`p-6 border-b flex-shrink-0 relative z-20 ${isDark ? 'border-white/5 bg-[#12151b] rounded-t-[2rem]' : 'border-slate-100 bg-white rounded-t-[2rem]'}`}>
+                            <div className={`p-6 border-b flex-shrink-0 relative z-20 ${isDark ? 'border-white/10 bg-[#1A1F2C] rounded-t-[2rem]' : 'border-slate-100 bg-white rounded-t-[2rem]'}`}>
                                 <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                     <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
                                     <CheckSquare size={20} />
@@ -1119,26 +1189,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             </div>
                             
                             {/* Fixed Input Area with solid background */}
-                            <div className={`p-6 border-b border-dashed border-slate-700/50 flex-shrink-0 relative z-10 ${isDark ? 'bg-[#12151b]' : 'bg-white'}`}>
+                            <div className={`p-6 border-b border-dashed border-slate-700/50 flex-shrink-0 relative z-10 ${isDark ? 'bg-[#1A1F2C]' : 'bg-white'}`}>
                                 <div className="space-y-3">
                                     <input 
                                     type="text" 
                                     placeholder={t.taskTitle}
                                     value={taskForm.title}
                                     onChange={(e) => setTaskForm({...taskForm, title: e.target.value})}
-                                    className={`w-full p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                    className={`w-full p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
                                     />
                                     <div className="flex gap-3">
                                         <input 
                                         type="date" 
                                         value={taskForm.date}
                                         onChange={(e) => setTaskForm({...taskForm, date: e.target.value})}
-                                        className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                        className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
                                         />
                                         <select
                                         value={taskForm.priority}
                                         onChange={(e) => setTaskForm({...taskForm, priority: e.target.value as any})}
-                                        className={`p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                        className={`p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
                                         >
                                             <option value="low">{t.priorityLow}</option>
                                             <option value="medium">{t.priorityMedium}</option>
@@ -1207,8 +1277,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                         {/* COLUMN 3: NOTES & TEAM */}
                         <div className="flex flex-col gap-6 xl:h-full xl:overflow-hidden min-h-0">
                             {/* Notes Section - Grows to fill space, independent scroll */}
-                            <div className={`flex-1 rounded-[2rem] border flex flex-col overflow-hidden min-h-[200px] ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
-                                <div className={`p-6 border-b flex-shrink-0 relative z-20 ${isDark ? 'border-white/5 bg-[#12151b] rounded-t-[2rem]' : 'border-slate-100 bg-white rounded-t-[2rem]'}`}>
+                            <div className={`flex-1 rounded-[2rem] border flex flex-col overflow-hidden min-h-[200px] ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
+                                <div className={`p-6 border-b flex-shrink-0 relative z-20 ${isDark ? 'border-white/10 bg-[#1A1F2C] rounded-t-[2rem]' : 'border-slate-100 bg-white rounded-t-[2rem]'}`}>
                                     <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                         <div className="p-2 rounded-lg bg-[#FF5500]/10 text-[#FF5500]">
                                         <MessageSquare size={20} />
@@ -1217,7 +1287,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                     </h3>
                                 </div>
 
-                                <div className={`p-4 border-b border-dashed border-slate-700/50 flex-shrink-0 relative z-10 ${isDark ? 'bg-[#12151b]' : 'bg-white'}`}>
+                                <div className={`p-4 border-b border-dashed border-slate-700/50 flex-shrink-0 relative z-10 ${isDark ? 'bg-[#1A1F2C]' : 'bg-white'}`}>
                                     {noteForm.imageUrl && (
                                         <div className="mb-2 relative inline-block group">
                                             <img src={noteForm.imageUrl} alt="Pasted" className="h-20 rounded-lg border border-slate-500/50" />
@@ -1237,7 +1307,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                         onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
                                         onPaste={handlePaste}
                                         placeholder={t.notePlaceholder}
-                                        className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-slate-700 text-white' : 'bg-white border-slate-200'}`}
+                                        className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
                                         />
                                         <button 
                                         onClick={handleAddNote}
@@ -1280,7 +1350,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             </div>
 
                             {/* Team Section - Fixed height at bottom of column */}
-                            <div className={`p-6 rounded-[2rem] border flex-shrink-0 ${isDark ? 'bg-[#12151b] border-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                            <div className={`p-6 rounded-[2rem] border flex-shrink-0 ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                                 <h3 className={`text-xl font-bold flex items-center gap-3 mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                     <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
                                     <User size={20} />

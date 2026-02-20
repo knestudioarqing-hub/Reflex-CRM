@@ -182,7 +182,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
          </button>
 
          {/* Mini Calendar / Date Picker */}
-         <div className={`p-4 rounded-3xl border ${isDark ? 'bg-[#151A23]/50 border-white/5' : 'bg-white border-slate-200'}`}>
+         <div className={`p-4 rounded-3xl border ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200'}`}>
              <div className="flex justify-between items-center mb-4">
                  <span className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {currentDate.toLocaleString(lang === 'pt' ? 'pt-BR' : 'en-US', { month: 'short', year: 'numeric' })}
@@ -238,10 +238,10 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
       </div>
 
       {/* --- MAIN CALENDAR GRID --- */}
-      <div className={`flex-1 flex flex-col rounded-[2rem] border shadow-2xl overflow-hidden ${isDark ? 'bg-[#151A23] border-white/5' : 'bg-white border-slate-200'}`}>
+      <div className={`flex-1 flex flex-col rounded-[2rem] border shadow-2xl overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200'}`}>
           
           {/* Header */}
-          <div className={`p-6 border-b flex items-center justify-between ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+          <div className={`p-6 border-b flex items-center justify-between ${isDark ? 'border-white/10' : 'border-slate-100'}`}>
              <div className="flex items-center gap-4">
                  <h2 className={`text-2xl font-bold capitalize ${isDark ? 'text-white' : 'text-slate-900'}`}>{getMonthName(currentDate)}</h2>
                  <div className="flex items-center gap-1 bg-slate-500/10 rounded-lg p-1">
@@ -255,7 +255,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
           </div>
 
           {/* Days Header */}
-          <div className={`grid grid-cols-7 border-b ${isDark ? 'border-white/5 bg-[#1A1F2C]' : 'border-slate-100 bg-slate-50'}`}>
+          <div className={`grid grid-cols-7 border-b ${isDark ? 'border-white/10 bg-[#1A1F2C]' : 'border-slate-100 bg-slate-50'}`}>
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                   <div key={day} className="py-3 text-center text-xs font-bold uppercase text-slate-500 tracking-wider">
                       {day}
@@ -267,7 +267,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
           <div className="flex-1 grid grid-cols-7 grid-rows-5 lg:grid-rows-6">
               {/* Previous Month Padding */}
               {Array.from({ length: firstDayOfMonth(currentDate) }).map((_, i) => (
-                  <div key={`prev-${i}`} className={`border-b border-r min-h-[100px] ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/50'}`} />
+                  <div key={`prev-${i}`} className={`border-b border-r min-h-[100px] ${isDark ? 'border-white/10 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/50'}`} />
               ))}
 
               {/* Current Month Days */}
@@ -283,7 +283,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
                         key={day} 
                         onClick={() => handleDateClick(day)}
                         className={`border-b border-r p-2 min-h-[100px] relative group transition-colors cursor-pointer
-                            ${isDark ? 'border-white/5 hover:bg-white/5' : 'border-slate-100 hover:bg-slate-50'}
+                            ${isDark ? 'border-white/10 hover:bg-white/5' : 'border-slate-100 hover:bg-slate-50'}
                         `}
                       >
                           <div className="flex justify-center mb-1">
@@ -326,7 +326,7 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
               
               {/* Next Month Padding (Fill grid) */}
               {Array.from({ length: 42 - (daysInMonth(currentDate) + firstDayOfMonth(currentDate)) }).map((_, i) => (
-                   <div key={`next-${i}`} className={`border-b border-r min-h-[100px] ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/50'}`} />
+                   <div key={`next-${i}`} className={`border-b border-r min-h-[100px] ${isDark ? 'border-white/10 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/50'}`} />
               ))}
           </div>
       </div>

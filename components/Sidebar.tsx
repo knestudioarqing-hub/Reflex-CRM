@@ -22,7 +22,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setCurrentView, l
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-[#050505]/95 backdrop-blur-xl border-r border-white/5 flex flex-col z-20 transition-transform duration-300 ease-in-out">
+    <aside className="fixed left-0 top-0 h-full w-64 bg-[#050505] border-r border-white/10 flex flex-col z-20 transition-transform duration-300 ease-in-out">
       {/* Branding Header */}
       <div className="p-8 flex items-center gap-3">
         {branding.logoUrl ? (

@@ -88,7 +88,7 @@ export const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* Visual Settings */}
-      <div className={`backdrop-blur-md border rounded-3xl p-5 md:p-8 shadow-xl space-y-6 ${isDark ? 'bg-[#151A23]/80 border-white/5' : 'bg-white/80 border-slate-200'}`}>
+      <div className={`backdrop-blur-md border rounded-3xl p-5 md:p-8 shadow-xl space-y-6 ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white/80 border-slate-200'}`}>
         <div>
           <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{t.brandName}</label>
           <input
@@ -141,7 +141,7 @@ export const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* Preview Section */}
-      <div className={`backdrop-blur-md border rounded-3xl p-8 text-center opacity-75 ${isDark ? 'bg-[#151A23]/80 border-white/5' : 'bg-white/80 border-slate-200'}`}>
+      <div className={`backdrop-blur-md border rounded-3xl p-8 text-center opacity-100 ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white/80 border-slate-200'}`}>
         <h3 className={`text-lg font-medium mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Preview</h3>
         <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg border ${isDark ? 'bg-[#050505] border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
             {localBranding.logoUrl && <img src={localBranding.logoUrl} className="w-6 h-6 object-contain" />}
@@ -150,7 +150,7 @@ export const Settings: React.FC<SettingsProps> = ({
       </div>
 
       {/* Data Management Section (Export/Import) */}
-      <div className={`backdrop-blur-md border rounded-3xl p-5 md:p-8 shadow-xl space-y-6 mt-10 ${isDark ? 'bg-[#151A23]/80 border-white/5' : 'bg-white/80 border-slate-200'}`}>
+      <div className={`backdrop-blur-md border rounded-3xl p-5 md:p-8 shadow-xl space-y-6 mt-10 ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white/80 border-slate-200'}`}>
          <div>
             <h3 className={`text-xl font-bold mb-2 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                <Download size={20} /> {t.dataManagement}

@@ -49,7 +49,7 @@ export const AIChat: React.FC<AIChatProps> = ({ lang, projects }) => {
   };
 
   return (
-    <div className="h-[calc(100vh-140px)] flex flex-col bg-[#151A23]/80 backdrop-blur-md border border-white/5 rounded-3xl shadow-2xl overflow-hidden relative">
+    <div className="h-[calc(100vh-140px)] flex flex-col bg-[#151A23] border border-white/10 rounded-3xl shadow-2xl overflow-hidden relative">
       {/* Background Glow */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 blur-[100px] pointer-events-none" />

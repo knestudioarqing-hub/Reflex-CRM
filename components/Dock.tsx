@@ -28,7 +28,7 @@ export const Dock: React.FC<DockProps> = ({ currentView, setCurrentView, lang, t
       {/* Main Pill Container - Keeps the dynamic island look but adapts border in light mode */}
       <div className={`relative flex items-center gap-1 p-1.5 rounded-full shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8)] ring-1 transition-all duration-500
           ${isDark 
-            ? 'bg-[#050505] border border-white/10 ring-white/5' 
+            ? 'bg-[#050505] border border-white/10 ring-white/10' 
             : 'bg-white border border-slate-200 ring-slate-200/50 shadow-slate-300/50'
           }`}>
         

@@ -71,13 +71,13 @@ export const ActivityHistory: React.FC<ActivityHistoryProps> = ({ projects, lang
         <p className="text-slate-500">{t.activitySubtitle}</p>
       </div>
 
-      <div className={`backdrop-blur-xl border rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#151A23]/80 border-white/5' : 'bg-white border-slate-200'}`}>
+      <div className={`backdrop-blur-xl border rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200'}`}>
         {/* Ambient Glow */}
         <div className={`absolute top-0 right-0 w-[400px] h-[400px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-blue-500/5' : 'bg-blue-500/10'}`} />
 
         <div className="relative z-10 space-y-6">
             {/* Filter Controls */}
-            <div className={`flex flex-col md:flex-row md:flex-wrap md:items-end gap-4 p-4 rounded-2xl border ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+            <div className={`flex flex-col md:flex-row md:flex-wrap md:items-end gap-4 p-4 rounded-2xl border ${isDark ? 'bg-[#050505] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
                 <div className="flex items-center gap-2 text-slate-500 mb-2 md:mb-0 mr-4">
                     <Filter size={18} />
                     <span className="text-sm font-bold uppercase tracking-wider">{t.dateRange}</span>

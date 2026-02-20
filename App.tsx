@@ -125,7 +125,7 @@ const App: React.FC = () => {
                 placeholder={t.searchPlaceholder}
                 className={`w-full backdrop-blur-md border rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none transition-all shadow-lg
                   ${isDark 
-                    ? 'bg-[#151A23]/50 border-white/10 text-white focus:border-[#FF5500]/50 hover:bg-white/5' 
+                    ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]/50 hover:bg-white/5' 
                     : 'bg-white/70 border-slate-200 text-slate-800 focus:border-[#FF5500] hover:bg-white'
                   }`}
               />
@@ -144,7 +144,7 @@ const App: React.FC = () => {
              
              <button 
               onClick={toggleTheme}
-              className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23]/50 border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
+              className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23] border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
               title="Toggle Theme"
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
@@ -152,13 +152,13 @@ const App: React.FC = () => {
 
             <button 
               onClick={toggleLanguage}
-              className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23]/50 border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
+              className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23] border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
               title={t.switchLanguage}
             >
               <Globe size={20} />
             </button>
 
-            <button className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all relative shadow-lg ${isDark ? 'bg-[#151A23]/50 border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`} title="Notifications">
+            <button className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all relative shadow-lg ${isDark ? 'bg-[#151A23] border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`} title="Notifications">
               <Bell size={20} />
               <span className={`absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border ${isDark ? 'border-[#151A23]' : 'border-white'}`} />
             </button>
