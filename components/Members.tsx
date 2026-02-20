@@ -225,7 +225,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {members.length === 0 ? (
-          <div className={`col-span-full py-20 text-center rounded-3xl border flex flex-col items-center ${isDark ? 'bg-[#151A23]/50 border-white/5 text-slate-500' : 'bg-white border-slate-200 text-slate-400'}`}>
+          <div className={`col-span-full py-20 text-center rounded-[25px] border flex flex-col items-center ${isDark ? 'bg-[#151A23]/50 border-white/5 text-slate-500' : 'bg-white border-slate-200 text-slate-400'}`}>
             <User size={48} className="mb-4 opacity-50" />
             <p>{t.noMembers}</p>
           </div>
@@ -234,7 +234,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
             const assignedCount = projects.filter(p => p.teamMembers.includes(member.id)).length;
             
             return (
-                <div key={member.id} className={`backdrop-blur-md border rounded-2xl p-6 group transition-all shadow-lg ${isDark ? 'bg-[#151A23] border-white/10 hover:border-[#FF5500]/50' : 'bg-white border-slate-200 hover:border-[#FF5500]'}`}>
+                <div key={member.id} className={`backdrop-blur-md border rounded-[25px] p-6 group transition-all shadow-lg ${isDark ? 'bg-[#151A23] border-white/10 hover:border-[#FF5500]/50' : 'bg-white border-slate-200 hover:border-[#FF5500]'}`}>
                 <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold shadow-inner ${isDark ? 'bg-gradient-to-br from-slate-700 to-slate-600 text-white' : 'bg-slate-100 text-slate-700'}`}>

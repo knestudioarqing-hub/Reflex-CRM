@@ -474,7 +474,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
           projects.map(project => (
             <div 
               key={project.id}
-              className={`relative overflow-hidden p-5 md:p-6 rounded-[2rem] border transition-all duration-300 group
+              className={`relative overflow-hidden p-5 md:p-6 rounded-[25px] border transition-all duration-300 group
                 ${isDark 
                     ? `bg-[#151A23] border-white/10 shadow-2xl hover:-translate-y-1` 
                     : 'bg-white border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1'
@@ -510,13 +510,13 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
-                 <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                 <div className={`p-3 rounded-[18px] border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
                     <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.startDate}</span>
                     <span className={`text-xs font-bold px-2 py-0.5 rounded ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                       {project.startDate || '-'}
                     </span>
                  </div>
-                 <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                 <div className={`p-3 rounded-[18px] border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
                     <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.deadline}</span>
                     <span className={`text-xs font-mono font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{project.deadline}</span>
                  </div>

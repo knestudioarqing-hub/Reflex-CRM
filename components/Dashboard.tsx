@@ -622,7 +622,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             key={idx} 
             onClick={stat.onClick}
             className={`
-                relative p-5 md:p-6 rounded-3xl h-[180px] md:h-[200px] flex flex-col justify-between cursor-pointer transition-transform duration-300 hover:scale-[1.02]
+                relative p-5 md:p-6 rounded-[25px] h-[180px] md:h-[200px] flex flex-col justify-between cursor-pointer transition-transform duration-300 hover:scale-[1.02]
                 ${isDark ? 'bg-[#151A23] border border-white/10 shadow-lg' : 'bg-white border border-slate-200 shadow-xl'}
             `}
           >
@@ -664,7 +664,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         
         {/* Projects Table - Spans 2 cols on Large screens */}
-        <div className={`lg:col-span-2 xl:col-span-2 border rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+        <div className={`lg:col-span-2 xl:col-span-2 border rounded-[25px] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
           {/* Decorative Glow */}
           <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#FF5500]/5' : 'bg-[#FF5500]/20'}`} />
 
@@ -802,7 +802,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </div>
 
         {/* MIDDLE SECTION: General Tasks / Reminders */}
-        <div className={`lg:col-span-1 xl:col-span-1 border rounded-[2.5rem] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+        <div className={`lg:col-span-1 xl:col-span-1 border rounded-[25px] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
             <div className="flex justify-between items-center mb-6 z-10">
                 <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.generalTasks}</h2>
                 <div className={`p-2 rounded-lg ${isDark ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-100 text-blue-600'}`}>
@@ -871,7 +871,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </div>
 
         {/* Right Column: Project Tasks (Specific) */}
-        <div className={`lg:col-span-3 xl:col-span-1 border rounded-[2.5rem] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+        <div className={`lg:col-span-3 xl:col-span-1 border rounded-[25px] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
             <div className="flex justify-between items-center mb-6 z-10">
                 <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.todoList}</h2>
                 {/* Project Filter for Tasks */}
@@ -897,7 +897,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     filteredTasks.map((task, i) => (
                     <div 
                         key={`${task.projectId}-${task.id}`} 
-                        className={`p-5 rounded-3xl border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/10 hover:border-[#FF5500]/50' : 'bg-slate-50 border-slate-200 hover:border-[#FF5500]'}`}
+                        className={`p-5 rounded-[25px] border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/10 hover:border-[#FF5500]/50' : 'bg-slate-50 border-slate-200 hover:border-[#FF5500]'}`}
                         onClick={() => toggleTaskCompletion(task.projectId, task.id)}
                     >
                         <div className="flex justify-between items-start mb-2">
@@ -939,7 +939,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
           onClick={() => setIsNewProjectModalOpen(false)}
         >
           <div 
-            className={`w-full max-w-lg rounded-[2.5rem] p-5 md:p-8 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
+            className={`w-full max-w-lg rounded-[25px] p-5 md:p-8 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className={`absolute top-0 right-0 w-[200px] h-[200px] rounded-full blur-[80px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#FF5500]/10' : 'bg-[#FF5500]/20'}`} />
@@ -1015,7 +1015,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             onClick={() => setSelectedProject(null)}
         >
           <div 
-            className={`w-full max-w-[95vw] h-[92vh] min-h-[600px] rounded-[2rem] shadow-2xl relative overflow-hidden animate-scale-in flex flex-col ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
+            className={`w-full max-w-[95vw] h-[92vh] min-h-[600px] rounded-[25px] shadow-2xl relative overflow-hidden animate-scale-in flex flex-col ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Background Glow inside modal */}
@@ -1069,7 +1069,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             {/* Status/Progress Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Status Box */}
-                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-slate-50 border-slate-100'}`}>
+                                <div className={`p-6 rounded-[18px] border ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-slate-50 border-slate-100'}`}>
                                     <div className="flex justify-between items-center mb-4">
                                         <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.status}</span>
                                         <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
@@ -1089,7 +1089,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                                 </div>
 
                                 {/* Deadline Box */}
-                                <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-slate-50 border-slate-100'}`}>
+                                <div className={`p-6 rounded-[18px] border ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-slate-50 border-slate-100'}`}>
                                     <div className="flex justify-between items-center mb-4">
                                         <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">{t.deadline}</span>
                                         <span className={`font-mono font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedProject.deadline}</span>
@@ -1110,7 +1110,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             </div>
 
                             {/* Work Log Section */}
-                            <div className={`p-6 rounded-[2rem] border ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
+                            <div className={`p-6 rounded-[25px] border ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                     <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
@@ -1177,9 +1177,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                         </div>
 
                         {/* COLUMN 2: TASK MANAGEMENT (Fixed Header, Scrollable List) */}
-                        <div className={`rounded-[2rem] border flex flex-col xl:h-full xl:overflow-hidden ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
+                        <div className={`rounded-[25px] border flex flex-col xl:h-full xl:overflow-hidden ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                             {/* Fixed Header with solid background to prevent transparency overlap */}
-                            <div className={`p-6 border-b flex-shrink-0 relative z-20 ${isDark ? 'border-white/10 bg-[#1A1F2C] rounded-t-[2rem]' : 'border-slate-100 bg-white rounded-t-[2rem]'}`}>
+                            <div className={`p-6 border-b flex-shrink-0 relative z-20 ${isDark ? 'border-white/10 bg-[#1A1F2C] rounded-t-[25px]' : 'border-slate-100 bg-white rounded-t-[25px]'}`}>
                                 <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                     <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
                                     <CheckSquare size={20} />
@@ -1277,8 +1277,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                         {/* COLUMN 3: NOTES & TEAM */}
                         <div className="flex flex-col gap-6 xl:h-full xl:overflow-hidden min-h-0">
                             {/* Notes Section - Grows to fill space, independent scroll */}
-                            <div className={`flex-1 rounded-[2rem] border flex flex-col overflow-hidden min-h-[200px] ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
-                                <div className={`p-6 border-b flex-shrink-0 relative z-20 ${isDark ? 'border-white/10 bg-[#1A1F2C] rounded-t-[2rem]' : 'border-slate-100 bg-white rounded-t-[2rem]'}`}>
+                            <div className={`flex-1 rounded-[25px] border flex flex-col overflow-hidden min-h-[200px] ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
+                                <div className={`p-6 border-b flex-shrink-0 relative z-20 ${isDark ? 'border-white/10 bg-[#1A1F2C] rounded-t-[25px]' : 'border-slate-100 bg-white rounded-t-[25px]'}`}>
                                     <h3 className={`text-xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                         <div className="p-2 rounded-lg bg-[#FF5500]/10 text-[#FF5500]">
                                         <MessageSquare size={20} />
@@ -1350,7 +1350,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                             </div>
 
                             {/* Team Section - Fixed height at bottom of column */}
-                            <div className={`p-6 rounded-[2rem] border flex-shrink-0 ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
+                            <div className={`p-6 rounded-[25px] border flex-shrink-0 ${isDark ? 'bg-[#1A1F2C] border-white/10' : 'bg-white border-slate-200 shadow-sm'}`}>
                                 <h3 className={`text-xl font-bold flex items-center gap-3 mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                     <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
                                     <User size={20} />
@@ -1395,7 +1395,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
           onClick={() => setIsReportModalOpen(false)}
         >
            <div 
-            className={`w-full max-w-lg rounded-3xl p-6 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
+            className={`w-full max-w-lg rounded-[25px] p-6 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
             onClick={(e) => e.stopPropagation()}
            >
               <h2 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.reportSettings}</h2>
