@@ -20,14 +20,14 @@ const DEFAULT_BRANDING: Branding = {
 
 const App: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);
-  
+
   const [currentView, setCurrentView] = useState('dashboard');
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   const [lang, setLang] = useState<Language>('pt'); // Default to Portuguese
   const [theme, setTheme] = useState<Theme>('dark');
   const [branding, setBranding] = useState<Branding>(DEFAULT_BRANDING);
-  
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
 
@@ -36,33 +36,33 @@ const App: React.FC = () => {
   // Initialize App & Load Data Immediately
   useEffect(() => {
     const initializeApp = () => {
-        // Load data directly (no key needed)
-        const savedData = loadUserData('local'); 
-        
-        if (savedData) {
-            setProjects(savedData.projects);
-            setMembers(savedData.members);
-            
-            // CRITICAL FIX: Force update the company name from code default
-            // even if branding exists in storage, to ensure the new name appears.
-            if (savedData.branding) {
-                setBranding({
-                    ...savedData.branding,
-                    companyName: DEFAULT_BRANDING.companyName
-                });
-            } else {
-                setBranding(DEFAULT_BRANDING);
-            }
+      // Load data directly (no key needed)
+      const savedData = loadUserData('local');
 
-            setTheme(savedData.theme as Theme);
-            setLang(savedData.lang as Language);
+      if (savedData) {
+        setProjects(savedData.projects);
+        setMembers(savedData.members);
+
+        // CRITICAL FIX: Force update the company name from code default
+        // even if branding exists in storage, to ensure the new name appears.
+        if (savedData.branding) {
+          setBranding({
+            ...savedData.branding,
+            companyName: DEFAULT_BRANDING.companyName
+          });
+        } else {
+          setBranding(DEFAULT_BRANDING);
         }
-        setIsDataLoaded(true);
 
-        // Hide splash after delay
-        setTimeout(() => {
-            setShowSplash(false);
-        }, 3500);
+        setTheme(savedData.theme as Theme);
+        setLang(savedData.lang as Language);
+      }
+      setIsDataLoaded(true);
+
+      // Hide splash after delay
+      setTimeout(() => {
+        setShowSplash(false);
+      }, 3500);
     };
 
     initializeApp();
@@ -81,6 +81,11 @@ const App: React.FC = () => {
     }
   }, [projects, members, branding, theme, lang, isDataLoaded]);
 
+  // Apply brand color to CSS variable globally whenever it changes
+  useEffect(() => {
+    document.documentElement.style.setProperty('--brand-color', branding.primaryColor);
+  }, [branding.primaryColor]);
+
   const toggleLanguage = () => {
     setLang(prev => prev === 'en' ? 'pt' : 'en');
   };
@@ -95,10 +100,10 @@ const App: React.FC = () => {
   }
 
   const isDark = theme === 'dark';
-  
+
   return (
     <div className={`flex h-[100dvh] font-sans animate-fade-in transition-colors duration-500 overflow-hidden ${isDark ? 'bg-[#050505] text-white selection:bg-[#FF5500]/30 selection:text-[#FF5500]' : 'bg-[#F8FAFC] text-slate-900 selection:bg-[#FF5500] selection:text-black'}`}>
-      
+
       {/* Background Ambient Glow */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] transition-colors duration-700 ${isDark ? 'bg-[#FF5500]/5' : 'bg-[#FF5500]/20'}`} />
@@ -108,24 +113,24 @@ const App: React.FC = () => {
       <main className="w-full relative z-10 flex flex-col h-full overflow-hidden">
         {/* Header - Transparent Background with Floating Elements */}
         <header className="flex justify-between items-center px-4 py-4 md:px-8 md:py-8 z-30 relative transition-all duration-300 flex-shrink-0">
-          
+
           {/* Left: Mobile Brand Name (Visible on Mobile & Tablet) */}
           <div className="lg:hidden z-20 flex-shrink-0 mr-4">
-             <h1 className={`text-lg font-normal tracking-wide bg-clip-text text-transparent drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`}>
-               {branding.companyName}
-             </h1>
+            <h1 className={`text-base font-normal tracking-wide bg-clip-text text-transparent drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`}>
+              {branding.companyName}
+            </h1>
           </div>
 
           {/* Left: Search (Desktop Only) */}
           <div className="hidden md:block w-full max-w-xs z-20">
             <div className="relative group">
               <Search className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDark ? 'text-slate-500 group-focus-within:text-[#FF5500]' : 'text-slate-400 group-focus-within:text-black'}`} size={18} />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder={t.searchPlaceholder}
                 className={`w-full backdrop-blur-md border rounded-2xl pl-10 pr-4 py-3 text-sm focus:outline-none transition-all shadow-lg
-                  ${isDark 
-                    ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]/50 hover:bg-white/5' 
+                  ${isDark
+                    ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]/50 hover:bg-white/5'
                     : 'bg-white/70 border-slate-200 text-slate-800 focus:border-[#FF5500] hover:bg-white'
                   }`}
               />
@@ -134,15 +139,15 @@ const App: React.FC = () => {
 
           {/* Center: Brand Name (Large Screens Only - Absolute Position) */}
           <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-             <h1 className={`text-2xl font-normal tracking-wide bg-clip-text text-transparent drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`}>
-               {branding.companyName}
-             </h1>
+            <h1 className={`text-xl font-normal tracking-wide bg-clip-text text-transparent drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`}>
+              {branding.companyName}
+            </h1>
           </div>
 
           {/* Right: Controls & Profile */}
           <div className="flex items-center gap-2 md:gap-3 z-20 ml-auto md:ml-0 flex-shrink-0">
-             
-             <button 
+
+            <button
               onClick={toggleTheme}
               className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23] border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
               title="Toggle Theme"
@@ -150,7 +155,7 @@ const App: React.FC = () => {
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
-            <button 
+            <button
               onClick={toggleLanguage}
               className={`p-2.5 md:p-3 rounded-xl backdrop-blur-md border transition-all shadow-lg ${isDark ? 'bg-[#151A23] border-white/10 text-slate-400 hover:text-white' : 'bg-white/70 border-slate-200 text-slate-500 hover:text-slate-900'}`}
               title={t.switchLanguage}
@@ -166,14 +171,14 @@ const App: React.FC = () => {
             <div className={`h-10 w-[1px] mx-1 md:mx-2 hidden sm:block ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}></div>
 
             <div className="flex items-center gap-3 pl-1 md:pl-2 cursor-pointer group">
-                <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center border-2 transition-colors shadow-lg bg-[#FF5500] text-white ${isDark ? 'border-slate-700 group-hover:border-[#FF5500]' : 'border-slate-200 group-hover:border-[#FF5500]'}`}>
-                    <User size={20} />
-                </div>
-                <div className="hidden sm:block text-right">
-                    <p className={`text-sm font-bold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Gianfranco</p>
-                    <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Projetista Elétrico</p>
-                </div>
-                <LogOut size={18} className="text-slate-500 group-hover:text-red-400 transition-colors ml-1 md:ml-2 hidden md:block" />
+              <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center border-2 transition-colors shadow-lg bg-[#FF5500] text-white ${isDark ? 'border-slate-700 group-hover:border-[#FF5500]' : 'border-slate-200 group-hover:border-[#FF5500]'}`}>
+                <User size={20} />
+              </div>
+              <div className="hidden sm:block text-right">
+                <p className={`text-sm font-bold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Gianfranco</p>
+                <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Projetista Elétrico</p>
+              </div>
+              <LogOut size={18} className="text-slate-500 group-hover:text-red-400 transition-colors ml-1 md:ml-2 hidden md:block" />
             </div>
           </div>
         </header>
@@ -183,37 +188,37 @@ const App: React.FC = () => {
           <div className="w-full">
             {currentView === 'dashboard' && <Dashboard projects={projects} setProjects={setProjects} members={members} lang={lang} theme={theme} />}
             {currentView === 'projects' && (
-               <Projects projects={projects} setProjects={setProjects} members={members} lang={lang} theme={theme} />
+              <Projects projects={projects} setProjects={setProjects} members={members} lang={lang} theme={theme} />
             )}
             {currentView === 'members' && (
               <Members members={members} setMembers={setMembers} projects={projects} setProjects={setProjects} lang={lang} theme={theme} />
             )}
             {currentView === 'calendar' && (
-               <Calendar lang={lang} theme={theme} />
+              <Calendar lang={lang} theme={theme} />
             )}
             {currentView === 'analytics' && (
-               <ActivityHistory projects={projects} lang={lang} theme={theme} />
+              <ActivityHistory projects={projects} lang={lang} theme={theme} />
             )}
             {currentView === 'settings' && (
-                <Settings 
-                    branding={branding} 
-                    setBranding={setBranding} 
-                    lang={lang} 
-                    theme={theme}
-                    projects={projects}
-                    members={members}
-                    setProjects={setProjects}
-                    setMembers={setMembers}
-                />
+              <Settings
+                branding={branding}
+                setBranding={setBranding}
+                lang={lang}
+                theme={theme}
+                projects={projects}
+                members={members}
+                setProjects={setProjects}
+                setMembers={setMembers}
+              />
             )}
           </div>
         </div>
 
         {/* Floating Dock */}
-        <Dock 
-          currentView={currentView} 
-          setCurrentView={setCurrentView} 
-          lang={lang} 
+        <Dock
+          currentView={currentView}
+          setCurrentView={setCurrentView}
+          lang={lang}
           theme={theme}
         />
       </main>

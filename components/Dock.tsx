@@ -26,7 +26,7 @@ export const Dock: React.FC<DockProps> = ({ currentView, setCurrentView, lang, t
   return (
     <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
       {/* Main Pill Container - Keeps the dynamic island look but adapts border in light mode */}
-      <div className={`relative flex items-center gap-1 p-1.5 rounded-full shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8)] ring-1 transition-all duration-500
+      <div className={`relative flex items-center gap-0.5 p-1.5 rounded-full shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8)] ring-1 transition-all duration-500
           ${isDark 
             ? 'bg-[#050505] border border-white/10 ring-white/10' 
             : 'bg-white border border-slate-200 ring-slate-200/50 shadow-slate-300/50'
@@ -48,8 +48,8 @@ export const Dock: React.FC<DockProps> = ({ currentView, setCurrentView, lang, t
                 relative flex items-center justify-center h-11 rounded-full transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden
                 ${isActive 
                   ? isDark 
-                    ? 'w-auto pl-3 pr-5 bg-[#FF5500] text-white shadow-[0_0_20px_-5px_rgba(255,85,0,0.4)] border border-[#FF5500]/20' 
-                    : 'w-auto pl-3 pr-5 bg-[#FF5500] text-white shadow-lg shadow-orange-500/20 border border-orange-400'
+                    ? 'w-auto px-3.5 bg-[#FF5500] text-white shadow-[0_0_20px_-5px_rgba(255,85,0,0.4)] border border-[#FF5500]/20' 
+                    : 'w-auto px-3.5 bg-[#FF5500] text-white shadow-lg shadow-orange-500/20 border border-orange-400'
                   : isDark
                     ? 'w-11 text-zinc-500 hover:text-white hover:bg-white/10'
                     : 'w-11 text-slate-400 hover:text-slate-900 hover:bg-slate-100'
@@ -70,7 +70,7 @@ export const Dock: React.FC<DockProps> = ({ currentView, setCurrentView, lang, t
               <div 
                 className={`
                   text-sm font-medium whitespace-nowrap transition-all duration-500
-                  ${isActive ? 'opacity-100 max-w-[100px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-4'}
+                  ${isActive ? 'opacity-100 max-w-[180px] translate-x-0' : 'opacity-0 max-w-0 -translate-x-4'}
                 `}
                 style={{ fontFamily: "'Inter', sans-serif" }}
               >
