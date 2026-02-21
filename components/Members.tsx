@@ -42,7 +42,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
     const memberProjectIds = projects
       .filter(p => p.teamMembers.includes(member.id))
       .map(p => p.id);
-    
+
     setFormData({
       id: member.id,
       name: member.name,
@@ -54,7 +54,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
 
   const handleSaveMember = () => {
     if (!formData.name || !formData.role) return;
-    
+
     const memberId = formData.id || Date.now().toString();
     const member: Member = {
       id: memberId,
@@ -73,7 +73,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
     const updatedProjects = projects.map(p => {
       const isSelected = formData.projectIds.includes(p.id);
       const isCurrentlyAssigned = p.teamMembers.includes(memberId);
-      
+
       let newProjectData = { ...p };
       let changed = false;
       let logDetail = '';
@@ -99,37 +99,37 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
     });
 
     setProjects(updatedProjects);
-    
+
     setFormData({ id: '', name: '', role: '', projectIds: [] });
     setIsFormOpen(false);
   };
 
   const handleDeleteMember = (id: string) => {
     const memberName = members.find(m => m.id === id)?.name || 'Member';
-    if (window.confirm('Are you sure? This will remove the member from all projects.')) {
-        setMembers(members.filter(m => m.id !== id));
-        // Cleanup project references and log
-        setProjects(projects.map(p => {
-            if (p.teamMembers.includes(id)) {
-                const historyEntry = createHistoryEntry(`Member ${memberName} deleted and removed from team`);
-                return {
-                    ...p,
-                    teamMembers: p.teamMembers.filter(mId => mId !== id),
-                    history: [historyEntry, ...(p.history || [])]
-                };
-            }
-            return p;
-        }));
+    if (window.confirm(t.confirmDeleteMember)) {
+      setMembers(members.filter(m => m.id !== id));
+      // Cleanup project references and log
+      setProjects(projects.map(p => {
+        if (p.teamMembers.includes(id)) {
+          const historyEntry = createHistoryEntry(`Member ${memberName} deleted and removed from team`);
+          return {
+            ...p,
+            teamMembers: p.teamMembers.filter(mId => mId !== id),
+            history: [historyEntry, ...(p.history || [])]
+          };
+        }
+        return p;
+      }));
     }
   };
 
   const toggleProjectSelection = (projectId: string) => {
     setFormData(prev => {
-        if (prev.projectIds.includes(projectId)) {
-            return { ...prev, projectIds: prev.projectIds.filter(id => id !== projectId) };
-        } else {
-            return { ...prev, projectIds: [...prev.projectIds, projectId] };
-        }
+      if (prev.projectIds.includes(projectId)) {
+        return { ...prev, projectIds: prev.projectIds.filter(id => id !== projectId) };
+      } else {
+        return { ...prev, projectIds: [...prev.projectIds, projectId] };
+      }
     });
   };
 
@@ -149,7 +149,7 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
       {isFormOpen && (
         <div className={`backdrop-blur-md border rounded-3xl p-5 md:p-8 shadow-2xl mb-8 animate-fade-in max-w-2xl mx-auto ${isDark ? 'bg-[#151A23]/90 border-white/5' : 'bg-white/90 border-slate-200'}`}>
           <h3 className={`text-xl font-bold mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>{formData.id ? t.edit : t.addMember}</h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <label className="block text-sm font-medium text-slate-400 mb-2">{t.name}</label>
@@ -176,32 +176,30 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
           <div className="mb-8">
             <label className="block text-sm font-medium text-slate-400 mb-3">{t.assignedProjects}</label>
             {projects.length === 0 ? (
-                <div className={`p-4 rounded-xl border border-dashed text-sm text-center ${isDark ? 'bg-[#050505] border-slate-700 text-slate-500' : 'bg-slate-50 border-slate-300 text-slate-500'}`}>
-                    {t.noProjects}
-                </div>
+              <div className={`p-4 rounded-xl border border-dashed text-sm text-center ${isDark ? 'bg-[#050505] border-slate-700 text-slate-500' : 'bg-slate-50 border-slate-300 text-slate-500'}`}>
+                {t.noProjects}
+              </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                    {projects.map(project => (
-                        <div 
-                            key={project.id}
-                            onClick={() => toggleProjectSelection(project.id)}
-                            className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-3 ${
-                                formData.projectIds.includes(project.id)
-                                ? 'bg-[#FF5500]/10 border-[#FF5500]/50 text-[#FF5500] dark:text-white'
-                                : isDark ? 'bg-[#050505] border-slate-700 text-slate-400 hover:border-slate-500' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
-                            }`}
-                        >
-                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
-                                formData.projectIds.includes(project.id)
-                                ? 'bg-[#FF5500] border-[#FF5500]'
-                                : isDark ? 'border-slate-600' : 'border-slate-300'
-                            }`}>
-                                {formData.projectIds.includes(project.id) && <Check size={14} className="text-white" />}
-                            </div>
-                            <span className="text-sm font-medium truncate">{project.name}</span>
-                        </div>
-                    ))}
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                {projects.map(project => (
+                  <div
+                    key={project.id}
+                    onClick={() => toggleProjectSelection(project.id)}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-3 ${formData.projectIds.includes(project.id)
+                        ? 'bg-[#FF5500]/10 border-[#FF5500]/50 text-[#FF5500] dark:text-white'
+                        : isDark ? 'bg-[#050505] border-slate-700 text-slate-400 hover:border-slate-500' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                      }`}
+                  >
+                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.projectIds.includes(project.id)
+                        ? 'bg-[#FF5500] border-[#FF5500]'
+                        : isDark ? 'border-slate-600' : 'border-slate-300'
+                      }`}>
+                      {formData.projectIds.includes(project.id) && <Check size={14} className="text-white" />}
+                    </div>
+                    <span className="text-sm font-medium truncate">{project.name}</span>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
@@ -225,71 +223,71 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {members.length === 0 ? (
-          <div className={`col-span-full py-20 text-center rounded-[25px] border flex flex-col items-center ${isDark ? 'bg-[#151A23]/50 border-white/5 text-slate-500' : 'bg-white border-slate-200 text-slate-400'}`}>
+          <div className={`col-span-full py-20 text-center rounded-[20px] border flex flex-col items-center ${isDark ? 'bg-[#151A23]/50 border-white/5 text-slate-500' : 'bg-white border-slate-200 text-slate-400'}`}>
             <User size={48} className="mb-4 opacity-50" />
             <p>{t.noMembers}</p>
           </div>
         ) : (
           members.map((member) => {
             const assignedCount = projects.filter(p => p.teamMembers.includes(member.id)).length;
-            
+
             return (
-                <div key={member.id} className={`backdrop-blur-md border rounded-[25px] p-6 group transition-all shadow-lg ${isDark ? 'bg-[#151A23] border-white/10 hover:border-[#FF5500]/50' : 'bg-white border-slate-200 hover:border-[#FF5500]'}`}>
+              <div key={member.id} className={`backdrop-blur-md border rounded-[20px] p-6 group transition-all shadow-lg ${isDark ? 'bg-[#151A23] border-white/10 hover:border-[#FF5500]/50' : 'bg-white border-slate-200 hover:border-[#FF5500]'}`}>
                 <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold shadow-inner ${isDark ? 'bg-gradient-to-br from-slate-700 to-slate-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
-                            {member.name.substring(0, 1).toUpperCase()}
-                        </div>
-                        <div>
-                            <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>{member.name}</h3>
-                            <div className="flex items-center gap-1.5 text-slate-400 text-sm">
-                                <Briefcase size={12} />
-                                <span>{member.role}</span>
-                            </div>
-                        </div>
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold shadow-inner ${isDark ? 'bg-gradient-to-br from-slate-700 to-slate-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                      {member.name.substring(0, 1).toUpperCase()}
                     </div>
+                    <div>
+                      <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>{member.name}</h3>
+                      <div className="flex items-center gap-1.5 text-slate-400 text-sm">
+                        <Briefcase size={12} />
+                        <span>{member.role}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className={`mb-6 pt-4 border-t ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">{t.assignedProjects}</p>
-                    <div className="flex flex-wrap gap-2">
-                        {assignedCount === 0 ? (
-                            <span className="text-xs text-slate-600 italic">None</span>
-                        ) : (
-                            projects
-                                .filter(p => p.teamMembers.includes(member.id))
-                                .slice(0, 3)
-                                .map(p => (
-                                    <span key={p.id} className={`px-2 py-1 rounded text-xs border ${isDark ? 'bg-white/5 text-slate-300 border-white/10' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                                        {p.name}
-                                    </span>
-                                ))
-                        )}
-                        {assignedCount > 3 && (
-                            <span className={`px-2 py-1 rounded text-xs text-slate-500 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
-                                +{assignedCount - 3}
-                            </span>
-                        )}
-                    </div>
+                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">{t.assignedProjects}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {assignedCount === 0 ? (
+                      <span className="text-xs text-slate-600 italic">None</span>
+                    ) : (
+                      projects
+                        .filter(p => p.teamMembers.includes(member.id))
+                        .slice(0, 3)
+                        .map(p => (
+                          <span key={p.id} className={`px-2 py-1 rounded text-xs border ${isDark ? 'bg-white/5 text-slate-300 border-white/10' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                            {p.name}
+                          </span>
+                        ))
+                    )}
+                    {assignedCount > 3 && (
+                      <span className={`px-2 py-1 rounded text-xs text-slate-500 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'}`}>
+                        +{assignedCount - 3}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex justify-end gap-2">
-                    <button
-                        onClick={() => handleOpenEdit(member)}
-                        className={`p-2 rounded-lg transition-colors ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'}`}
-                        title={t.edit}
-                    >
-                        <Edit2 size={18} />
-                    </button>
-                    <button
-                        onClick={() => handleDeleteMember(member.id)}
-                        className={`p-2 rounded-lg transition-colors ${isDark ? 'text-slate-400 hover:text-red-400 hover:bg-red-500/10' : 'text-slate-400 hover:text-red-600 hover:bg-red-50'}`}
-                        title={t.delete}
-                    >
-                        <Trash2 size={18} />
-                    </button>
+                  <button
+                    onClick={() => handleOpenEdit(member)}
+                    className={`p-2 rounded-lg transition-colors ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'}`}
+                    title={t.edit}
+                  >
+                    <Edit2 size={18} />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteMember(member.id)}
+                    className={`p-2 rounded-lg transition-colors ${isDark ? 'text-slate-400 hover:text-red-400 hover:bg-red-500/10' : 'text-slate-400 hover:text-red-600 hover:bg-red-50'}`}
+                    title={t.delete}
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </div>
-                </div>
+              </div>
             );
           })
         )}

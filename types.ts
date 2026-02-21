@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type Language = 'en' | 'pt';
+export type Language = 'en' | 'pt' | 'es';
 export type Theme = 'dark' | 'light';
 
 export interface Branding {
@@ -53,14 +53,15 @@ export interface Project {
   name: string;
   client: string;
   status: 'planning' | 'modeling' | 'coordination' | 'completed';
+  coordinator?: string;
   isActive: boolean; // New field to categorize as Active or Inactive
   startDate: string; // Replaces LOD slot
   deadline: string; // Used as Delivery Date
   progress: number;
   // New KPI Fields
-  totalScope?: number; 
+  totalScope?: number;
   completedScope?: number;
-  
+
   teamMembers: string[]; // IDs of members
   description?: string;
   history: HistoryEntry[];

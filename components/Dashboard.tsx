@@ -31,6 +31,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
   // Work Log State
   const [logForm, setLogForm] = useState({ date: new Date().toISOString().split('T')[0], hours: '', description: '' });
+  const [logFilter, setLogFilter] = useState({ from: '', to: '' });
 
   // Task Form State
   const [taskForm, setTaskForm] = useState<{ title: string, date: string, priority: 'low' | 'medium' | 'high' | 'urgent' }>({
@@ -41,6 +42,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
   // Note/Observation State
   const [noteForm, setNoteForm] = useState<{ content: string, imageUrl: string | null }>({ content: '', imageUrl: null });
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
   const [showNotification, setShowNotification] = useState(false);
 
   const handlePaste = (e: React.ClipboardEvent) => {
@@ -80,6 +82,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   const [newProjectForm, setNewProjectForm] = useState({
     name: '',
     client: '',
+    coordinator: '',
     startDate: new Date().toISOString().split('T')[0],
     deadline: ''
   });
@@ -186,6 +189,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       isActive: true,
       startDate: newProjectForm.startDate,
       deadline: newProjectForm.deadline || new Date().toISOString().split('T')[0],
+      coordinator: newProjectForm.coordinator,
       progress: 0,
       teamMembers: [],
       description: '',
@@ -203,7 +207,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
 
     setProjects(prev => [...prev, newProject]);
     setIsNewProjectModalOpen(false);
-    setNewProjectForm({ name: '', client: '', startDate: new Date().toISOString().split('T')[0], deadline: '' });
+    setNewProjectForm({ name: '', client: '', coordinator: '', startDate: new Date().toISOString().split('T')[0], deadline: '' });
   };
 
   const handleDeliverProject = (id: string, e?: React.MouseEvent) => {
@@ -460,7 +464,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         [`${t.startDate}: ${p.startDate || '-'}`, `${t.deadline}: ${p.deadline || '-'}`],
         [`${t.progress}: ${p.progress}%`, `${t.projectState}: ${p.isActive ? t.activeState : t.inactiveState}`],
         [`${t.totalScope}: ${p.totalScope || 0}`, `${t.completedScope}: ${p.completedScope || 0}`],
-        [`${t.description}: ${p.description || '-'}`]
+        [`${t.projectCoordinator}: ${p.coordinator || '-'}`, `${t.description}: ${p.description || '-'}`]
       ];
 
       autoTable(doc, {
@@ -559,15 +563,38 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   return (
     <div className="space-y-8 animate-fade-in pb-10 relative">
 
-      {/* Toast Notification */}
+      {/* Task Creation Notification - Portal */}
       {showNotification && createPortal(
-        <div className={`fixed top-6 right-6 z-[150] animate-slide-up flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${isDark ? 'bg-[#1A1F2C] border-[#FF5500]/30' : 'bg-white border-orange-200'}`}>
-          <div className="w-8 h-8 rounded-full bg-[#FF5500] flex items-center justify-center text-white">
-            <CheckCircle size={18} />
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[200] animate-bounce-in">
+          <div className={`px-6 py-3 rounded-2xl shadow-2xl border flex items-center gap-3 ${isDark ? 'bg-[#151A23] border-[#FF5500]/50 text-white' : 'bg-white border-[#FF5500]/50 text-slate-900'}`}>
+            <div className="w-8 h-8 rounded-full bg-[#FF5500]/10 flex items-center justify-center text-[#FF5500]">
+              <CheckCircle size={20} />
+            </div>
+            <span className="font-bold text-sm">{t.taskCreated}</span>
           </div>
-          <div>
-            <h4 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.noteAdded}</h4>
-            <p className="text-xs text-slate-500">{new Date().toLocaleTimeString()}</p>
+        </div>,
+        document.body
+      )}
+
+      {/* Expanded Image Viewer - Portal */}
+      {expandedImage && createPortal(
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md animate-fade-in p-4 md:p-10"
+          onClick={() => setExpandedImage(null)}
+        >
+          <button
+            className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors z-10 p-2"
+            onClick={() => setExpandedImage(null)}
+          >
+            <X size={32} />
+          </button>
+          <div className="relative w-full h-full flex items-center justify-center animate-scale-in">
+            <img
+              src={expandedImage}
+              alt="Expanded Attachment"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </div>,
         document.body
@@ -579,7 +606,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
           <h1 className={`text-3xl md:text-4xl font-light mb-1 tracking-tight whitespace-nowrap ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {t.dashboard}
           </h1>
-          <p className="text-slate-500 text-sm md:text-base">{lang === 'pt' ? 'Visão geral do desempenho BIM' : 'Overview of your BIM performance'}</p>
+          <p className="text-slate-500 text-sm md:text-base">{t.bimPerformance}</p>
         </div>
         <button
           onClick={() => setIsReportModalOpen(true)}
@@ -622,7 +649,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
             key={idx}
             onClick={stat.onClick}
             className={`
-                relative p-5 md:p-6 rounded-[25px] h-auto min-h-[160px] md:min-h-[180px] flex flex-col justify-between cursor-pointer transition-transform duration-300 hover:scale-[1.02]
+                relative p-5 md:p-6 rounded-[20px] h-auto min-h-[160px] md:min-h-[180px] flex flex-col justify-between cursor-pointer transition-transform duration-300 hover:scale-[1.02]
                 ${isDark ? 'bg-[#151A23] border border-white/10 shadow-lg' : 'bg-white border border-slate-200 shadow-xl'}
             `}
           >
@@ -664,7 +691,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
       <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
         {/* Projects Table - Spans 2 cols on Large screens */}
-        <div className={`lg:col-span-2 xl:col-span-2 border rounded-[25px] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+        <div className={`lg:col-span-2 xl:col-span-2 border rounded-[20px] p-5 md:p-8 shadow-2xl relative overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
           {/* Decorative Glow */}
           <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#FF5500]/5' : 'bg-[#FF5500]/20'}`} />
 
@@ -689,7 +716,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     : 'text-slate-500 hover:text-slate-400'
                     }`}
                 >
-                  {lang === 'pt' ? 'Todos' : 'All'}
+                  {t.all}
                 </button>
                 <button
                   onClick={() => setViewFilter('active')}
@@ -698,7 +725,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     : 'text-slate-500 hover:text-slate-400'
                     }`}
                 >
-                  {lang === 'pt' ? 'Ativos' : 'Active'}
+                  {t.active}
                 </button>
                 <button
                   onClick={() => setViewFilter('completed')}
@@ -707,7 +734,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     : 'text-slate-500 hover:text-slate-400'
                     }`}
                 >
-                  {lang === 'pt' ? 'Entregues' : 'Delivered'}
+                  {t.delivered}
                 </button>
               </div>
             </div>
@@ -727,7 +754,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     <th className="pb-6 text-center px-2">{t.totalHours}</th>
                     <th className="pb-6 px-2">{t.deadline}</th>
                     <th className="pb-6 px-2">{t.progress}</th>
-                    <th className="pb-6 text-center px-2">{lang === 'pt' ? 'Ações' : 'Actions'}</th>
+                    <th className="pb-6 text-center px-2">{t.actions}</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -745,7 +772,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                           <div>
                             <p className={`font-bold text-base whitespace-nowrap ${isDark ? 'text-white' : 'text-slate-900'}`}>
                               {project.name}
-                              {!project.isActive && <span className="ml-2 text-[10px] text-slate-500 bg-slate-500/10 px-1.5 py-0.5 rounded border border-slate-500/20">Inactive</span>}
+                              {!project.isActive && <span className="ml-2 text-[10px] text-slate-500 bg-slate-500/10 px-1.5 py-0.5 rounded border border-slate-500/20">{t.inactive}</span>}
                             </p>
                             <p className="text-xs text-slate-500 font-medium whitespace-nowrap">{project.client}</p>
                           </div>
@@ -799,7 +826,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </div>
 
         {/* MIDDLE SECTION: General Tasks / Reminders */}
-        <div className={`lg:col-span-1 xl:col-span-1 border rounded-[25px] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+        <div className={`lg:col-span-1 xl:col-span-1 border rounded-[20px] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#11141A] border-white/5' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
           <div className="flex justify-between items-center mb-6 z-10">
             <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.generalTasks}</h2>
             <div className={`p-2 rounded-lg ${isDark ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-100 text-blue-600'}`}>
@@ -866,7 +893,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
         </div>
 
         {/* Right Column: Project Tasks (Specific) */}
-        <div className={`lg:col-span-3 xl:col-span-1 border rounded-[25px] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+        <div className={`lg:col-span-3 xl:col-span-1 border rounded-[20px] p-5 md:p-8 shadow-xl flex flex-col h-full relative overflow-hidden ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
           <div className="flex flex-col gap-3 mb-6 z-10">
             <h2 className={`text-xl font-bold whitespace-nowrap ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.todoList}</h2>
             {/* Project Filter for Tasks */}
@@ -894,7 +921,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
               filteredTasks.map((task, i) => (
                 <div
                   key={`${task.projectId}-${task.id}`}
-                  className={`p-5 rounded-[25px] border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/10 hover:border-[#FF5500]/50' : 'bg-slate-50 border-slate-200 hover:border-[#FF5500]'}`}
+                  className={`p-5 rounded-[20px] border transition-all group cursor-pointer ${isDark ? 'bg-[#1A1F2C] border-white/10 hover:border-[#FF5500]/50' : 'bg-slate-50 border-slate-200 hover:border-[#FF5500]'}`}
                   onClick={() => toggleTaskCompletion(task.projectId, task.id)}
                 >
                   <div className="flex justify-between items-start mb-2">
@@ -935,7 +962,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
           onClick={() => setIsNewProjectModalOpen(false)}
         >
           <div
-            className={`w-full max-w-lg rounded-[25px] p-5 md:p-8 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
+            className={`w-full max-w-lg rounded-[20px] p-5 md:p-8 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className={`absolute top-0 right-0 w-[200px] h-[200px] rounded-full blur-[80px] pointer-events-none -translate-y-1/2 translate-x-1/2 ${isDark ? 'bg-[#FF5500]/10' : 'bg-[#FF5500]/20'}`} />
@@ -966,6 +993,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     value={newProjectForm.client}
                     onChange={(e) => setNewProjectForm({ ...newProjectForm, client: e.target.value })}
                     placeholder="Client Name"
+                    className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white focus:border-[#FF5500]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#FF5500]'}`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-500 mb-2 uppercase tracking-wide">{t.projectCoordinator}</label>
+                  <input
+                    type="text"
+                    value={newProjectForm.coordinator}
+                    onChange={(e) => setNewProjectForm({ ...newProjectForm, coordinator: e.target.value })}
+                    placeholder="E.g. Gianfranco"
                     className={`w-full p-4 rounded-2xl outline-none border transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white focus:border-[#FF5500]/50' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#FF5500]'}`}
                   />
                 </div>
@@ -1011,7 +1048,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
           onClick={() => setSelectedProject(null)}
         >
           <div
-            className={`w-full max-w-[95vw] h-[92vh] min-h-[600px] rounded-[25px] shadow-2xl relative overflow-hidden animate-scale-in flex flex-col ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
+            className={`w-full max-w-[95vw] h-[92vh] min-h-[600px] rounded-[20px] shadow-2xl relative overflow-hidden animate-scale-in flex flex-col ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Background Glow inside modal */}
@@ -1035,15 +1072,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border flex-shrink-0 ${isDark ? 'bg-white/5 border-white/10 text-slate-300' : 'bg-slate-100 border-slate-200 text-slate-600'}`}>
                       🗓 {selectedProject.deadline}
                     </span>
+                    {selectedProject.coordinator && (
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border flex-shrink-0 ${isDark ? 'bg-[#FF5500]/5 border-[#FF5500]/20 text-[#FF5500]' : 'bg-[#FF5500]/10 border-[#FF5500]/20 text-[#FF5500]'}`}>
+                        👤 {selectedProject.coordinator}
+                      </span>
+                    )}
                     {!selectedProject.isActive && (
                       <span className="px-2 py-0.5 rounded bg-slate-500/10 border border-slate-500/20 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
                         {t.inactiveState}
                       </span>
                     )}
+                    {/* Progress bar moved here - inline bridge */}
+                    <div className="flex-1 min-w-[150px] ml-6 hidden md:flex items-center gap-3">
+                      <div className={`flex-1 h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
+                        <div
+                          className={`h-full rounded-full transition-all ${selectedProject.status === 'completed' ? 'bg-[#FF5500]' :
+                            selectedProject.isActive ? 'bg-[#FF5500]' : 'bg-slate-500'
+                            }`}
+                          style={{ width: `${selectedProject.progress}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-bold text-[#FF5500] flex-shrink-0">{selectedProject.progress}%</span>
+                    </div>
                   </div>
-                  {/* Client + Team avatars row */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <p className="text-slate-500 text-xs font-light">{selectedProject.client}</p>
+                  {/* Client + Team avatars row - CONDENSED */}
+                  <div className="flex items-center gap-3">
+                    <p className="text-slate-500 text-[10px] font-medium uppercase tracking-wider">{selectedProject.client}</p>
+                    <div className="h-3 w-px bg-slate-500/20" />
                     {selectedProject.teamMembers.length > 0 && (
                       <div className="flex items-center">
                         {selectedProject.teamMembers.slice(0, 5).map((mid, idx) => {
@@ -1069,8 +1124,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                       </div>
                     )}
                   </div>
-                  {/* Progress bar inline in header */}
-                  <div className="flex items-center gap-3">
+                  {/* Mobile progress bar - fallback */}
+                  <div className="flex md:hidden items-center gap-3 mt-2">
                     <div className={`flex-1 h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
                       <div
                         className={`h-full rounded-full transition-all ${selectedProject.status === 'completed' ? 'bg-[#FF5500]' :
@@ -1090,7 +1145,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                       title={lang === 'pt' ? 'Entregar Modelo' : 'Deliver Model'}
                     >
                       <Package size={16} />
-                      <span className="hidden sm:inline text-xs">{lang === 'pt' ? 'Entregar' : 'Deliver'}</span>
+                      <span className="hidden sm:inline text-xs">{t.deliver}</span>
                     </button>
                   )}
                   <button
@@ -1136,6 +1191,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                               type="date"
                               value={logForm.date}
                               onChange={(e) => setLogForm({ ...logForm, date: e.target.value })}
+                              onKeyDown={(e) => e.key === 'Enter' && handleAddWorkLog()}
                               className={`flex-1 px-2 py-1.5 rounded-lg border text-xs outline-none ${isDark ? 'bg-[#0d1117] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
                             />
                             <input
@@ -1145,6 +1201,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                               placeholder="Hrs"
                               value={logForm.hours}
                               onChange={(e) => setLogForm({ ...logForm, hours: e.target.value })}
+                              onKeyDown={(e) => e.key === 'Enter' && handleAddWorkLog()}
                               className={`w-16 px-2 py-1.5 rounded-lg border text-xs outline-none ${isDark ? 'bg-[#0d1117] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
                             />
                           </div>
@@ -1154,6 +1211,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                               placeholder={t.logDescription}
                               value={logForm.description}
                               onChange={(e) => setLogForm({ ...logForm, description: e.target.value })}
+                              onKeyDown={(e) => e.key === 'Enter' && handleAddWorkLog()}
                               className={`flex-1 px-2 py-1.5 rounded-lg border text-xs outline-none ${isDark ? 'bg-[#0d1117] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
                             />
                             <button
@@ -1168,20 +1226,57 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                         </div>
                       </div>
 
-                      {/* Log list */}
-                      {selectedProject.workLogs && selectedProject.workLogs.length > 0 && (
-                        <div className="p-3 space-y-1.5 max-h-[300px] overflow-y-auto custom-scrollbar">
-                          {selectedProject.workLogs.map((log) => (
-                            <div key={log.id} className={`flex justify-between items-center px-3 py-2 rounded-xl text-xs border transition-colors ${isDark ? 'bg-white/[0.02] border-white/5 hover:bg-white/5' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>
-                              <div className="flex flex-col">
-                                <span className={`font-mono opacity-50 text-[10px] ${isDark ? 'text-white' : 'text-slate-900'}`}>{log.date}</span>
-                                <span className={`text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{log.description || 'No description'}</span>
-                              </div>
-                              <span className="font-bold font-mono text-[#FF5500]">{log.hours}h</span>
+                      {/* Date range filter + Log list */}
+                      {selectedProject.workLogs && selectedProject.workLogs.length > 0 && (() => {
+                        const filtered = selectedProject.workLogs.filter(log => {
+                          if (logFilter.from && log.date < logFilter.from) return false;
+                          if (logFilter.to && log.date > logFilter.to) return false;
+                          return true;
+                        });
+                        const filteredTotal = filtered.reduce((sum, l) => sum + l.hours, 0);
+                        return (
+                          <>
+                            {/* Filter bar */}
+                            <div className={`px-3 py-2 border-b flex items-center gap-2 flex-wrap ${isDark ? 'border-white/5 bg-[#0d1117]' : 'border-slate-100 bg-slate-50'}`}>
+                              <span className={`text-[10px] font-bold uppercase tracking-wide ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>De</span>
+                              <input
+                                type="date"
+                                value={logFilter.from}
+                                onChange={e => setLogFilter(f => ({ ...f, from: e.target.value }))}
+                                className={`px-2 py-1 rounded-md border text-xs outline-none ${isDark ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
+                              />
+                              <span className={`text-[10px] font-bold uppercase tracking-wide ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Até</span>
+                              <input
+                                type="date"
+                                value={logFilter.to}
+                                onChange={e => setLogFilter(f => ({ ...f, to: e.target.value }))}
+                                className={`px-2 py-1 rounded-md border text-xs outline-none ${isDark ? 'bg-[#151A23] border-white/10 text-white focus:border-[#FF5500]' : 'bg-white border-slate-200'}`}
+                              />
+                              {(logFilter.from || logFilter.to) && (
+                                <button
+                                  onClick={() => setLogFilter({ from: '', to: '' })}
+                                  className="text-[10px] text-slate-400 hover:text-red-400 ml-auto"
+                                >✕ limpar</button>
+                              )}
+                              <span className="ml-auto text-[10px] font-bold text-[#FF5500]">{filteredTotal}h</span>
                             </div>
-                          ))}
-                        </div>
-                      )}
+                            {/* Log items */}
+                            <div className="p-3 space-y-2 overflow-y-auto custom-scrollbar">
+                              {filtered.length === 0 ? (
+                                <p className="text-center text-xs text-slate-500 py-4">Nenhum registro neste período</p>
+                              ) : filtered.map((log) => (
+                                <div key={log.id} className={`flex justify-between items-center p-3 rounded-xl border transition-colors ${isDark ? 'bg-white/[0.02] border-white/5 hover:bg-white/5' : 'bg-slate-50 border-slate-100 hover:bg-slate-100'}`}>
+                                  <div className="flex flex-col gap-0.5">
+                                    <span className={`font-mono text-[10px] opacity-50 ${isDark ? 'text-white' : 'text-slate-900'}`}>{log.date}</span>
+                                    <span className={`text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{log.description || 'No description'}</span>
+                                  </div>
+                                  <span className="font-bold font-mono text-[#FF5500] text-sm">{log.hours}h</span>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
 
@@ -1205,6 +1300,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                           placeholder={t.taskTitle}
                           value={taskForm.title}
                           onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+                          onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
                           className={`w-full px-2 py-1.5 rounded-lg border text-xs outline-none ${isDark ? 'bg-[#0d1117] border-white/10 text-white focus:border-[#FF5500]' : 'bg-slate-50 border-slate-200'}`}
                         />
                         <div className="flex gap-2">
@@ -1336,8 +1432,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
                           selectedProject.notes.map(note => (
                             <div key={note.id} className={`p-4 rounded-2xl rounded-tl-none border text-sm relative group ${isDark ? 'bg-[#050505] border-white/10' : 'bg-slate-50 border-slate-200'}`}>
                               {note.imageUrl && (
-                                <div className="mb-2">
-                                  <img src={note.imageUrl} alt="Attachment" className="max-w-full rounded-lg border border-slate-500/20 max-h-48 object-contain" />
+                                <div className="mb-2 overflow-hidden rounded-lg border border-slate-500/20 group/img relative cursor-zoom-in">
+                                  <img
+                                    src={note.imageUrl}
+                                    alt="Attachment"
+                                    onClick={() => setExpandedImage(note.imageUrl)}
+                                    className="max-w-full max-h-48 object-contain transition-transform duration-300 group-hover/img:scale-105"
+                                  />
+                                  <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-colors pointer-events-none" />
                                 </div>
                               )}
                               <p className={`mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{note.content}</p>
@@ -1363,83 +1465,86 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
           </div>
         </div>,
         document.body
-      )}
+      )
+      }
 
       {/* Generate Report Modal */}
-      {isReportModalOpen && createPortal(
-        <div
-          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
-          onClick={() => setIsReportModalOpen(false)}
-        >
+      {
+        isReportModalOpen && createPortal(
           <div
-            className={`w-full max-w-lg rounded-[25px] p-6 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+            onClick={() => setIsReportModalOpen(false)}
           >
-            <h2 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.reportSettings}</h2>
+            <div
+              className={`w-full max-w-lg rounded-[20px] p-6 shadow-2xl relative overflow-hidden animate-scale-in ${isDark ? 'bg-[#151A23] border border-white/10' : 'bg-white border border-slate-200'}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.reportSettings}</h2>
 
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">{t.dateRange}</label>
-                <div className="flex gap-4">
-                  <input
-                    type="date"
-                    value={reportFilters.startDate}
-                    onChange={(e) => setReportFilters({ ...reportFilters, startDate: e.target.value })}
-                    className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
-                  />
-                  <input
-                    type="date"
-                    value={reportFilters.endDate}
-                    onChange={(e) => setReportFilters({ ...reportFilters, endDate: e.target.value })}
-                    className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
-                  />
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">{t.dateRange}</label>
+                  <div className="flex gap-4">
+                    <input
+                      type="date"
+                      value={reportFilters.startDate}
+                      onChange={(e) => setReportFilters({ ...reportFilters, startDate: e.target.value })}
+                      className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
+                    />
+                    <input
+                      type="date"
+                      value={reportFilters.endDate}
+                      onChange={(e) => setReportFilters({ ...reportFilters, endDate: e.target.value })}
+                      className={`flex-1 p-3 rounded-xl border text-sm outline-none ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200'}`}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">{t.selectProjects}</label>
-                <div className={`max-h-40 overflow-y-auto border rounded-xl p-2 custom-scrollbar ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-                  {projects.map(p => (
-                    <div
-                      key={p.id}
-                      onClick={() => toggleProjectSelection(p.id)}
-                      className={`p-2 rounded-lg flex items-center gap-3 cursor-pointer hover:bg-white/5 transition-colors`}
-                    >
-                      <div className={`w-4 h-4 rounded border flex items-center justify-center ${reportFilters.selectedProjectIds.includes(p.id)
-                        ? 'bg-[#FF5500] border-[#FF5500]'
-                        : 'border-slate-500'
-                        }`}>
-                        {reportFilters.selectedProjectIds.includes(p.id) && <CheckSquare size={10} className="text-white" />}
+                <div>
+                  <label className="text-xs font-bold uppercase text-slate-500 mb-1 block">{t.selectProjects}</label>
+                  <div className={`max-h-40 overflow-y-auto border rounded-xl p-2 custom-scrollbar ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                    {projects.map(p => (
+                      <div
+                        key={p.id}
+                        onClick={() => toggleProjectSelection(p.id)}
+                        className={`p-2 rounded-lg flex items-center gap-3 cursor-pointer hover:bg-white/5 transition-colors`}
+                      >
+                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${reportFilters.selectedProjectIds.includes(p.id)
+                          ? 'bg-[#FF5500] border-[#FF5500]'
+                          : 'border-slate-500'
+                          }`}>
+                          {reportFilters.selectedProjectIds.includes(p.id) && <CheckSquare size={10} className="text-white" />}
+                        </div>
+                        <span className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{p.name}</span>
                       </div>
-                      <span className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{p.name}</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2 text-right">
+                    {reportFilters.selectedProjectIds.length === 0 ? t.allProjects : `${reportFilters.selectedProjectIds.length} projects selected`}
+                  </p>
                 </div>
-                <p className="text-xs text-slate-500 mt-2 text-right">
-                  {reportFilters.selectedProjectIds.length === 0 ? t.allProjects : `${reportFilters.selectedProjectIds.length} projects selected`}
-                </p>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setIsReportModalOpen(false)}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
+                >
+                  {t.cancel}
+                </button>
+                <button
+                  onClick={generatePDF}
+                  className="bg-[#FF5500] hover:bg-[#e04b00] text-white font-bold py-2 px-6 rounded-xl shadow-lg flex items-center gap-2"
+                >
+                  <FileDown size={18} />
+                  {t.downloadPDF}
+                </button>
               </div>
             </div>
-
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setIsReportModalOpen(false)}
-                className={`px-4 py-2 rounded-xl text-sm font-bold ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}
-              >
-                {t.cancel}
-              </button>
-              <button
-                onClick={generatePDF}
-                className="bg-[#FF5500] hover:bg-[#e04b00] text-white font-bold py-2 px-6 rounded-xl shadow-lg flex items-center gap-2"
-              >
-                <FileDown size={18} />
-                {t.downloadPDF}
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-    </div>
+          </div>,
+          document.body
+        )
+      }
+    </div >
   );
 };

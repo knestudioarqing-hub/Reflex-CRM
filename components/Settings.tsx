@@ -15,14 +15,14 @@ interface SettingsProps {
   setMembers?: React.Dispatch<React.SetStateAction<Member[]>>;
 }
 
-export const Settings: React.FC<SettingsProps> = ({ 
-  branding, setBranding, lang, theme, 
-  projects = [], members = [], setProjects, setMembers 
+export const Settings: React.FC<SettingsProps> = ({
+  branding, setBranding, lang, theme,
+  projects = [], members = [], setProjects, setMembers
 }) => {
   const t = translations[lang];
   const isDark = theme === 'dark';
   const [localBranding, setLocalBranding] = useState<Branding>(branding);
-  
+
   // Data Export/Import States
   const [importString, setImportString] = useState('');
   const [exportString, setExportString] = useState('');
@@ -32,6 +32,7 @@ export const Settings: React.FC<SettingsProps> = ({
   const handleSave = () => {
     setBranding(localBranding);
   };
+
 
   const handleExport = () => {
     const data: BackupData = {
@@ -57,7 +58,7 @@ export const Settings: React.FC<SettingsProps> = ({
     try {
       if (!importString) return;
       const data: BackupData = JSON.parse(importString);
-      
+
       // Basic validation
       if (data.projects && Array.isArray(data.projects) && setProjects) {
         setProjects(data.projects);
@@ -69,7 +70,7 @@ export const Settings: React.FC<SettingsProps> = ({
         setBranding(data.branding);
         setLocalBranding(data.branding);
       }
-      
+
       setImportStatus('success');
       setImportString(''); // Clear after success
       setTimeout(() => setImportStatus('idle'), 3000);
@@ -99,23 +100,7 @@ export const Settings: React.FC<SettingsProps> = ({
           />
         </div>
 
-        <div>
-          <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{t.brandColor}</label>
-          <div className="flex gap-4 items-center">
-            <input
-              type="color"
-              value={localBranding.primaryColor}
-              onChange={(e) => setLocalBranding({ ...localBranding, primaryColor: e.target.value })}
-              className="h-12 w-24 bg-transparent cursor-pointer rounded-lg border-none"
-            />
-            <input
-              type="text"
-              value={localBranding.primaryColor}
-              onChange={(e) => setLocalBranding({ ...localBranding, primaryColor: e.target.value })}
-              className={`flex-1 border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] font-mono ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`}
-            />
-          </div>
-        </div>
+
 
         <div>
           <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{t.uploadLogo}</label>
@@ -140,80 +125,71 @@ export const Settings: React.FC<SettingsProps> = ({
         </div>
       </div>
 
-      {/* Preview Section */}
-      <div className={`backdrop-blur-md border rounded-3xl p-8 text-center opacity-100 ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white/80 border-slate-200'}`}>
-        <h3 className={`text-lg font-medium mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Preview</h3>
-        <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg border ${isDark ? 'bg-[#050505] border-slate-800' : 'bg-white border-slate-200 shadow-sm'}`}>
-            {localBranding.logoUrl && <img src={localBranding.logoUrl} className="w-6 h-6 object-contain" />}
-            <span style={{ color: localBranding.primaryColor }} className="font-bold">{localBranding.companyName}</span>
-        </div>
-      </div>
-
       {/* Data Management Section (Export/Import) */}
       <div className={`backdrop-blur-md border rounded-3xl p-5 md:p-8 shadow-xl space-y-6 mt-10 ${isDark ? 'bg-[#151A23] border-white/10' : 'bg-white/80 border-slate-200'}`}>
-         <div>
-            <h3 className={`text-xl font-bold mb-2 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-               <Download size={20} /> {t.dataManagement}
-            </h3>
-            <p className="text-slate-400 text-sm mb-6">Sync your data between devices manually.</p>
-         </div>
+        <div>
+          <h3 className={`text-xl font-bold mb-2 flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <Download size={20} /> {t.dataManagement}
+          </h3>
+          <p className="text-slate-400 text-sm mb-6">Sync your data between devices manually.</p>
+        </div>
 
-         {/* Export */}
-         <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-            <h4 className={`font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{t.exportData}</h4>
-            <p className="text-xs text-slate-500 mb-4">{t.exportDescription}</p>
-            
-            {!exportString ? (
-               <button 
-                  onClick={handleExport}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${isDark ? 'border-[#FF5500]/30 text-[#FF5500] hover:bg-[#FF5500]/10' : 'border-[#FF5500] text-[#FF5500] hover:bg-orange-50'}`}
-               >
-                  Generate Data Code
-               </button>
-            ) : (
-               <div className="space-y-2">
-                  <textarea 
-                     readOnly
-                     value={exportString}
-                     className={`w-full h-24 p-3 rounded-lg text-xs font-mono resize-none outline-none border ${isDark ? 'bg-[#151A23] border-slate-700 text-slate-400' : 'bg-white border-slate-200 text-slate-600'}`}
-                  />
-                  <button 
-                     onClick={handleCopy}
-                     className="flex items-center gap-2 text-xs font-bold text-[#FF5500] hover:text-[#e04b00] transition-colors"
-                  >
-                     {copySuccess ? <CheckCircle size={14} /> : <Copy size={14} />}
-                     {copySuccess ? 'Copied!' : t.copyToClipboard}
-                  </button>
-               </div>
-            )}
-         </div>
+        {/* Export */}
+        <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+          <h4 className={`font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{t.exportData}</h4>
+          <p className="text-xs text-slate-500 mb-4">{t.exportDescription}</p>
 
-         {/* Import */}
-         <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-            <h4 className={`font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{t.importData}</h4>
-            <p className="text-xs text-slate-500 mb-4">{t.importDescription}</p>
-            
-            <textarea 
-               value={importString}
-               onChange={(e) => setImportString(e.target.value)}
-               placeholder="Paste data code here..."
-               className={`w-full h-24 p-3 rounded-lg text-xs font-mono resize-none outline-none border mb-4 ${isDark ? 'bg-[#151A23] border-slate-700 text-white placeholder-slate-600' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'}`}
-            />
-            
-            <div className="flex items-center justify-between">
-               <button 
-                  onClick={handleImport}
-                  disabled={!importString}
-                  className="flex items-center gap-2 px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-               >
-                  <Upload size={16} />
-                  {t.loadData}
-               </button>
-               
-               {importStatus === 'success' && <span className="text-[#FF5500] text-xs font-bold animate-pulse">{t.importSuccess}</span>}
-               {importStatus === 'error' && <span className="text-red-500 text-xs font-bold">{t.importError}</span>}
+          {!exportString ? (
+            <button
+              onClick={handleExport}
+              className={`px-4 py-2 rounded-lg text-sm font-bold border transition-all ${isDark ? 'border-[#FF5500]/30 text-[#FF5500] hover:bg-[#FF5500]/10' : 'border-[#FF5500] text-[#FF5500] hover:bg-orange-50'}`}
+            >
+              Generate Data Code
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <textarea
+                readOnly
+                value={exportString}
+                className={`w-full h-24 p-3 rounded-lg text-xs font-mono resize-none outline-none border ${isDark ? 'bg-[#151A23] border-slate-700 text-slate-400' : 'bg-white border-slate-200 text-slate-600'}`}
+              />
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-2 text-xs font-bold text-[#FF5500] hover:text-[#e04b00] transition-colors"
+              >
+                {copySuccess ? <CheckCircle size={14} /> : <Copy size={14} />}
+                {copySuccess ? 'Copied!' : t.copyToClipboard}
+              </button>
             </div>
-         </div>
+          )}
+        </div>
+
+        {/* Import */}
+        <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+          <h4 className={`font-bold mb-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{t.importData}</h4>
+          <p className="text-xs text-slate-500 mb-4">{t.importDescription}</p>
+
+          <textarea
+            value={importString}
+            onChange={(e) => setImportString(e.target.value)}
+            placeholder="Paste data code here..."
+            className={`w-full h-24 p-3 rounded-lg text-xs font-mono resize-none outline-none border mb-4 ${isDark ? 'bg-[#151A23] border-slate-700 text-white placeholder-slate-600' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'}`}
+          />
+
+          <div className="flex items-center justify-between">
+            <button
+              onClick={handleImport}
+              disabled={!importString}
+              className="flex items-center gap-2 px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              <Upload size={16} />
+              {t.loadData}
+            </button>
+
+            {importStatus === 'success' && <span className="text-[#FF5500] text-xs font-bold animate-pulse">{t.importSuccess}</span>}
+            {importStatus === 'error' && <span className="text-red-500 text-xs font-bold">{t.importError}</span>}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -81,13 +81,14 @@ const App: React.FC = () => {
     }
   }, [projects, members, branding, theme, lang, isDataLoaded]);
 
-  // Apply brand color to CSS variable globally whenever it changes
-  useEffect(() => {
-    document.documentElement.style.setProperty('--brand-color', branding.primaryColor);
-  }, [branding.primaryColor]);
+
 
   const toggleLanguage = () => {
-    setLang(prev => prev === 'en' ? 'pt' : 'en');
+    setLang(prev => {
+      if (prev === 'en') return 'pt';
+      if (prev === 'pt') return 'es';
+      return 'en';
+    });
   };
 
   const toggleTheme = () => {
@@ -176,7 +177,7 @@ const App: React.FC = () => {
               </div>
               <div className="hidden sm:block text-right">
                 <p className={`text-sm font-bold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>Gianfranco</p>
-                <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Projetista Elétrico</p>
+                <p className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">{t.electricalDesigner}</p>
               </div>
               <LogOut size={18} className="text-slate-500 group-hover:text-red-400 transition-colors ml-1 md:ml-2 hidden md:block" />
             </div>

@@ -27,7 +27,8 @@ const DEFAULT_PROJECT: Project = {
   history: [],
   workLogs: [],
   tasks: [],
-  notes: []
+  notes: [],
+  coordinator: ''
 };
 
 export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, members, lang, theme }) => {
@@ -53,7 +54,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
       // Edit Mode
       const originalProject = projects.find(p => p.id === currentProject.id);
       const changes: string[] = [];
-      
+
       if (originalProject) {
         if (originalProject.name !== currentProject.name) changes.push(`Name changed to "${currentProject.name}"`);
         if (originalProject.status !== currentProject.status) changes.push(`Status changed to ${currentProject.status}`);
@@ -61,17 +62,19 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
         if (originalProject.progress !== currentProject.progress) changes.push(`Progress updated to ${currentProject.progress}%`);
         if (originalProject.startDate !== currentProject.startDate) changes.push(`Start date updated to ${currentProject.startDate}`);
         if (originalProject.deadline !== currentProject.deadline) changes.push(`Delivery date changed to ${currentProject.deadline}`);
-        
+        if (originalProject.coordinator !== currentProject.coordinator) changes.push(`Coordinator changed to "${currentProject.coordinator}"`);
+
+
         // Members check
         const addedMembers = currentProject.teamMembers.filter(id => !originalProject.teamMembers.includes(id));
         const removedMembers = originalProject.teamMembers.filter(id => !currentProject.teamMembers.includes(id));
-        
+
         if (addedMembers.length > 0) changes.push(`Added ${addedMembers.length} member(s)`);
         if (removedMembers.length > 0) changes.push(`Removed ${removedMembers.length} member(s)`);
       }
 
       let updatedProject = { ...currentProject };
-      
+
       if (changes.length > 0) {
         const historyEntry = createHistoryEntry('updated', changes.join('; '));
         updatedProject.history = [historyEntry, ...(updatedProject.history || [])];
@@ -85,7 +88,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
       // Ensure tasks and notes array is initialized
       setProjects([...projects, { ...currentProject, id: newId, history: [historyEntry], tasks: [], notes: [] }]);
     }
-    
+
     setIsEditing(false);
     setCurrentProject(DEFAULT_PROJECT);
     setActiveTab('details');
@@ -94,9 +97,9 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
 
   const handleEdit = (project: Project) => {
     setCurrentProject({
-        ...project,
-        totalScope: project.totalScope || 0,
-        completedScope: project.completedScope || 0
+      ...project,
+      totalScope: project.totalScope || 0,
+      completedScope: project.completedScope || 0
     });
     setIsEditing(true);
     setActiveTab('details');
@@ -104,7 +107,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
+    if (window.confirm(t.confirmDeleteProject)) {
       setProjects(projects.filter(p => p.id !== id));
     }
   };
@@ -119,40 +122,43 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
   };
 
   const formatDate = (isoString: string) => {
-    return new Date(isoString).toLocaleString(lang === 'pt' ? 'pt-BR' : 'en-US');
+    let locale = 'en-US';
+    if (lang === 'pt') locale = 'pt-BR';
+    else if (lang === 'es') locale = 'es-ES';
+    return new Date(isoString).toLocaleString(locale);
   };
 
   const handleScopeChange = (field: 'total' | 'completed', value: string) => {
     const val = parseInt(value) || 0;
-    
+
     let newTotal = field === 'total' ? val : (currentProject.totalScope || 0);
     let newCompleted = field === 'completed' ? val : (currentProject.completedScope || 0);
 
     // Calculate percentage based on KPI inputs
     let newProgress = 0;
     if (newTotal > 0) {
-        newProgress = Math.round((newCompleted / newTotal) * 100);
-        if (newProgress > 100) newProgress = 100;
+      newProgress = Math.round((newCompleted / newTotal) * 100);
+      if (newProgress > 100) newProgress = 100;
     }
 
     setCurrentProject({
-        ...currentProject,
-        totalScope: newTotal,
-        completedScope: newCompleted,
-        progress: newProgress
+      ...currentProject,
+      totalScope: newTotal,
+      completedScope: newCompleted,
+      progress: newProgress
     });
   };
 
   // Filter Logic for History Tab
   const filteredProjectHistory = (currentProject.history || []).filter(entry => {
-    const matchesSearch = 
-        entry.details.toLowerCase().includes(historyFilters.search.toLowerCase()) || 
-        entry.user.toLowerCase().includes(historyFilters.search.toLowerCase());
-    
+    const matchesSearch =
+      entry.details.toLowerCase().includes(historyFilters.search.toLowerCase()) ||
+      entry.user.toLowerCase().includes(historyFilters.search.toLowerCase());
+
     const entryDate = new Date(entry.timestamp).getTime();
-    const matchesStart = historyFilters.start ? entryDate >= new Date(historyFilters.start).setHours(0,0,0,0) : true;
-    const matchesEnd = historyFilters.end ? entryDate <= new Date(historyFilters.end).setHours(23,59,59,999) : true;
-    
+    const matchesStart = historyFilters.start ? entryDate >= new Date(historyFilters.start).setHours(0, 0, 0, 0) : true;
+    const matchesEnd = historyFilters.end ? entryDate <= new Date(historyFilters.end).setHours(23, 59, 59, 999) : true;
+
     return matchesSearch && matchesStart && matchesEnd;
   });
 
@@ -172,70 +178,80 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
           </h2>
           {currentProject.id && (
             <div className="flex bg-black/10 dark:bg-white/10 p-1 rounded-xl">
-               <button 
-                  onClick={() => setActiveTab('details')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'details' ? 'bg-[#FF5500] text-white shadow-lg' : 'text-slate-500 hover:text-slate-400'}`}
-               >
-                 {t.details || "Details"}
-               </button>
-               <button 
-                  onClick={() => setActiveTab('history')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-[#FF5500] text-white shadow-lg' : 'text-slate-500 hover:text-slate-400'}`}
-               >
-                 <History size={16} />
-                 <span className="hidden sm:inline">{t.history}</span>
-               </button>
+              <button
+                onClick={() => setActiveTab('details')}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'details' ? 'bg-[#FF5500] text-white shadow-lg' : 'text-slate-500 hover:text-slate-400'}`}
+              >
+                {t.details || "Details"}
+              </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'history' ? 'bg-[#FF5500] text-white shadow-lg' : 'text-slate-500 hover:text-slate-400'}`}
+              >
+                <History size={16} />
+                <span className="hidden sm:inline">{t.history}</span>
+              </button>
             </div>
           )}
         </div>
-        
+
         {activeTab === 'details' ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div className="space-y-4">
                 {/* Active/Inactive Switch */}
                 <div className={`p-4 rounded-xl border flex items-center justify-between ${isDark ? 'bg-[#050505] border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-                   <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-full ${currentProject.isActive ? 'bg-[#FF5500]/20 text-[#FF5500]' : 'bg-slate-500/20 text-slate-500'}`}>
-                         <Power size={18} />
-                      </div>
-                      <div>
-                         <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.projectState}</p>
-                         <p className="text-xs text-slate-500">{currentProject.isActive ? t.activeState : t.inactiveState}</p>
-                      </div>
-                   </div>
-                   <button 
-                      type="button"
-                      onClick={() => setCurrentProject(prev => ({...prev, isActive: !prev.isActive}))}
-                      className={`w-12 h-6 rounded-full p-1 transition-colors relative ${currentProject.isActive ? 'bg-[#FF5500]' : 'bg-slate-600'}`}
-                   >
-                      <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${currentProject.isActive ? 'translate-x-6' : 'translate-x-0'}`} />
-                   </button>
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-full ${currentProject.isActive ? 'bg-[#FF5500]/20 text-[#FF5500]' : 'bg-slate-500/20 text-slate-500'}`}>
+                      <Power size={18} />
+                    </div>
+                    <div>
+                      <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.projectState}</p>
+                      <p className="text-xs text-slate-500">{currentProject.isActive ? t.activeState : t.inactiveState}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentProject(prev => ({ ...prev, isActive: !prev.isActive }))}
+                    className={`w-12 h-6 rounded-full p-1 transition-colors relative ${currentProject.isActive ? 'bg-[#FF5500]' : 'bg-slate-600'}`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${currentProject.isActive ? 'translate-x-6' : 'translate-x-0'}`} />
+                  </button>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-1">{t.projectName}</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={currentProject.name}
-                    onChange={(e) => setCurrentProject({...currentProject, name: e.target.value})}
+                    onChange={(e) => setCurrentProject({ ...currentProject, name: e.target.value })}
                     className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-1">{t.clientName}</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={currentProject.client}
-                    onChange={(e) => setCurrentProject({...currentProject, client: e.target.value})}
+                    onChange={(e) => setCurrentProject({ ...currentProject, client: e.target.value })}
+                    className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-1">{t.projectCoordinator}</label>
+                  <input
+                    type="text"
+                    value={currentProject.coordinator || ''}
+                    onChange={(e) => setCurrentProject({ ...currentProject, coordinator: e.target.value })}
+                    placeholder="E.g. Gianfranco"
                     className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-400 mb-1">{t.status}</label>
-                  <select 
+                  <select
                     value={currentProject.status}
-                    onChange={(e) => setCurrentProject({...currentProject, status: e.target.value as any})}
+                    onChange={(e) => setCurrentProject({ ...currentProject, status: e.target.value as any })}
                     className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
                   >
                     <option value="planning">{t.statusPlanning}</option>
@@ -248,87 +264,87 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
 
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">{t.startDate}</label>
-                        <input 
-                            type="date" 
-                            value={currentProject.startDate}
-                            onChange={(e) => setCurrentProject({...currentProject, startDate: e.target.value})}
-                            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">{t.deliveryDate}</label>
-                        <input 
-                            type="date" 
-                            value={currentProject.deadline}
-                            onChange={(e) => setCurrentProject({...currentProject, deadline: e.target.value})}
-                            className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
-                        />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">{t.startDate}</label>
+                    <input
+                      type="date"
+                      value={currentProject.startDate}
+                      onChange={(e) => setCurrentProject({ ...currentProject, startDate: e.target.value })}
+                      className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">{t.deliveryDate}</label>
+                    <input
+                      type="date"
+                      value={currentProject.deadline}
+                      onChange={(e) => setCurrentProject({ ...currentProject, deadline: e.target.value })}
+                      className={`w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-[#FF5500] transition-all ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+                    />
+                  </div>
                 </div>
 
                 {/* KPI PROGRESS CALCULATOR */}
                 <div className={`p-5 rounded-2xl border relative ${isDark ? 'bg-[#1A1F2C]/50 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
-                    <div className="flex items-center gap-2 mb-4">
-                        <Calculator size={16} className="text-[#FF5500]" />
-                        <h4 className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.kpiTitle}</h4>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{t.totalScope}</label>
-                            <input 
-                                type="number" 
-                                min="0"
-                                value={currentProject.totalScope || 0}
-                                onChange={(e) => handleScopeChange('total', e.target.value)}
-                                className={`w-full px-3 py-2 rounded-lg text-sm font-mono border focus:outline-none focus:border-[#FF5500] ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{t.completedScope}</label>
-                            <input 
-                                type="number" 
-                                min="0"
-                                value={currentProject.completedScope || 0}
-                                onChange={(e) => handleScopeChange('completed', e.target.value)}
-                                className={`w-full px-3 py-2 rounded-lg text-sm font-mono border focus:outline-none focus:border-[#FF5500] ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
-                            />
-                        </div>
-                    </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Calculator size={16} className="text-[#FF5500]" />
+                    <h4 className={`text-sm font-bold uppercase tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.kpiTitle}</h4>
+                  </div>
 
+                  <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <div className="flex justify-between items-end mb-2">
-                             <label className="block text-sm font-medium text-slate-400">{t.progress}</label>
-                             <span className={`text-xl font-bold ${isDark ? 'text-[#FF5500]' : 'text-[#FF5500]'}`}>
-                                 {currentProject.progress}%
-                             </span>
-                        </div>
-                        <input 
-                            type="range" 
-                            min="0" 
-                            max="100" 
-                            // If user typed in Scope, use calculated progress, else allow manual slide
-                            value={currentProject.progress}
-                            onChange={(e) => {
-                                // Manual override clears KPI inputs to avoid confusion
-                                setCurrentProject({
-                                    ...currentProject, 
-                                    progress: parseInt(e.target.value),
-                                    totalScope: 0,
-                                    completedScope: 0
-                                })
-                            }}
-                            className={`w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#FF5500] ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}
-                        />
-                        {(currentProject.totalScope || 0) > 0 && (
-                            <p className="text-[10px] text-slate-500 mt-2 text-right italic flex items-center justify-end gap-1">
-                                <CheckCircle size={10} />
-                                {t.autoCalc}
-                            </p>
-                        )}
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{t.totalScope}</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={currentProject.totalScope || 0}
+                        onChange={(e) => handleScopeChange('total', e.target.value)}
+                        className={`w-full px-3 py-2 rounded-lg text-sm font-mono border focus:outline-none focus:border-[#FF5500] ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                      />
                     </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">{t.completedScope}</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={currentProject.completedScope || 0}
+                        onChange={(e) => handleScopeChange('completed', e.target.value)}
+                        className={`w-full px-3 py-2 rounded-lg text-sm font-mono border focus:outline-none focus:border-[#FF5500] ${isDark ? 'bg-[#050505] border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'}`}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-end mb-2">
+                      <label className="block text-sm font-medium text-slate-400">{t.progress}</label>
+                      <span className={`text-xl font-bold ${isDark ? 'text-[#FF5500]' : 'text-[#FF5500]'}`}>
+                        {currentProject.progress}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      // If user typed in Scope, use calculated progress, else allow manual slide
+                      value={currentProject.progress}
+                      onChange={(e) => {
+                        // Manual override clears KPI inputs to avoid confusion
+                        setCurrentProject({
+                          ...currentProject,
+                          progress: parseInt(e.target.value),
+                          totalScope: 0,
+                          completedScope: 0
+                        })
+                      }}
+                      className={`w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#FF5500] ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}
+                    />
+                    {(currentProject.totalScope || 0) > 0 && (
+                      <p className="text-[10px] text-slate-500 mt-2 text-right italic flex items-center justify-end gap-1">
+                        <CheckCircle size={10} />
+                        {t.autoCalc}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
               </div>
@@ -338,18 +354,16 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
               <label className="block text-sm font-medium text-slate-400 mb-3">{t.selectMembers}</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {members.length > 0 ? members.map(member => (
-                  <div 
+                  <div
                     key={member.id}
                     onClick={() => toggleMember(member.id)}
-                    className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-2 ${
-                      currentProject.teamMembers.includes(member.id) 
-                      ? 'bg-[#FF5500]/20 border-[#FF5500] text-[#FF5500] dark:text-white' 
+                    className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-2 ${currentProject.teamMembers.includes(member.id)
+                      ? 'bg-[#FF5500]/20 border-[#FF5500] text-[#FF5500] dark:text-white'
                       : isDark ? 'bg-[#050505] border-slate-700 text-slate-400 hover:border-slate-500' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300'
-                    }`}
+                      }`}
                   >
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                      currentProject.teamMembers.includes(member.id) ? 'bg-[#FF5500] text-white' : isDark ? 'bg-slate-700' : 'bg-slate-300 text-slate-600'
-                    }`}>
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${currentProject.teamMembers.includes(member.id) ? 'bg-[#FF5500] text-white' : isDark ? 'bg-slate-700' : 'bg-slate-300 text-slate-600'
+                      }`}>
                       {member.name.substring(0, 1)}
                     </div>
                     <span className="text-sm truncate">{member.name}</span>
@@ -362,81 +376,81 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
           </>
         ) : (
           <div className="mb-8">
-             {/* Filter Bar */}
-             <div className={`flex flex-wrap items-center gap-2 p-3 mb-4 rounded-xl border ${isDark ? 'bg-white/5 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-                <div className="flex items-center gap-1.5 flex-1 min-w-[150px] bg-black/10 dark:bg-black/30 rounded-lg px-2 py-1.5">
-                    <Search size={14} className="text-slate-500" />
-                    <input 
-                      type="text" 
-                      placeholder="Search..."
-                      value={historyFilters.search}
-                      onChange={(e) => setHistoryFilters({...historyFilters, search: e.target.value})}
-                      className="bg-transparent border-none outline-none text-xs w-full text-slate-700 dark:text-slate-300 placeholder-slate-500"
-                    />
-                </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                   <input 
-                      type="date" 
-                      value={historyFilters.start}
-                      onChange={(e) => setHistoryFilters({...historyFilters, start: e.target.value})}
-                      className={`text-xs p-1.5 rounded-lg border outline-none flex-1 sm:flex-none ${isDark ? 'bg-black/30 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
-                   />
-                   <span className="text-slate-500 text-xs">-</span>
-                   <input 
-                      type="date" 
-                      value={historyFilters.end}
-                      onChange={(e) => setHistoryFilters({...historyFilters, end: e.target.value})}
-                      className={`text-xs p-1.5 rounded-lg border outline-none flex-1 sm:flex-none ${isDark ? 'bg-black/30 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
-                   />
-                </div>
-                {(historyFilters.search || historyFilters.start || historyFilters.end) && (
-                   <button 
-                      onClick={() => setHistoryFilters({search: '', start: '', end: ''})}
-                      className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400"
-                   >
-                     <X size={14} />
-                   </button>
-                )}
-             </div>
+            {/* Filter Bar */}
+            <div className={`flex flex-wrap items-center gap-2 p-3 mb-4 rounded-xl border ${isDark ? 'bg-white/5 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+              <div className="flex items-center gap-1.5 flex-1 min-w-[150px] bg-black/10 dark:bg-black/30 rounded-lg px-2 py-1.5">
+                <Search size={14} className="text-slate-500" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={historyFilters.search}
+                  onChange={(e) => setHistoryFilters({ ...historyFilters, search: e.target.value })}
+                  className="bg-transparent border-none outline-none text-xs w-full text-slate-700 dark:text-slate-300 placeholder-slate-500"
+                />
+              </div>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <input
+                  type="date"
+                  value={historyFilters.start}
+                  onChange={(e) => setHistoryFilters({ ...historyFilters, start: e.target.value })}
+                  className={`text-xs p-1.5 rounded-lg border outline-none flex-1 sm:flex-none ${isDark ? 'bg-black/30 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
+                />
+                <span className="text-slate-500 text-xs">-</span>
+                <input
+                  type="date"
+                  value={historyFilters.end}
+                  onChange={(e) => setHistoryFilters({ ...historyFilters, end: e.target.value })}
+                  className={`text-xs p-1.5 rounded-lg border outline-none flex-1 sm:flex-none ${isDark ? 'bg-black/30 border-slate-700 text-slate-300' : 'bg-white border-slate-200 text-slate-700'}`}
+                />
+              </div>
+              {(historyFilters.search || historyFilters.start || historyFilters.end) && (
+                <button
+                  onClick={() => setHistoryFilters({ search: '', start: '', end: '' })}
+                  className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
 
-             <div className="h-96 overflow-y-auto custom-scrollbar pr-2">
-                {!filteredProjectHistory || filteredProjectHistory.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-slate-500 opacity-50">
-                    <History size={48} className="mb-4"/>
-                    <p>{!currentProject.history || currentProject.history.length === 0 ? t.noHistory : "No matching records found."}</p>
-                  </div>
-                ) : (
-                  <div className="relative border-l border-slate-700 ml-4 space-y-8">
-                    {filteredProjectHistory.map((entry, idx) => (
-                      <div key={entry.id} className="relative pl-6">
-                        <div className={`absolute -left-1.5 top-1 w-3 h-3 rounded-full border-2 ${idx === 0 ? 'bg-[#FF5500] border-[#FF5500]' : 'bg-[#050505] border-slate-500'}`}></div>
-                        <div className="flex flex-col gap-1">
-                          <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                            {formatDate(entry.timestamp)}
-                          </span>
-                          <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
-                            {entry.action === 'created' ? t.created : t.updated} by {entry.user}
-                          </span>
-                          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                            {entry.details}
-                          </p>
-                        </div>
+            <div className="h-96 overflow-y-auto custom-scrollbar pr-2">
+              {!filteredProjectHistory || filteredProjectHistory.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-slate-500 opacity-50">
+                  <History size={48} className="mb-4" />
+                  <p>{!currentProject.history || currentProject.history.length === 0 ? t.noHistory : "No matching records found."}</p>
+                </div>
+              ) : (
+                <div className="relative border-l border-slate-700 ml-4 space-y-8">
+                  {filteredProjectHistory.map((entry, idx) => (
+                    <div key={entry.id} className="relative pl-6">
+                      <div className={`absolute -left-1.5 top-1 w-3 h-3 rounded-full border-2 ${idx === 0 ? 'bg-[#FF5500] border-[#FF5500]' : 'bg-[#050505] border-slate-500'}`}></div>
+                      <div className="flex flex-col gap-1">
+                        <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                          {formatDate(entry.timestamp)}
+                        </span>
+                        <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                          {entry.action === 'created' ? t.created : t.updated} by {entry.user}
+                        </span>
+                        <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                          {entry.details}
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                )}
-             </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
         <div className={`flex justify-end gap-4 border-t pt-6 ${isDark ? 'border-white/5' : 'border-slate-200'}`}>
-          <button 
+          <button
             onClick={() => setIsEditing(false)}
             className={`px-6 py-3 rounded-xl transition-all ${isDark ? 'text-slate-400 hover:text-white hover:bg-white/5' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'}`}
           >
             {t.cancel}
           </button>
-          <button 
+          <button
             onClick={handleSave}
             className="px-8 py-3 rounded-xl bg-[#FF5500] hover:bg-[#e04b00] text-white font-bold shadow-lg shadow-[#FF5500]/20 transition-all transform hover:scale-105"
           >
@@ -455,7 +469,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
           <h1 className={`text-4xl font-light mb-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.projects}</h1>
           <p className="text-slate-500">Manage your BIM portfolio.</p>
         </div>
-        <button 
+        <button
           onClick={handleCreateNew}
           className="bg-[#FF5500] hover:bg-[#e04b00] text-white font-bold py-3 px-6 rounded-full transition-all flex items-center gap-2 shadow-[0_0_20px_-5px_rgba(255,85,0,0.4)]"
         >
@@ -467,17 +481,17 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.length === 0 ? (
           <div className="col-span-full py-20 text-center flex flex-col items-center">
-             <Briefcase size={48} className="mb-4 text-slate-500 opacity-50" />
-             <p className="text-slate-500 text-lg">{t.noProjects}</p>
+            <Briefcase size={48} className="mb-4 text-slate-500 opacity-50" />
+            <p className="text-slate-500 text-lg">{t.noProjects}</p>
           </div>
         ) : (
           projects.map(project => (
-            <div 
+            <div
               key={project.id}
-              className={`relative overflow-hidden p-5 md:p-6 rounded-[25px] border transition-all duration-300 group
-                ${isDark 
-                    ? `bg-[#151A23] border-white/10 shadow-2xl hover:-translate-y-1` 
-                    : 'bg-white border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1'
+              className={`relative overflow-hidden p-5 md:p-6 rounded-[20px] border transition-all duration-300 group
+                ${isDark
+                  ? `bg-[#151A23] border-white/10 shadow-2xl hover:-translate-y-1`
+                  : 'bg-white border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1'
                 }
               `}
             >
@@ -486,16 +500,16 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
 
               <div className="flex justify-between items-start mb-6">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold border ${isDark ? 'bg-[#1A1F2C] border-white/10 text-white' : 'bg-slate-100 border-slate-200 text-slate-700'}`}>
-                   {project.name.substring(0, 2).toUpperCase()}
+                  {project.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div className="flex gap-2">
-                  <button 
+                  <button
                     onClick={() => handleEdit(project)}
                     className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-white/10 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-400 hover:text-slate-900'}`}
                   >
                     <Edit2 size={16} />
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleDelete(project.id)}
                     className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-red-500/10 text-slate-400 hover:text-red-400' : 'hover:bg-red-50 text-slate-400 hover:text-red-500'}`}
                   >
@@ -504,59 +518,63 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
                 </div>
               </div>
 
-              <div className="mb-6">
-                 <h3 className={`text-xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{project.name}</h3>
-                 <p className="text-sm text-slate-500">{project.client}</p>
+              <div className="mb-4">
+                <h3 className={`text-xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{project.name}</h3>
+                <p className="text-sm text-slate-500">{project.client}</p>
+                {project.coordinator && (
+                  <p className={`text-[11px] mt-1 font-bold ${isDark ? 'text-[#FF5500]' : 'text-[#FF5500]'}`}>
+                    👤 {project.coordinator}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
-                 <div className={`p-3 rounded-[18px] border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-                    <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.startDate}</span>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                      {project.startDate || '-'}
-                    </span>
-                 </div>
-                 <div className={`p-3 rounded-[18px] border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-                    <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.deadline}</span>
-                    <span className={`text-xs font-mono font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{project.deadline}</span>
-                 </div>
+                <div className={`p-3 rounded-[18px] border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                  <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.startDate}</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                    {project.startDate || '-'}
+                  </span>
+                </div>
+                <div className={`p-3 rounded-[18px] border ${isDark ? 'bg-[#050505]/50 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+                  <span className="text-[10px] text-slate-500 uppercase font-bold block mb-1">{t.deadline}</span>
+                  <span className={`text-xs font-mono font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{project.deadline}</span>
+                </div>
               </div>
 
               <div className="flex items-center justify-between text-xs text-slate-500 font-bold mb-2">
-                 <span>{t.progress}</span>
-                 <span>{project.progress}%</span>
+                <span>{t.progress}</span>
+                <span>{project.progress}%</span>
               </div>
               <div className={`h-1.5 rounded-full overflow-hidden mb-6 ${isDark ? 'bg-[#1A1F2C]' : 'bg-slate-100'}`}>
                 <div className={`h-full rounded-full ${project.status === 'completed' ? 'bg-[#FF5500]' : 'bg-[#FF5500]'}`} style={{ width: `${project.progress}%` }} />
               </div>
 
               <div className={`pt-4 border-t flex items-center justify-between ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-                 <div className="flex -space-x-2">
-                    {project.teamMembers.slice(0, 3).map(mid => {
-                       const m = members.find(mem => mem.id === mid);
-                       if(!m) return null;
-                       return (
-                         <div key={mid} className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold border-2 ${isDark ? 'bg-slate-800 border-[#151A23] text-white' : 'bg-slate-200 border-white text-slate-700'}`} title={m.name}>
-                            {m.name.substring(0,1)}
-                         </div>
-                       )
-                    })}
-                    {project.teamMembers.length > 3 && (
-                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold border-2 ${isDark ? 'bg-slate-800 border-[#151A23] text-white' : 'bg-slate-200 border-white text-slate-700'}`}>
-                          +{project.teamMembers.length - 3}
-                       </div>
-                    )}
-                    {project.teamMembers.length === 0 && <span className="text-xs text-slate-500 italic">No team</span>}
-                 </div>
-                 
-                 {/* Status Badge moved here since LOD is gone */}
-                 <span className={`text-xs font-bold uppercase tracking-wider ${
-                    project.status === 'completed' ? 'text-[#FF5500]' : 
-                    project.status === 'modeling' ? 'text-blue-500' : 
+                <div className="flex -space-x-2">
+                  {project.teamMembers.slice(0, 3).map(mid => {
+                    const m = members.find(mem => mem.id === mid);
+                    if (!m) return null;
+                    return (
+                      <div key={mid} className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold border-2 ${isDark ? 'bg-slate-800 border-[#151A23] text-white' : 'bg-slate-200 border-white text-slate-700'}`} title={m.name}>
+                        {m.name.substring(0, 1)}
+                      </div>
+                    )
+                  })}
+                  {project.teamMembers.length > 3 && (
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold border-2 ${isDark ? 'bg-slate-800 border-[#151A23] text-white' : 'bg-slate-200 border-white text-slate-700'}`}>
+                      +{project.teamMembers.length - 3}
+                    </div>
+                  )}
+                  {project.teamMembers.length === 0 && <span className="text-xs text-slate-500 italic">No team</span>}
+                </div>
+
+                {/* Status Badge moved here since LOD is gone */}
+                <span className={`text-xs font-bold uppercase tracking-wider ${project.status === 'completed' ? 'text-[#FF5500]' :
+                  project.status === 'modeling' ? 'text-blue-500' :
                     'text-slate-500'
-                 }`}>
-                    {project.status}
-                 </span>
+                  }`}>
+                  {project.status}
+                </span>
               </div>
 
             </div>
