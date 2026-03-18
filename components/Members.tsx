@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Plus, Trash2, Briefcase, Edit2, Check } from 'lucide-react';
 import { Member, Project, Language, Theme, HistoryEntry } from '../types';
 import { translations } from '../translations';
@@ -36,6 +36,17 @@ export const Members: React.FC<MembersProps> = ({ members, setMembers, projects,
     setFormData({ id: '', name: '', role: '', projectIds: [] });
     setIsFormOpen(true);
   };
+
+  // Handle ESC key to exit form
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFormOpen) {
+        setIsFormOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFormOpen]);
 
   const handleOpenEdit = (member: Member) => {
     // Find all projects where this member is listed in teamMembers

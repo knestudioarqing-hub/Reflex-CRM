@@ -60,6 +60,17 @@ export const Calendar: React.FC<CalendarProps> = ({ lang, theme }) => {
     localStorage.setItem('REFLEX_CALENDAR_EVENTS', JSON.stringify(localEvents));
   }, [localEvents]);
 
+  // Handle ESC key to exit modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        setIsModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]);
+
   // --- INTEGRATION SIMULATION ---
   const simulateAuthWindow = (provider: 'Google' | 'Microsoft') => {
     return new Promise<void>((resolve) => {

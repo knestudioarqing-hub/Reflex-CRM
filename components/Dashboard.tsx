@@ -45,6 +45,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ projects, setProjects, mem
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
   const [showNotification, setShowNotification] = useState(false);
 
+  // Global ESC key handler for modals and active views
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (expandedImage) {
+          setExpandedImage(null);
+        } else if (isNewProjectModalOpen) {
+          setIsNewProjectModalOpen(false);
+        } else if (isReportModalOpen) {
+          setIsReportModalOpen(false);
+        } else if (selectedProject) {
+          setSelectedProject(null);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [expandedImage, isNewProjectModalOpen, isReportModalOpen, selectedProject]);
+
   const handlePaste = (e: React.ClipboardEvent) => {
     const items = e.clipboardData.items;
     for (let i = 0; i < items.length; i++) {

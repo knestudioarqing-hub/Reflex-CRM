@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Calendar, Layout, Users, History, Clock, Power, Search, Filter, X, Briefcase, CheckCircle, ArrowRight, Calculator } from 'lucide-react';
 import { Project, Member, Language, Theme, HistoryEntry } from '../types';
 import { translations } from '../translations';
@@ -38,6 +38,17 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
   const [currentProject, setCurrentProject] = useState<Project>(DEFAULT_PROJECT);
   const [activeTab, setActiveTab] = useState<'details' | 'history'>('details');
   const [historyFilters, setHistoryFilters] = useState({ search: '', start: '', end: '' });
+
+  // Handle ESC key to exit editing mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isEditing) {
+        setIsEditing(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isEditing]);
 
   const createHistoryEntry = (action: string, details: string): HistoryEntry => ({
     id: Date.now().toString(),
