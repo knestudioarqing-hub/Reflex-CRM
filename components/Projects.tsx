@@ -463,7 +463,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, setProjects, membe
 
   // --- LIST VIEW ---
   return (
-    <div className="space-y-8 animate-fade-in pb-20 max-w-8xl mx-auto">
+    <div className="space-y-8 animate-fade-in pb-20 w-full mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-end gap-4">
         <div>
           <h1 className={`text-4xl font-light mb-2 tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>{t.projects}</h1>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dock } from './components/Dock';
+import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { Projects } from './components/Projects';
 import { Members } from './components/Members';
@@ -111,7 +112,12 @@ const App: React.FC = () => {
         <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] transition-colors duration-700 ${isDark ? 'bg-blue-500/5' : 'bg-blue-500/10'}`} />
       </div>
 
-      <main className="w-full relative z-10 flex flex-col h-full overflow-hidden">
+      {/* Desktop Sidebar (Web Optimization) */}
+      <div className="hidden lg:block w-64 flex-shrink-0 z-20 relative shadow-2xl">
+        <Sidebar currentView={currentView} setCurrentView={setCurrentView} lang={lang} branding={branding} theme={theme} />
+      </div>
+
+      <main className="flex-1 min-w-0 relative z-10 flex flex-col h-full overflow-hidden">
         {/* Header - Transparent Background with Floating Elements */}
         <header className="flex justify-between items-center px-4 py-4 md:px-8 md:py-8 z-30 relative transition-all duration-300 flex-shrink-0">
 
@@ -136,13 +142,6 @@ const App: React.FC = () => {
                   }`}
               />
             </div>
-          </div>
-
-          {/* Center: Brand Name (Large Screens Only - Absolute Position) */}
-          <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-            <h1 className={`text-xl font-normal tracking-wide bg-clip-text text-transparent drop-shadow-sm select-none ${isDark ? 'bg-gradient-to-b from-white to-slate-400' : 'bg-gradient-to-b from-slate-900 to-slate-600'}`}>
-              {branding.companyName}
-            </h1>
           </div>
 
           {/* Right: Controls & Profile */}
@@ -171,7 +170,7 @@ const App: React.FC = () => {
 
             <div className={`h-10 w-[1px] mx-1 md:mx-2 hidden sm:block ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}></div>
 
-            <div className="flex items-center gap-3 pl-1 md:pl-2 cursor-pointer group">
+            <div className="flex items-center gap-3 pl-1 md:pl-2 cursor-pointer group lg:hidden">
               <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center border-2 transition-colors shadow-lg bg-[#FF5500] text-white ${isDark ? 'border-slate-700 group-hover:border-[#FF5500]' : 'border-slate-200 group-hover:border-[#FF5500]'}`}>
                 <User size={20} />
               </div>
@@ -185,8 +184,8 @@ const App: React.FC = () => {
         </header>
 
         {/* Content Area - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-32 custom-scrollbar">
-          <div className="w-full">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-32 lg:pb-8 custom-scrollbar">
+          <div className="w-full max-w-screen-2xl mx-auto">
             {currentView === 'dashboard' && <Dashboard projects={projects} setProjects={setProjects} members={members} lang={lang} theme={theme} />}
             {currentView === 'projects' && (
               <Projects projects={projects} setProjects={setProjects} members={members} lang={lang} theme={theme} />
@@ -215,13 +214,15 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Floating Dock */}
-        <Dock
-          currentView={currentView}
-          setCurrentView={setCurrentView}
-          lang={lang}
-          theme={theme}
-        />
+        {/* Floating Dock - Mobile/Tablet Only */}
+        <div className="lg:hidden">
+          <Dock
+            currentView={currentView}
+            setCurrentView={setCurrentView}
+            lang={lang}
+            theme={theme}
+          />
+        </div>
       </main>
     </div>
   );
