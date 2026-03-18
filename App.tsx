@@ -35,9 +35,9 @@ const App: React.FC = () => {
 
   // Initialize App & Load Data Immediately
   useEffect(() => {
-    const initializeApp = () => {
+    const initializeApp = async () => {
       // Load data directly (no key needed)
-      const savedData = loadUserData('local');
+      const savedData = await loadUserData('local');
 
       if (savedData) {
         setProjects(savedData.projects);
